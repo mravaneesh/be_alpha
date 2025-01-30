@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "156175441603",
+    "project_id": "firstproduct-d54aa",
+    "storage_bucket": "firstproduct-d54aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156175441603:android:d6294dd3f5a65f7463cc76",
+        "android_client_info": {
+          "package_name": "com.example.bealpha_"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRKKTp0zKvr7_Fjk65xDC-LEnBfnxnpoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
