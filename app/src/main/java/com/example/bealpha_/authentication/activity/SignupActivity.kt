@@ -14,13 +14,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.bealpha_.MainActivity
 import com.example.bealpha_.R
 import com.example.bealpha_.authentication.model.User
 import com.example.bealpha_.databinding.ActivitySignupBinding
+import com.example.utils.ProgressDialogUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -68,8 +68,8 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
-
     private fun signUpUser(name: String, username: String, email: String, password: String) {
+        ProgressDialogUtil.showProgressDialog(this@SignupActivity)
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -79,15 +79,18 @@ class SignupActivity : AppCompatActivity() {
                         db.collection("users").document(userId)
                             .set(user)
                             .addOnSuccessListener {
+                                ProgressDialogUtil.hideProgressDialog()
                                 Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             }
                             .addOnFailureListener {
+                                ProgressDialogUtil.hideProgressDialog()
                                 Toast.makeText(this, "Failed to save user data!", Toast.LENGTH_SHORT).show()
                             }
                     }
                 } else {
+                    ProgressDialogUtil.hideProgressDialog()
                     Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }

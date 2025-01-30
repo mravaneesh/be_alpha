@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.bealpha_.MainActivity
 import com.example.bealpha_.R
 import com.example.bealpha_.databinding.ActivityLoginBinding
+import com.example.utils.ProgressDialogUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -57,10 +58,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginUser(username: String, password: String) {
+        ProgressDialogUtil.showProgressDialog(this)
         db.collection("users")
             .whereEqualTo("username", username)
             .get()
             .addOnSuccessListener { result ->
+                ProgressDialogUtil.hideProgressDialog()
                 if (!result.isEmpty) {
                     val email = result.documents.firstOrNull()?.getString("email")
 
@@ -75,6 +78,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { exception ->
+                ProgressDialogUtil.hideProgressDialog()
                 Toast.makeText(this, "Failed to fetch username from Firestore.", Toast.LENGTH_SHORT).show()
             }
     }
@@ -82,6 +86,7 @@ class LoginActivity : AppCompatActivity() {
     private fun authenticateWithEmailAndPassword(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
+                ProgressDialogUtil.hideProgressDialog()
                 if (task.isSuccessful) {
                     // If login is successful, move to the next screen
                     val user = auth.currentUser
