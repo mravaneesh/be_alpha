@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Category Spinner or Buttons (Habit / Track / Other) -->
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- EditText for custom input -->
+    <EditText
+        android:id="@+id/et_goal_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Goal Name"
+        android:inputType="text" />
+
+    <!-- Frequency selection (Daily or Weekly) -->
+    <Spinner
+        android:id="@+id/spinner_frequency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Add Button -->
+    <Button
+        android:id="@+id/btn_add_goal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Goal" />
+</LinearLayout>

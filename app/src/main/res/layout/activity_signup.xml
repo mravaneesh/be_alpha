@@ -17,6 +17,8 @@
         android:src="@drawable/back_arrow"
         android:layout_margin="10dp"
         android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
         android:background="@drawable/ripple_back_arrow"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

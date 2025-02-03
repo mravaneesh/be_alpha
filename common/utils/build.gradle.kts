@@ -35,6 +35,9 @@ android {
 dependencies {
 
     implementation(LottieAnimations.lottieAnimations)
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
+    implementation("com.google.firebase:firebase-firestore-ktx") // Firestore for user data
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
 
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -43,6 +45,8 @@ android {
 dependencies {
     implementation(LottieAnimations.lottieAnimations)
 
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -61,8 +65,15 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+
     implementation(project(":home:home_ui"))
-    implementation(project(":home:home_data"))
-    implementation(project(":home:home_domain"))
+    implementation(project(":goal:goal_ui"))
+    implementation(project(":profile:profile_ui"))
+    implementation(project(":create:create_ui"))
     implementation(project(":common:utils"))
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

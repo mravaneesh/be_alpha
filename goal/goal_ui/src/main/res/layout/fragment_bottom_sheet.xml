@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+
+    <!-- Category Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Category"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingBottom="8dp"/>
+
+    <Spinner
+        android:id="@+id/categorySpinner"
+        android:layout_width="match_parent"
+        android:padding="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/customCategoryInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Custom Category"
+        android:visibility="gone"
+        android:inputType="text"/>
+
+    <Button
+        android:id="@+id/btn_add_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Category"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"/>
+
+
+    <!-- Goal Selection -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose a Goal"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/goalSpinner"
+        android:layout_width="match_parent"
+        android:padding="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Custom Goal Input (Hidden Initially) -->
+    <EditText
+        android:id="@+id/customGoalInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Custom Goal"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btn_add_custom_goal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Category"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Frequency Selector -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tracking Frequency"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/frequencySpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Add Goal Button -->
+    <Button
+        android:id="@+id/btn_add_goal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Goal"/>
+</LinearLayout>

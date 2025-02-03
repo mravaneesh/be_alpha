@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,11 +23,15 @@ class MainActivity : AppCompatActivity() {
         if (auth.currentUser == null) {
             Log.d("AuthCheck", "User is NOT logged in")
             // User is NOT logged in, redirect to LoginActivity
-            startActivity(Intent(this, IntroActivity::class.java))
+            val intent = Intent(this, IntroActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
             finish()  // Prevent user from going back to this activity
         } else {
             Log.d("AuthCheck", "User is logged in: ${auth.currentUser?.uid}")
-            startActivity(Intent(this, HostActivity::class.java))
+            val intent = Intent(this, HostActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
             finish()  // Prevent user from going back to this activity
         }
     }
