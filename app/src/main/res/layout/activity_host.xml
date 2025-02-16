@@ -1,116 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/general_bg"
+    android:orientation="vertical"
     tools:context=".HostActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="60dp"
-            android:contentDescription="@string/logo_text"
-            android:padding="3dp"
-            android:src="@drawable/logo_text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/ivMoreOptions"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@string/more_options"
-            android:focusable="true"
-            android:src="@drawable/ic_more_option"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/custom_bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+        android:layout_weight="1"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
 
-    <!-- Custom Bottom Navigation -->
-    <LinearLayout
-        android:id="@+id/custom_bottom_navigation"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:elevation="10dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/fragment_container"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <!-- First Button (Home) -->
-        <ImageView
-            android:id="@+id/nav_home"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:contentDescription="Home Icon"
-            android:focusable="true"
-            android:src="@drawable/ic_home" />
-
-        <!-- Second Button (Search) -->
-        <ImageView
-            android:id="@+id/nav_goal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:contentDescription="Goal Icon"
-            android:focusable="true"
-            android:src="@drawable/ic_goal" />
-
-        <!-- Third Button (Notifications) -->
-        <ImageView
-            android:id="@+id/nav_explore"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:contentDescription="Explore Icon"
-            android:focusable="true"
-            android:src="@drawable/ic_explore" />
-        <!-- Third Button (Notifications) -->
-        <ImageView
-            android:id="@+id/nav_profile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:contentDescription="Profile Icon"
-            android:focusable="true"
-            android:src="@drawable/ic_profile" />
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_gravity="bottom"
+        app:elevation="10dp"
+        android:background="@color/fragment_bg"
+        app:menu="@menu/bottom_nav_menu"/>
+</LinearLayout>

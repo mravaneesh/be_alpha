@@ -13,4 +13,5 @@ class GoalRepositoryImpl @Inject constructor
     override suspend fun getGoals(userId: String,category: String): List<Goal> {
         return dataSource.getGoals(userId,category).map { it.toDomainGoal() }
     }
+
 }

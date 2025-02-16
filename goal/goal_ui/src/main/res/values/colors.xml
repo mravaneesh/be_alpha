@@ -6,8 +6,24 @@
     <color name="button_primary">#49c3dc</color>
     <color name="dark_contrast">#1A3A4A</color>
     <color name="success">#2a9D8F</color>
+    <color name="et_bg">#208fa4c4</color>
     <color name="error">#e76f51</color>
     <color name="link_color">#007BFF</color>
     <color name="button_secondary">#BDBDBD</color>
+    <color name="button_gray">#25000000</color>
     <color name="cool_gray">#B0BEC5</color>
+    <color name="fragment_bg">#F1F1F3</color>
+    <color name="inactive_button">#A6A6A9</color>
+    <color name="active_button">#FCFCFF</color>
+    <color name="transparent">@android:color/transparent</color>
+
+    <color name="option1">#6049c3dc</color>
+    <color name="color1">#15FF5733</color>
+    <color name="color2">#1533FF57</color>
+    <color name="color3">#153357FF</color>
+    <color name="color4">#15FF33A1</color>
+    <color name="color5">#15A133FF</color>
+    <color name="color6">#1533FFF5</color>
+    <color name="color7">#15FFC733</color>
+
 </resources>

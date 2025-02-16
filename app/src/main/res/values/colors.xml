@@ -9,5 +9,6 @@
     <color name="error">#e76f51</color>
     <color name="link_color">#007BFF</color>
     <color name="button_secondary">#BDBDBD</color>
+    <color name="general_bg">#F1F1F3</color>
     <color name="cool_gray">#B0BEC5</color>
 </resources>

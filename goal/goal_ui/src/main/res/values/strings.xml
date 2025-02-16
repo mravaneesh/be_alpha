@@ -4,4 +4,13 @@
     <string name="all">All</string>
     <string name="habits">Habits</string>
     <string name="track">Track</string>
+    <string name="select_category">Select Category</string>
+    <string name="enter_category">Enter Category</string>
+    <string name="add_category">Add Category</string>
+    <string name="choose_goal">Choose Goal</string>
+    <string name="enter_goal">Enter Goal</string>
+    <string name="add">Add</string>
+    <string name="choose_a_color">Choose a Color</string>
+    <string name="reminder">Reminder</string>
+    <string name="add_habit">Add Habit</string>
 </resources>

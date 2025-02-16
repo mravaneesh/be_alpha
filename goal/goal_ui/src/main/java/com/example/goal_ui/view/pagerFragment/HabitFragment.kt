@@ -5,19 +5,31 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.goal_ui.adapter.GoalAdapter
+import com.example.goal_ui.adapter.HabitGoalAdapter
 import com.example.goal_ui.databinding.FragmentHabitBinding
 import com.example.goal_ui.viewmodel.GoalViewModel
+import com.example.utils.CommonFun
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class HabitFragment : Fragment() {
 
+    private val userId = CommonFun.getCurrentUserId()!!
+    private val db = FirebaseFirestore.getInstance()
     private lateinit var binding: FragmentHabitBinding
-    private val viewModel: GoalViewModel by activityViewModels() // Shared ViewModel
-    private val goalAdapter = GoalAdapter()
+    private val viewModel: GoalViewModel by  activityViewModels() // Shared ViewModel
+    private val habitGoalAdapter = HabitGoalAdapter()
+
+    override fun onResume() {
+        super.onResume()
+        setupRecyclerView()
+        fetchHabitGoals()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,33 +39,37 @@ class HabitFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupRecyclerView()
+
+    private fun fetchHabitGoals() {
+        viewModel.loadHabitGoals(userId,"Habit",requireContext())
         observeData()
     }
 
     private fun setupRecyclerView() {
         binding.habitRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = goalAdapter
+            adapter = habitGoalAdapter
         }
     }
 
     private fun observeData() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.goals.collectLatest { state ->
-                if (state.isLoading) {
-                    // Show loading state
-                } else if (state.error.isNotBlank()) {
-                    // Handle error
-                } else {
-                    val trackGoals = state.goals.filter { it.category == "Track" }
-                    goalAdapter.submitList(trackGoals)
+        lifecycleScope.launch{
+            viewModel.habitGoals.collectLatest { state ->
+                when {
+                    state.isLoading -> {
+                        Toast.makeText(requireContext(), "Loading Habits...", Toast.LENGTH_SHORT).show()
+                    }
+                    state.error.isNotBlank() -> {
+                        Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        state.goals.let { goals ->
+                            habitGoalAdapter.submitList(goals) // Update RecyclerView with Habit goals
+                        }
+                    }
                 }
             }
         }
     }
-
 
 }

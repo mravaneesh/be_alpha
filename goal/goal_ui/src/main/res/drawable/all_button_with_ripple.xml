@@ -5,16 +5,16 @@
     <!-- Background of your button -->
     <item android:id="@android:id/mask">
         <shape>
-            <solid android:color="@color/button_secondary" /> <!-- Your custom button color -->
-            <corners android:radius="10dp" /> <!-- Rounded corners -->
+            <solid android:color="@color/button_primary"/> <!-- Your custom button color -->
+            <corners android:radius="20dp" /> <!-- Rounded corners -->
         </shape>
     </item>
 
     <!-- The background that will appear under the ripple -->
     <item>
         <shape>
-            <solid android:color="@color/button_secondary" /> <!-- Same custom color -->
-            <corners android:radius="10dp" /> <!-- Same rounded corners -->
+            <solid android:color="#4049c3dc"/> <!-- Same custom color -->
+            <corners android:radius="20dp" /> <!-- Same rounded corners -->
         </shape>
     </item>
 </ripple>

@@ -3,7 +3,10 @@ package com.example.goal_data.model
 data class GoalDto (
     val id: String = "",
     val category: String = "",
-    val name: String = "",
-    val frequency: String = "",
-    val userId: String = "" // To associate goal with a user
+    val title: String = "",
+    val description: String = "",
+    val frequency: String = "Daily",
+    val selectedDays:Int = 7,
+    val color: Long =0xFFFFFFFF,
+    val reminder: String = "",
 )

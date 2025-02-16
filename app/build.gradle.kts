@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.6")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.6")
     implementation(LottieAnimations.lottieAnimations)
 
     implementation("com.google.dagger:hilt-android:2.51.1")
@@ -67,8 +69,8 @@ dependencies {
 
 
     implementation(project(":home:home_ui"))
-    implementation(project(":goal:goal_ui"))
     implementation(project(":profile:profile_ui"))
+    implementation(project(":goal:goal_ui"))
     implementation(project(":create:create_ui"))
     implementation(project(":common:utils"))
 }

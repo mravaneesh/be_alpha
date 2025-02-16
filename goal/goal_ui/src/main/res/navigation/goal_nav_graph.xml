@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/goal_nav_graph"
+    app:startDestination="@id/goalFragment">
+
+    <fragment
+        android:id="@+id/goalFragment"
+        android:name="com.example.goal_ui.view.GoalFragment"
+        android:label="Goal"
+        tools:layout="@layout/fragment_goal">
+        <action
+            android:id="@+id/action_goalFragment_to_addGoalFragment"
+            app:destination="@id/addGoalFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addGoalFragment"
+        android:name="com.example.goal_ui.view.addGoal.AddGoalFragment"
+        android:label="Add Goal"
+        tools:layout="@layout/fragment_add_goal" />
+</navigation>

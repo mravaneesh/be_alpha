@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.goal_domain.model.Goal
-import com.example.goal_ui.databinding.ItemGoalBinding
+import com.example.goal_ui.databinding.TrackItemGoalBinding
 
-class GoalAdapter : ListAdapter<Goal, GoalAdapter.GoalViewHolder>(GoalDiffCallback()) {
+class TrackGoalAdapter : ListAdapter<Goal, TrackGoalAdapter.GoalViewHolder>(GoalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GoalViewHolder {
-        val binding = ItemGoalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = TrackItemGoalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return GoalViewHolder(binding)
     }
 
@@ -20,14 +20,13 @@ class GoalAdapter : ListAdapter<Goal, GoalAdapter.GoalViewHolder>(GoalDiffCallba
         holder.bind(goal)
     }
 
-    inner class GoalViewHolder(private val binding: ItemGoalBinding) : RecyclerView.ViewHolder(binding.root) {
-
+    inner class GoalViewHolder(private val binding: TrackItemGoalBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(goal: Goal) {
-            binding.tvGoalName.text = goal.name // Bind goal title
+            binding.tvGoalName.text = goal.title
         }
     }
 
-    // DiffUtil callback to efficiently compare items
+
     class GoalDiffCallback : DiffUtil.ItemCallback<Goal>() {
         override fun areItemsTheSame(oldItem: Goal, newItem: Goal): Boolean {
             return oldItem.id == newItem.id  // Assuming Goal has a unique 'id' field

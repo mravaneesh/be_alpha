@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight"> <!-- Ripple color (default highlight) -->
+
+    <!-- The mask part of the ripple (optional) -->
+    <item android:id="@android:id/mask">
+        <shape>
+            <solid android:color="?attr/colorPrimary" /> <!-- Mask color -->
+            <corners android:radius="16dp" /> <!-- Circle-like mask, adjust if you want square or other shapes -->
+        </shape>
+    </item>
+
+    <!-- Background of the image (to allow the ripple effect) -->
+    <item>
+        <shape>
+            <solid android:color="@color/fragment_bg" /> <!-- Transparent background to let ripple show -->
+        </shape>
+    </item>
+</ripple>

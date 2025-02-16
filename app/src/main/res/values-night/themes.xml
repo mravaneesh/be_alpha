@@ -4,5 +4,6 @@
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
         <item name="popupMenuBackground">@drawable/bg_popup_menu</item>
+        <item name="android:windowBackground">@color/general_bg</item>
     </style>
 </resources>

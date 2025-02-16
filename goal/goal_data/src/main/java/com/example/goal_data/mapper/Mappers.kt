@@ -7,7 +7,11 @@ fun GoalDto.toDomainGoal():Goal{
     return Goal(
         id = this.id,
         category = this.category,
-        name = this.name,
-        frequency = this.frequency
+        title = this.title,
+        description = this.description,
+        frequency = this.frequency,
+        selectedDays = this.selectedDays,
+        color = this.color.toInt(),
+        reminder = this.reminder
     )
 }
