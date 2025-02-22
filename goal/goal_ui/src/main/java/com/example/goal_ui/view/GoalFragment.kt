@@ -9,6 +9,7 @@ import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
 import com.example.goal_ui.adapter.GoalPagerAdapter
 import com.example.goal_ui.databinding.FragmentGoalBinding
+import com.example.goal_ui.view.addGoal.AddTrackGoalBottomSheetFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,8 +25,15 @@ class GoalFragment : Fragment() {
     ): View {
         binding = FragmentGoalBinding.inflate(inflater,container,false)
         setupViewPagerAndTabs()
+
         binding.ivMoreOptions.setOnClickListener {
+            val currentFragment = binding.viewPager.currentItem
+            if(currentFragment == 0)
             findNavController().navigate(R.id.action_goalFragment_to_addGoalFragment)
+            else{
+                val bottomSheet = AddTrackGoalBottomSheetFragment()
+                bottomSheet.show(parentFragmentManager, bottomSheet.tag)
+            }
         }
         return binding.root
     }

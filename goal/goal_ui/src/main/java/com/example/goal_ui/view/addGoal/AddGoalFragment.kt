@@ -1,8 +1,6 @@
 package com.example.goal_ui.view.addGoal
 
-import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
@@ -18,11 +17,13 @@ import com.example.goal_ui.databinding.FragmentAddGoalBinding
 import com.example.utils.CommonFun
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class AddGoalFragment : Fragment() {
 
-    private var timesPerWeek = 1
+    private var timesPerWeek = 7
     private var frequency = "Daily"
     private var category = "Habit"
     private var _binding: FragmentAddGoalBinding? = null
@@ -39,13 +40,10 @@ class AddGoalFragment : Fragment() {
         setupViewmodel()
 
         viewModel.setColor(ContextCompat.getColor(requireContext(),R.color.color1))
-        viewModel.selectedColor.observe(viewLifecycleOwner){ selectedColor ->
-            val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.bg_color_picker) as GradientDrawable
-            drawable.setColor(selectedColor)  // Set dynamic color
-
-            drawable.setStroke(6, Color.WHITE )
-
-            binding.colorPreview.background = drawable
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.selectedColor.observe(viewLifecycleOwner) { selectedColor ->
+                binding.colorPreview.setBackgroundColor(selectedColor)
+            }
         }
         binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
         binding.tvNumber.text = timesPerWeek.toString()
@@ -71,11 +69,13 @@ class AddGoalFragment : Fragment() {
                 binding.tvNumber.text = timesPerWeek.toString()
             }
         }
-
         binding.btnDecrease.setOnClickListener {
             if (timesPerWeek > 1) {
                 timesPerWeek--
-                binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
+                if(timesPerWeek == 1)
+                    binding.tvTimesPerWeek.text = "$timesPerWeek time a week"
+                else
+                    binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
                 binding.tvNumber.text = timesPerWeek.toString()
             }
         }

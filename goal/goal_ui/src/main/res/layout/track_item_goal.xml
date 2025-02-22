@@ -1,18 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="100dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="12dp"
     android:padding="16dp"
-    android:gravity="center"
-    android:background="@drawable/all_button_with_ripple"
-    android:layout_weight="1">
+    android:gravity="center_horizontal"
+    android:background="@drawable/bg_general">
 
     <TextView
         android:id="@+id/tv_goal_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Goal Name"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textSize="18sp"
-        android:textStyle="bold" />
-</LinearLayout>
+        style="@style/ToolbarTitleStyle"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tv_goal_tracker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0/10"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <ImageButton
+        android:id="@+id/btn_add_progress"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="centerInside"
+        android:background="@drawable/bg_color_picker"
+        android:src="@drawable/baseline_add_24"
+        app:tint="@color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>

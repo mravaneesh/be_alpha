@@ -9,4 +9,6 @@ data class GoalDto (
     val selectedDays:Int = 7,
     val color: Long =0xFFFFFFFF,
     val reminder: String = "",
+    val target: String = "",
+    val unit: String = ""
 )

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false">
+
+    <!-- Scroll Handle (Top Horizontal Line) -->
+    <View
+        android:layout_width="60dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="10dp"
+        android:alpha="0.5"/>
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/track_goal"
+        android:fontFamily="@font/raleway_regular"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:layout_margin="8dp"
+        android:padding="8dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
+
+    <EditText
+        android:id="@+id/etGoalTitle"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:hint="@string/title"
+        android:background="@drawable/bg_tab_select"
+        android:backgroundTint="@color/et_bg"
+        android:padding="16dp"/>
+
+    <EditText
+        android:id="@+id/etGoalDescription"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:hint="@string/description"
+        android:background="@drawable/bg_tab_select"
+        android:backgroundTint="@color/et_bg"
+        android:padding="16dp"
+        android:layout_margin="10dp"/>
+
+    <!-- Target Input with Unit beside it -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_tab_select"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:id="@+id/tvSetTarget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set_target"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:padding="10dp"/>
+
+        <EditText
+            android:id="@+id/etTarget"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="e.g. 1600"
+            android:background="@drawable/bg_tab_select"
+            android:backgroundTint="@color/et_bg"
+            android:padding="16dp"
+            android:layout_margin="10dp"
+            android:inputType="numberDecimal"/>
+
+        <EditText
+            android:id="@+id/etUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="cal"
+            android:background="@drawable/bg_tab_select"
+            android:backgroundTint="@color/et_bg"
+            android:padding="16dp"
+            android:layout_margin="10dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_tab_select"
+        android:layout_margin="10dp"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvColorLabel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/choose_a_color"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:padding="10dp"
+            android:layout_margin="10dp"/>
+
+        <View
+            android:id="@+id/colorPreview"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_general"
+            android:backgroundTint="@color/button_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvColorPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="16dp"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        android:scrollbars="none"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+    <!-- Save Button -->
+    <TextView
+        android:id="@+id/btnSaveGoal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:text="Save"
+        android:background="@drawable/bg_tab_select"
+        android:backgroundTint="@color/button_primary"
+        android:layout_margin="10dp" />
+</LinearLayout>

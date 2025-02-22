@@ -13,4 +13,10 @@
     <string name="choose_a_color">Choose a Color</string>
     <string name="reminder">Reminder</string>
     <string name="add_habit">Add Habit</string>
+    <string name="add_track_goals">Add Track Goals</string>
+    <string name="set_target">Set Target</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="track_goal">Track Goal</string>
 </resources>

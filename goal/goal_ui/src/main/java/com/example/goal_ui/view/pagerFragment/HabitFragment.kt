@@ -39,7 +39,6 @@ class HabitFragment : Fragment() {
         return binding.root
     }
 
-
     private fun fetchHabitGoals() {
         viewModel.loadHabitGoals(userId,"Habit",requireContext())
         observeData()

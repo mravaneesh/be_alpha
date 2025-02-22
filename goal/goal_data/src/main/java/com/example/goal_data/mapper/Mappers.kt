@@ -12,6 +12,8 @@ fun GoalDto.toDomainGoal():Goal{
         frequency = this.frequency,
         selectedDays = this.selectedDays,
         color = this.color.toInt(),
-        reminder = this.reminder
+        reminder = this.reminder,
+        target = this.target,
+        unit = this.unit
     )
 }

@@ -38,6 +38,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
+            <!-- Title Input -->
             <EditText
                 android:id="@+id/etGoalTitle"
                 android:layout_width="match_parent"
@@ -46,7 +47,7 @@
                 android:padding="16dp"
                 android:backgroundTint="@color/et_bg"
                 android:background="@drawable/bg_tab_select"
-                android:hint="Title" />
+                android:hint="@string/title" />
 
             <!-- Description Input -->
             <EditText
@@ -57,7 +58,7 @@
                 android:padding="16dp"
                 android:backgroundTint="@color/et_bg"
                 android:background="@drawable/bg_tab_select"
-                android:hint="Description" />
+                android:hint="@string/description" />
 
             <!-- Color Selection -->
             <LinearLayout
@@ -85,16 +86,18 @@
                     android:layout_margin="10dp"
                     android:layout_marginStart="10dp"
                     android:background="@drawable/bg_general"
-                    android:backgroundTint="@color/option1"
+                    android:backgroundTint="@color/button_primary"
                     android:clickable="true"
                     android:focusable="true"
                     android:layout_gravity="center_vertical" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/frequency_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:visibility="visible"
                 android:background="@drawable/bg_tab_select"
                 android:layout_margin="10dp">
 
@@ -260,7 +263,7 @@
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@color/white"
-        android:layout_margin="16dp"
+        android:layout_margin="26dp"
         app:backgroundTint="@color/button_primary"
         android:text="Save"
         app:layout_anchor="@id/scrollView"
