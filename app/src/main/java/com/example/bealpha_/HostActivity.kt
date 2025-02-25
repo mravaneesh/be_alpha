@@ -39,11 +39,26 @@ class HostActivity : AppCompatActivity() {
         setContentView(binding.root)
         applyWindowInsets()
 
+        setupNavigation(savedInstanceState)
+    }
+
+    private fun setupNavigation(savedInstanceState: Bundle?)
+    {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
         bottomNavigationView = binding.bottomNavigation
+
+        if (savedInstanceState == null) {
+            val isUserLoggedIn = FirebaseAuth.getInstance().currentUser != null
+            val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
+            navGraph.setStartDestination(
+                if (isUserLoggedIn) R.id.home_nav_graph else com.example.authentication.R.id.auth_nav_graph
+            )
+            navController.graph = navGraph
+        }
         bottomNavigationView.setupWithNavController(navController)
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
             bottomNavigationView.visibility = if (destination.id in startDestinations) {
                 View.VISIBLE
@@ -57,7 +72,7 @@ class HostActivity : AppCompatActivity() {
     {
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView.rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right,0)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right,systemBars.bottom)
             insets
         }
     }

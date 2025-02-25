@@ -16,11 +16,6 @@ import javax.inject.Singleton
 @Module
 object GoalDataModule {
     @Provides
-    fun provideFirestore(): FirebaseFirestore {
-        return FirebaseFirestore.getInstance()
-    }
-
-    @Provides
     fun provideGoalRemoteDataSource(firestore: FirebaseFirestore): GoalRemoteDataSource {
         return GoalRemoteDataSource(firestore)
     }

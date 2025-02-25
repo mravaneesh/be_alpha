@@ -16,25 +16,15 @@
         <activity
             android:name=".HostActivity"
             android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
-        <activity
-            android:name=".authentication.activity.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".authentication.activity.SignupActivity"
-            android:exported="false" />
-        <activity
-            android:name=".authentication.activity.IntroActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+        </activity>
     </application>
-
 </manifest>

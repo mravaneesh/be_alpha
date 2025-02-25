@@ -1,6 +1,4 @@
 <resources>
-    <string name="sign_up">Sign Up</string>
-    <string name="already_have_an_account">Already have an account?</string>
-    <string name="log_in">Log In</string>
-    <string name="logo_text">logo_text</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

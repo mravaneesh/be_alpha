@@ -1,8 +1,15 @@
 package com.example.utils
 
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 
@@ -35,14 +42,18 @@ object CommonFun {
         return formatTime(hour,minute)
     }
 
+    fun deepLinkNav(destination: String, navController: NavController) {
+        val deepLinkRequest = NavDeepLinkRequest.Builder
+            .fromUri(destination.toUri())
+            .build()
+
+        navController.navigate(deepLinkRequest)
+    }
+
+
     private fun formatTime(hour: Int, minute: Int): String {
         val formattedHour = if (hour > 12) hour - 12 else hour
         val amPm = if (hour >= 12) "PM" else "AM"
         return String.format("%02d:%02d %s", formattedHour, minute, amPm)
     }
-
-
-
-
-
 }

@@ -2,7 +2,6 @@ package com.example.goal_domain.usecase
 
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.repository.GoalRepository
-import com.example.utils.CommonFun
 import com.example.utils.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

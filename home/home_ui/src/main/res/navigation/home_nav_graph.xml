@@ -8,13 +8,9 @@
         android:id="@+id/homeFragment"
         android:name="com.example.home_ui.view.HomeFragment"
         android:label="Home">
-        <action
-            android:id="@+id/action_homeFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-    </fragment>
 
-    <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.example.home_ui.view.SettingsFragment"/>
+        <deepLink
+            app:uri="android-app://com.example.bealpha_/homeFragment"/>
+    </fragment>
 
 </navigation>

@@ -5,5 +5,20 @@
     app:startDestination="@id/profileFragment">
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.profile_ui.ProfileFragment"/>
+        android:name="com.example.profile_ui.view.ProfileFragment">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.profile_ui.view.editProfile.EditProfileFragment"/>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.profile_ui.view.SettingsFragment"/>
 </navigation>

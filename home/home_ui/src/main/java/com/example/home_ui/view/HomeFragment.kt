@@ -17,11 +17,6 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
-        binding.ivMoreOptions.setOnClickListener {
-
-            findNavController().navigate(R.id.action_homeFragment_to_settingsFragment)
-        }
         return binding.root
     }
 }

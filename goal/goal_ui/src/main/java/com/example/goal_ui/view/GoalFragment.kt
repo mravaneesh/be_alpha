@@ -18,7 +18,6 @@ class GoalFragment : Fragment() {
     private lateinit var binding: FragmentGoalBinding
     private lateinit var adapter: GoalPagerAdapter
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
