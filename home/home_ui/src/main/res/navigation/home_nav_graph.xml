@@ -10,7 +10,7 @@
         android:label="Home">
 
         <deepLink
-            app:uri="android-app://com.example.bealpha_/homeFragment"/>
+            app:uri="bealpha://app/homeFragment"/>
     </fragment>
 
 </navigation>

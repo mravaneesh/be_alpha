@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.utils.R
 import com.example.authentication.databinding.FragmentSignupBinding
@@ -33,7 +34,7 @@ class SignupFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSignupBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
@@ -57,13 +58,16 @@ class SignupFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            binding.toolbar.setNavigationOnClickListener {
+
+            }
             signUpUser(name, username, email, password)
         }
 
     }
 
     private fun signUpUser(name: String, username: String, email: String, password: String) {
-        ProgressDialogUtil.showProgressDialog(requireActivity())
+        setLoadingState()
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -73,18 +77,16 @@ class SignupFragment : Fragment() {
                         db.collection("users").document(userId)
                             .set(user)
                             .addOnSuccessListener {
-                                ProgressDialogUtil.hideProgressDialog()
-                                val navController = findNavController()
-                                CommonFun.deepLinkNav("android-app://com.example.bealpha_/homeFragment",navController)
-                                Toast.makeText(requireContext(), "Account created successfully!", Toast.LENGTH_SHORT).show()
+                                setNormalState()
+                                CommonFun.deepLinkNav("homeFragment",requireContext())
                             }
                             .addOnFailureListener {
-                                ProgressDialogUtil.hideProgressDialog()
+                                setNormalState()
                                 Toast.makeText(requireContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show()
                             }
                     }
                 } else {
-                    ProgressDialogUtil.hideProgressDialog()
+                    setNormalState()
                     Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -149,5 +151,22 @@ class SignupFragment : Fragment() {
             etPassword.setSelection(etPassword.text.length)
             isPasswordVisible = !isPasswordVisible
         }
+    }
+
+    private fun setLoadingState() {
+        binding.btnSignup.visibility = View.INVISIBLE  // Hide button text
+        binding.lottieProgress.visibility = View.VISIBLE // Show Lottie animation
+        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
+        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
+        binding.etName.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
+        binding.etEmail.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
+    }
+    private fun setNormalState() {
+        binding.btnSignup.visibility = View.VISIBLE  // Show button text
+        binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
+        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))  // Reset text color
+        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        binding.etName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        binding.etEmail.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
     }
 }

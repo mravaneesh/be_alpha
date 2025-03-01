@@ -17,7 +17,7 @@
             android:id="@+id/action_introFragment_to_signupFragment"
             app:destination="@id/signupFragment" />
         <deepLink
-            app:uri="android-app://com.example.bealpha_/introFragment"/>
+            app:uri="bealpha://app/introFragment"/>
     </fragment>
     <fragment
         android:id="@+id/loginFragment"

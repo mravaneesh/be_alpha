@@ -1,10 +1,12 @@
 package com.example.profile_ui.viewmodel
 
 import android.content.Context
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.profile_domain.usecase.GetProfileUseCase
+import com.example.profile_ui.databinding.FragmentProfileBinding
 import com.example.profile_ui.state.ProfileState
 import com.example.utils.ProgressDialogUtil
 import com.example.utils.Resource
@@ -23,20 +25,18 @@ class ProfileViewModel@Inject constructor(
     private val _profile = MutableStateFlow(ProfileState())
     val profile: StateFlow<ProfileState> = _profile
 
-    fun loadProfile(userId: String, context: Context) {
+    fun loadProfile(userId: String) {
         getProfileUseCase(userId)
             .onEach { resource ->
                 when (resource) {
                     is Resource.Loading -> {
-                        ProgressDialogUtil.showProgressDialog(context)
+                        _profile.value = ProfileState(isLoading = true)
                     }
                     is Resource.Success -> {
-                        ProgressDialogUtil.hideProgressDialog()
                         _profile.value = ProfileState(profile = resource.data)
                     }
                     is Resource.Error -> {
-                        ProgressDialogUtil.hideProgressDialog()
-                        _profile.value = ProfileState(error = resource.message ?: "Error loading profile")
+                        _profile.value = ProfileState(error = resource.message)
                     }
                 }
             }

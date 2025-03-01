@@ -1,8 +1,10 @@
 package com.example.bealpha_
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +14,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.bealpha_.databinding.ActivityHostBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +23,6 @@ class HostActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHostBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var navController: NavController
-    private lateinit var bottomNavigationView: BottomNavigationView
 
     private val startDestinations = setOf(
         com.example.goal_ui.R.id.goalFragment,
@@ -42,14 +42,16 @@ class HostActivity : AppCompatActivity() {
         setupNavigation(savedInstanceState)
     }
 
-    private fun setupNavigation(savedInstanceState: Bundle?)
-    {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        navController.handleDeepLink(intent)
+    }
+    private fun setupNavigation(savedInstanceState: Bundle?) {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        bottomNavigationView = binding.bottomNavigation
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !navController.handleDeepLink(intent)) {
             val isUserLoggedIn = FirebaseAuth.getInstance().currentUser != null
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
             navGraph.setStartDestination(
@@ -57,16 +59,18 @@ class HostActivity : AppCompatActivity() {
             )
             navController.graph = navGraph
         }
-        bottomNavigationView.setupWithNavController(navController)
+
+        binding.bottomNavigation.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            bottomNavigationView.visibility = if (destination.id in startDestinations) {
+            binding.bottomNavigation.visibility = if (destination.id in startDestinations) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
         }
     }
+
 
     private fun ComponentActivity.applyWindowInsets()
     {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
@@ -9,26 +9,31 @@
     tools:context=".view.LoginFragment">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/general_bg">
+        android:background="@color/general_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/general_bg"
             app:layout_collapseMode="pin"
             app:navigationIcon="@drawable/back_arrow"
             app:title="Log In"
-            app:titleTextAppearance="@style/ToolbarTitleStyle"
-            android:background="@color/general_bg"/>
+            app:titleTextAppearance="@style/ToolbarTitleStyle" />
     </com.google.android.material.appbar.AppBarLayout>
 
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -37,7 +42,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="100dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -110,20 +114,31 @@
         android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginHorizontal="24dp"
-        android:text="@string/log_in"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="@color/white"
+        android:background="@drawable/button_with_ripple"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
         android:gravity="center"
         android:padding="10dp"
-        android:background="@drawable/button_with_ripple"
-        android:elevation="10dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_marginBottom="24dp"
-        app:layout_anchor="@id/scrollView"
-        app:layout_anchorGravity="bottom"/>
+        android:layout_marginTop="40dp"
+        android:text="@string/log_in"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/scrollView" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieProgress"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/scrollView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

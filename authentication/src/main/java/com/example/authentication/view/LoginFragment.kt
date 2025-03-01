@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.fragment.findNavController
 import com.example.utils.R
@@ -55,25 +56,26 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUser(username: String, password: String) {
-        ProgressDialogUtil.showProgressDialog(requireContext())
+        setLoadingState()
         db.collection("users")
             .whereEqualTo("username", username)
             .get()
             .addOnSuccessListener { result ->
-                ProgressDialogUtil.hideProgressDialog()
                 if (!result.isEmpty) {
                     val email = result.documents.firstOrNull()?.getString("email")
                     if (email != null) {
                         authenticateWithEmailAndPassword(email, password)
                     } else {
+                        setNormalState()
                         Toast.makeText(requireContext(), "Username does not exist.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
+                    setNormalState()
                     Toast.makeText(requireContext(), "Username not found in the database.", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
-                ProgressDialogUtil.hideProgressDialog()
+                setNormalState()
                 Toast.makeText(requireContext(), "Failed to fetch username from Firestore.", Toast.LENGTH_SHORT).show()
             }
     }
@@ -81,12 +83,11 @@ class LoginFragment : Fragment() {
     private fun authenticateWithEmailAndPassword(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
-                ProgressDialogUtil.hideProgressDialog()
+                setNormalState()
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null) {
-                        val navController = findNavController()
-                        CommonFun.deepLinkNav("android-app://com.example.bealpha_/homeFragment",navController)
+                        CommonFun.deepLinkNav("homeFragment",requireContext())
                     }
                 } else {
                     // If sign-in fails, show an error message
@@ -109,5 +110,19 @@ class LoginFragment : Fragment() {
             etPassword.setSelection(etPassword.text.length)
             isPasswordVisible = !isPasswordVisible
         }
+    }
+
+    private fun setLoadingState() {
+        binding.btnLogin.visibility = View.INVISIBLE  // Hide button text
+        binding.lottieProgress.visibility = View.VISIBLE // Show Lottie animation
+        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
+        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
+    }
+    private fun setNormalState() {
+        binding.btnLogin.visibility = View.VISIBLE  // Show button text
+        binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
+        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))  // Reset text color
+        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        binding.etPassword.text?.clear()
     }
 }

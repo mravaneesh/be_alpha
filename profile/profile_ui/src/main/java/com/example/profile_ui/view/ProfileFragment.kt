@@ -51,7 +51,7 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val userId = CommonFun.getCurrentUserId()!!
-        viewModel.loadProfile(userId,requireContext())
+        viewModel.loadProfile(userId)
 
         val adapter = ProfilePagerAdapter(this)
         binding.viewPager.adapter = adapter
@@ -72,15 +72,19 @@ class ProfileFragment : Fragment() {
             viewModel.profile.collectLatest { state ->
                 when {
                     state.isLoading -> {
-
+                        binding.lottieProgress.visibility = View.VISIBLE
+                        binding.linearLayout.visibility = View.GONE
                     }
                     state.error.isNotBlank() -> {
-
+                        binding.lottieProgress.visibility = View.GONE
+                        binding.linearLayout.visibility = View.GONE
                     }
                     else -> {
                         val profile = state.profile
                         updateUI(profile)
                         updateEditProfileViewModel(profile)
+                        binding.lottieProgress.visibility = View.GONE
+                        binding.linearLayout.visibility = View.VISIBLE
                     }
                 }
             }

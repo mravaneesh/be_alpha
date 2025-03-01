@@ -19,6 +19,7 @@ class GenderAdapter(
     inner class GenderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.tvGender)
         val tickIcon: ImageView = itemView.findViewById(R.id.imgCheck)
+        val divider: View = itemView.findViewById(R.id.divider)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenderViewHolder {
@@ -30,8 +31,8 @@ class GenderAdapter(
         val gender = genderList[position]
         holder.textView.text = gender
 
-        // Show tick icon if this item is selected
         holder.tickIcon.visibility = if (position == selectedPosition) View.VISIBLE else View.INVISIBLE
+        holder.divider.visibility = if (position == genderList.size - 1) View.GONE else View.VISIBLE
 
         holder.itemView.setOnClickListener {
             val adapterPosition = holder.adapterPosition
