@@ -1,5 +1,6 @@
 package com.example.authentication.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,7 +21,6 @@ import com.example.utils.R
 import com.example.authentication.databinding.FragmentSignupBinding
 import com.example.authentication.model.User
 import com.example.utils.CommonFun
-import com.example.utils.ProgressDialogUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -59,11 +59,10 @@ class SignupFragment : Fragment() {
             }
 
             binding.toolbar.setNavigationOnClickListener {
-
+                findNavController().navigateUp()
             }
             signUpUser(name, username, email, password)
         }
-
     }
 
     private fun signUpUser(name: String, username: String, email: String, password: String) {
@@ -71,26 +70,81 @@ class SignupFragment : Fragment() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-                    if (userId != null) {
-                        val user = User(id = userId, name = name, username = username, email = email)
-                        db.collection("users").document(userId)
-                            .set(user)
-                            .addOnSuccessListener {
-                                setNormalState()
-                                CommonFun.deepLinkNav("homeFragment",requireContext())
-                            }
-                            .addOnFailureListener {
-                                setNormalState()
-                                Toast.makeText(requireContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show()
-                            }
-                    }
+                    val user = auth.currentUser
+                    val userData = User(id = user?.uid!!, name = name, username = username, email = email)
+                    user.sendEmailVerification()
+                        .addOnSuccessListener {
+                            showVerificationDialog(userData)
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(requireContext(), "Failed to send verification email!", Toast.LENGTH_SHORT).show()
+                        }
                 } else {
                     setNormalState()
                     Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
+    private fun showVerificationDialog(userData:User) {
+        val dialog = VerifyEmailDialog(
+            onVerified = { checkEmailVerification(userData) },
+            onCancel = {
+                setNormalState()
+                deleteUnverifiedUser()
+            }
+        )
+        dialog.show(parentFragmentManager, "VerifyEmailDialog")
+    }
+
+    private fun deleteUnverifiedUser() {
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.delete()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(
+                    requireContext(),
+                    "Signup canceled. Account deleted.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to delete unverified account.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun checkEmailVerification(userData:User) {
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.reload()?.addOnSuccessListener {
+            if (user.isEmailVerified) {
+                saveUserData(userData)
+                CommonFun.deepLinkNav("homeFragment",requireContext())
+            } else {
+                Toast.makeText(requireContext(), "Email not verified yet!", Toast.LENGTH_SHORT).show()
+                showVerificationDialog(userData) // Show the dialog again
+            }
+        }
+    }
+
+    private fun saveUserData(user: User) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId)
+                .set(user)
+                .addOnSuccessListener {
+                    setNormalState()
+                    CommonFun.deepLinkNav("homeFragment",requireContext())
+                }
+                .addOnFailureListener {
+                    setNormalState()
+                    Toast.makeText(requireContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
 
     private fun textWatcher(editText: EditText)
     {

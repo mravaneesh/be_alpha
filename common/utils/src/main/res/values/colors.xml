@@ -11,4 +11,9 @@
     <color name="button_secondary">#BDBDBD</color>
     <color name="general_bg">#F1F1F3</color>
     <color name="cool_gray">#B0BEC5</color>
+
+    <color name="et_bg">#208fa4c4</color>
+    <color name="inactive_button">#A6A6A9</color>
+    <color name="active_button">#FCFCFF</color>
+    <color name="transparent">@android:color/transparent</color>
 </resources>

@@ -10,12 +10,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.fragment.findNavController
 import com.example.utils.R
 import com.example.authentication.databinding.FragmentLoginBinding
 import com.example.utils.CommonFun
-import com.example.utils.ProgressDialogUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -52,6 +50,10 @@ class LoginFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Please enter both username and password.", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.tvForgotPassword.setOnClickListener {
+            findNavController().navigate(com.example.authentication.R.id.action_loginFragment_to_forgotPasswordFragment)
         }
     }
 
@@ -113,14 +115,16 @@ class LoginFragment : Fragment() {
     }
 
     private fun setLoadingState() {
-        binding.btnLogin.visibility = View.INVISIBLE  // Hide button text
+        binding.btnLogin.visibility = View.GONE  // Hide button text
         binding.lottieProgress.visibility = View.VISIBLE // Show Lottie animation
+        binding.tvForgotPassword.visibility = View.GONE
         binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
         binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
     }
     private fun setNormalState() {
         binding.btnLogin.visibility = View.VISIBLE  // Show button text
         binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
+        binding.tvForgotPassword.visibility = View.VISIBLE
         binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))  // Reset text color
         binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         binding.etPassword.text?.clear()

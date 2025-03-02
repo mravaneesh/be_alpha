@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/auth_nav_graph"
     app:startDestination="@id/introFragment">
-
     <fragment
         android:id="@+id/introFragment"
         android:name="com.example.authentication.view.IntroFragment"
@@ -23,10 +22,19 @@
         android:id="@+id/loginFragment"
         android:name="com.example.authentication.view.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
     <fragment
         android:id="@+id/signupFragment"
         android:name="com.example.authentication.view.SignupFragment"
         android:label="fragment_signup"
-        tools:layout="@layout/fragment_signup" />
+        tools:layout="@layout/fragment_signup" >
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.authentication.view.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment" />
 </navigation>
