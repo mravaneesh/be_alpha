@@ -18,14 +18,9 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
+    <include
+        android:id="@+id/bottom_nav"
+        layout="@layout/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:layout_gravity="bottom"
-        app:elevation="10dp"
-        android:background="@color/fragment_bg"
-        app:menu="@menu/bottom_nav_menu"/>
+        android:layout_height="wrap_content"/>
 </LinearLayout>

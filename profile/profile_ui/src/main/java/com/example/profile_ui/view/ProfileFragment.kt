@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.example.profile_domain.model.UserProfile
 import com.example.profile_ui.R
 import com.example.profile_ui.adapter.ProfilePagerAdapter
@@ -58,15 +59,32 @@ class ProfileFragment : Fragment() {
 
         // Attach TabLayout with ViewPager2
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Posts"
-                1 -> "Statistics"
-                2 -> "Challenges"
-                else -> "Tab $position"
+            when (position) {
+                0 -> tab.setIcon(com.example.utils.R.drawable.ic_posts)
+                1 -> tab.setIcon(com.example.utils.R.drawable.ic_stats)
+                2 -> tab.setIcon(com.example.utils.R.drawable.ic_goals)
             }
         }.attach()
+        updateTabIcons()
         observeProfileData()
     }
+
+    private fun updateTabIcons() {
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                for (i in 0 until binding.tabLayout.tabCount) {
+                    val tab = binding.tabLayout.getTabAt(i)
+                    when (i) {
+                        0 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_post_filled else com.example.utils.R.drawable.ic_posts)
+                        1 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_stats_filled else com.example.utils.R.drawable.ic_stats)
+                        2 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_goals_filled else com.example.utils.R.drawable.ic_goals)
+                    }
+                }
+            }
+        })
+    }
+
     private fun observeProfileData() {
         lifecycleScope.launch {
             viewModel.profile.collectLatest { state ->

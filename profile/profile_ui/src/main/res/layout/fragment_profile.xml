@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/fragment_bg"
+    android:background="@color/white"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -194,15 +194,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:background="@null"
-            app:tabIndicator="@drawable/bg_tab_select"
             app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorColor="@null"
             app:tabIndicatorFullWidth="true"
-            app:tabIndicatorGravity="stretch"
+            app:tabIconTint="@null"
+            app:tabIndicatorColor="@color/button_primary"
             app:tabMode="fixed"
-            app:tabRippleColor="@null"
-            app:tabSelectedTextColor="@color/black"
-            app:tabTextColor="@color/inactive_button" />
+            app:tabRippleColor="@null" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
