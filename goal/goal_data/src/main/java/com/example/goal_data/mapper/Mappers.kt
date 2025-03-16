@@ -13,7 +13,11 @@ fun GoalDto.toDomainGoal():Goal{
         selectedDays = this.selectedDays,
         color = this.color.toInt(),
         reminder = this.reminder,
-        target = this.target,
-        unit = this.unit
+        startDate = this.startDate,
+        progress = this.progress,
+        currentStreak = this.currentStreak,
+        bestStreak = this.bestStreak,
+        totalCompleted = this.totalCompleted,
+        successRate = this.successRate
     )
 }

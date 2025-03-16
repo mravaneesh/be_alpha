@@ -1,5 +1,6 @@
 package com.example.goal_data.source
 
+import android.util.Log
 import com.example.goal_data.model.GoalDto
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -11,15 +12,16 @@ class GoalRemoteDataSource @Inject constructor(
     suspend fun getGoals(userId: String,category: String): List<GoalDto> {
         return try {
             val snapshot = firestore.collection("goals")
-                .document(userId)  // Retrieve user's goal document
-                .collection(category)  // Assuming goals are inside this subcollection
+                .document(userId)
+                .collection("Habit")
                 .get()
                 .await()
-
-            snapshot.toObjects(GoalDto::class.java)
-
+            val goals = snapshot.toObjects(GoalDto::class.java)
+            Log.d("GoalDataSource", "Goals successfully retrieved: $goals")
+            goals
         } catch (e: Exception) {
-            emptyList() // Return empty list on error
+            Log.e("GoalDataSource", "Error retrieving goals: ${e.message}")
+            emptyList()
         }
     }
 }

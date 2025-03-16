@@ -1,11 +1,9 @@
 package com.example.authentication.view
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
-import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
@@ -21,6 +18,8 @@ import com.example.utils.R
 import com.example.authentication.databinding.FragmentSignupBinding
 import com.example.authentication.model.User
 import com.example.utils.CommonFun
+import com.example.utils.CommonFun.applyScaleAnimation
+import com.example.utils.CommonFun.passwordVisibility
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -46,7 +45,7 @@ class SignupFragment : Fragment() {
     private fun initView() {
         textWatcher(binding.etUsername)
         passwordVisibility(binding.showPassword, binding.etPassword)
-
+        binding.btnSignup.applyScaleAnimation()
         binding.btnSignup.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val username = binding.etUsername.text.toString().trim()
@@ -189,22 +188,6 @@ class SignupFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error checking username", e)
             }
-    }
-
-    private fun passwordVisibility(ivEye: ImageView, etPassword:EditText)
-    {
-        var isPasswordVisible = false
-        ivEye.setOnClickListener {
-            if (isPasswordVisible) {
-                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivEye.setImageResource(R.drawable.show_password)
-            } else {
-                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivEye.setImageResource(R.drawable.hide_password)
-            }
-            etPassword.setSelection(etPassword.text.length)
-            isPasswordVisible = !isPasswordVisible
-        }
     }
 
     private fun setLoadingState() {

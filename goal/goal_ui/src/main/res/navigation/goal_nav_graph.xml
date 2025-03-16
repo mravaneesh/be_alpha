@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_goalFragment_to_addGoalFragment"
             app:destination="@id/addGoalFragment" />
+        <action
+            android:id="@+id/action_goalFragment_to_habitAnalyticsFragment"
+            app:destination="@id/habitAnalyticsFragment" />
     </fragment>
 
     <fragment
@@ -20,4 +23,9 @@
         android:name="com.example.goal_ui.view.addGoal.AddGoalFragment"
         android:label="Add Goal"
         tools:layout="@layout/fragment_add_goal" />
+    <fragment
+        android:id="@+id/habitAnalyticsFragment"
+        android:name="com.example.goal_ui.analytics.view.HabitAnalyticsFragment"
+        android:label="fragment_habit_analytics"
+        tools:layout="@layout/fragment_habit_analytics"/>
 </navigation>

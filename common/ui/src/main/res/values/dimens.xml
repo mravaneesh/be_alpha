@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bubble_option_width">156dp</dimen>
+    <dimen name="bubble_option_padding">10dp</dimen>
+    <dimen name="quick_option_horizontal_padding">10dp</dimen>
+    <dimen name="bubble_popup_height">73dp</dimen>
+    <dimen name="quick_option_bottom_margin">3dp</dimen>
+    <dimen name="quick_option_triangle_height">8dp</dimen>
+    <dimen name="quick_option_triangle_width">14dp</dimen>
+</resources>

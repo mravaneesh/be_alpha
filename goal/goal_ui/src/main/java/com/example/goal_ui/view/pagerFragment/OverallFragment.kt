@@ -33,25 +33,25 @@ class OverallFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentOverallBinding.inflate(inflater, container, false)
-        setupRecyclerView()
+//        setupRecyclerView()
         setupButtons()
         return binding.root
     }
 
-    private fun setupRecyclerView() {
-        habitAdapter = HabitGoalAdapter()
-        trackAdapter = TrackGoalAdapter()
-
-        binding.recyclerHabit.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = habitAdapter
-        }
-
-        binding.recyclerTrack.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = trackAdapter
-        }
-    }
+//    private fun setupRecyclerView() {
+//        habitAdapter = HabitGoalAdapter()
+//        trackAdapter = TrackGoalAdapter()
+//
+//        binding.recyclerHabit.apply {
+//            layoutManager = LinearLayoutManager(requireContext())
+//            adapter = habitAdapter
+//        }
+//
+//        binding.recyclerTrack.apply {
+//            layoutManager = LinearLayoutManager(requireContext())
+//            adapter = trackAdapter
+//        }
+//    }
 
     private fun setupButtons() {
         binding.habitLayout.setOnClickListener {
@@ -69,7 +69,7 @@ class OverallFragment : Fragment() {
 
 
     private fun fetchHabitGoals() {
-        viewModel.loadHabitGoals(userId, "Habit", requireContext())
+        viewModel.loadHabitGoals(userId, "Habit")
         viewModel.loadTrackGoals(userId, "Track", requireContext())
 
         observeGoals()

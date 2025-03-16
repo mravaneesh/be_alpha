@@ -1,11 +1,11 @@
 package com.example.goal_ui.view.addGoal
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,15 +14,18 @@ import androidx.navigation.fragment.findNavController
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
 import com.example.goal_ui.databinding.FragmentAddGoalBinding
+import com.example.goal_ui.viewmodel.AddGoalViewModel
 import com.example.utils.CommonFun
-import com.google.android.material.button.MaterialButton
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.UUID
 
 class AddGoalFragment : Fragment() {
 
+    private val userId = CommonFun.getCurrentUserId()!!
     private var timesPerWeek = 7
     private var frequency = "Daily"
     private var category = "Habit"
@@ -34,8 +37,86 @@ class AddGoalFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddGoalBinding.inflate(inflater, container, false)
-        binding.btnSaveGoal.setOnClickListener { saveGoal() }
-        updateToggleView()
+        setupFragment()
+
+        val isEditMode = arguments?.getBoolean("isEditMode", false) ?: false
+        if (isEditMode) {
+            setUpEditMode()
+        } else {
+            binding.btnSaveGoal.text = "Add Goal"
+            binding.btnSaveGoal.setOnClickListener { saveGoal() }
+        }
+        return binding.root
+    }
+
+    private fun setUpEditMode() {
+        val goalId = arguments?.getString("goalId") ?: ""
+        val title = arguments?.getString("title") ?: ""
+        val description = arguments?.getString("description") ?: ""
+        val color = arguments?.getInt("color") ?: R.color.color1
+        val frequency = arguments?.getString("frequency") ?: "Daily"
+        val selectedDays = arguments?.getInt("selectedDays") ?: 7
+        val reminder = arguments?.getString("reminder") ?: ""
+
+        binding.etGoalTitle.setText(title)
+        binding.etGoalDescription.setText(description)
+        viewModel.setColor(color)
+        binding.colorPreview.setBackgroundColor(color)
+
+        if (frequency == "Weekly") {
+            binding.tabFrequency.getTabAt(1)?.select() // Select 'Weekly' tab
+            binding.weeklyOptions.visibility = View.VISIBLE
+            binding.tvTimesPerWeek.text = "$selectedDays times a week"
+            binding.tvNumber.text = selectedDays.toString()
+        } else {
+            binding.tabFrequency.getTabAt(0)?.select() // Select 'Daily' tab
+            binding.weeklyOptions.visibility = View.GONE
+        }
+
+        if (reminder.isNotEmpty()) {
+            binding.switchReminder.isChecked = true
+            binding.tvSelectedTime.visibility = View.VISIBLE
+            binding.tvSelectedTime.text = reminder
+            viewModel.setTime(reminder)
+        } else {
+            binding.switchReminder.isChecked = false
+            binding.tvSelectedTime.visibility = View.GONE
+        }
+        binding.btnSaveGoal.text = "Update Goal"
+        binding.btnSaveGoal.setOnClickListener { updateGoal(goalId) }
+    }
+
+    private fun updateGoal(goalId: String) {
+        val updatedGoal = Goal(
+            id = goalId,
+            title = binding.etGoalTitle.text.toString(),
+            description = binding.etGoalDescription.text.toString(),
+            color = viewModel.selectedColor.value!!
+        )
+
+        FirebaseFirestore.getInstance()
+            .collection("goals")
+            .document(userId)
+            .collection("Habit")
+            .document(goalId)
+            .update(
+                mapOf(
+                    "title" to updatedGoal.title,
+                    "description" to updatedGoal.description,
+                    "color" to updatedGoal.color
+                )
+            )
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Goal updated successfully", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun setupFragment() {
+        setupFrequencyTab()
         setupLayout()
         setupViewmodel()
 
@@ -52,8 +133,6 @@ class AddGoalFragment : Fragment() {
         viewModel.selectedTime.observe(viewLifecycleOwner) { time ->
             binding.tvSelectedTime.text = time
         }
-
-        return binding.root
     }
 
     private fun setupViewmodel() {
@@ -83,29 +162,21 @@ class AddGoalFragment : Fragment() {
 
     private fun setupLayout()
     {
-        val bottomSheetFragment = BottomSheetFragment()
-        val bundle = Bundle()
-
         binding.colorPreview.setOnClickListener {
-            bundle.putString("selection", "color")
-            bottomSheetFragment.arguments = bundle
-            bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
+            val dialog = SelectionDialogFragment().apply {
+                arguments = Bundle().apply { putString("selection", "color") }
+            }
+            dialog.show(parentFragmentManager, "SelectionDialog")
         }
 
         binding.tvSelectedTime.setOnClickListener {
-            bundle.putString("selection", "reminder")
-            bottomSheetFragment.arguments = bundle
-            bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
+            val dialog = SelectionDialogFragment().apply {
+                arguments = Bundle().apply { putString("selection", "reminder") }
+            }
+            dialog.show(parentFragmentManager, "SelectionDialog")
         }
 
-        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            if(isChecked){
-                binding.tvSelectedTime.visibility = View.VISIBLE
-            }
-            else{
-                binding.tvSelectedTime.visibility = View.GONE
-            }
-        }
+        handleReminderSwitch()
 
         binding.btnSaveGoal.setOnClickListener {
             saveGoal()
@@ -115,46 +186,44 @@ class AddGoalFragment : Fragment() {
             findNavController().popBackStack()
         }
     }
-    private fun updateToggleView() {
-        styleSelectedButton(binding.btnDaily)
-        styleUnselectedButton(binding.btnWeekly)
 
-        binding.toggleBtn2.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                when (checkedId) {
-                    R.id.btnDaily -> {
-                        frequency = "Daily"
-                        styleSelectedButton(binding.btnDaily)
-                        styleUnselectedButton(binding.btnWeekly)
-                        binding.weeklyOptions.visibility = View.GONE
-                    }
-                    R.id.btnWeekly -> {
-                        frequency = "Weekly"
-                        binding.weeklyOptions.visibility = View.VISIBLE
-                        styleUnselectedButton(binding.btnDaily)
-                        styleSelectedButton(binding.btnWeekly)
-                    }
+    private fun handleReminderSwitch()
+    {
+        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
+            if(isChecked){
+                binding.tvSelectedTime.visibility = View.VISIBLE
+            }
+            else{
+                binding.tvSelectedTime.apply{
+                    visibility = View.GONE
+                    text = ""
                 }
             }
         }
     }
 
-    private fun styleSelectedButton(button: MaterialButton) {
-        button.backgroundTintList =
-            ContextCompat.getColorStateList(requireContext(), R.color.active_button)
-        button.elevation = 10f  // Add elevation when selected
-        button.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.black))
-        button.setTypeface(null,Typeface.BOLD)
-    }
+    private fun setupFrequencyTab() {
+        val tabLayout = binding.tabFrequency
+        tabLayout.addTab(tabLayout.newTab().setText("Daily"))
+        tabLayout.addTab(tabLayout.newTab().setText("Weekly"))
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> {
+                        binding.weeklyOptions.visibility = View.GONE
+                    }
+                    1 -> {
+                        binding.weeklyOptions.visibility = View.VISIBLE
+                    }
+                }
+            }
 
-    private fun styleUnselectedButton(button: MaterialButton) {
-        button.backgroundTintList =
-            ContextCompat.getColorStateList(requireContext(), R.color.transparent)
-        button.elevation = 0f  // Add elevation when selected
-        button.setTextColor(
-            ContextCompat.getColor(requireContext(), R.color.button_secondary))
-        button.setTypeface(null,Typeface.NORMAL)
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+        })
     }
 
     private fun saveGoal() {
@@ -171,9 +240,9 @@ class AddGoalFragment : Fragment() {
                                     title: String,selectedColor:Int, selectedTime:String) {
         val db = FirebaseFirestore.getInstance()
         val goalId = UUID.randomUUID().toString()
+        val startDate = LocalDate.now().toString()
         val goalDb = Goal(goalId, category, title,
-            description, frequency,timesPerWeek,selectedColor ,selectedTime )
-        val userId = CommonFun.getCurrentUserId()!!
+            description, frequency,timesPerWeek,selectedColor ,selectedTime,startDate = startDate )
 
         db.collection("goals")
             .document(userId)

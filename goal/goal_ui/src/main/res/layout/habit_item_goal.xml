@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:padding="8dp"
-    android:background="@drawable/all_button_with_ripple">
+    android:background="@drawable/button_secondary_bg">
 
     <TextView
         android:id="@+id/tv_goal_name"
@@ -14,10 +14,9 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:layout_margin="7dp"
-        android:text="Goal Name"
         android:textColor="@color/black"
         android:textSize="18sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_regular"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

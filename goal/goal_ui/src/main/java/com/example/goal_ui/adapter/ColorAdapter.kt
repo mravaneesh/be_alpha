@@ -1,4 +1,4 @@
-package com.example.goal_ui.view.addGoal
+package com.example.goal_ui.adapter
 
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable

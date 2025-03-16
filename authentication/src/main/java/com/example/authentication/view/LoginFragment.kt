@@ -1,19 +1,18 @@
 package com.example.authentication.view
 
 import android.os.Bundle
-import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.utils.R
 import com.example.authentication.databinding.FragmentLoginBinding
 import com.example.utils.CommonFun
+import com.example.utils.CommonFun.applyScaleAnimation
+import com.example.utils.CommonFun.passwordVisibility
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -39,8 +38,7 @@ class LoginFragment : Fragment() {
 
     private fun initView() {
         passwordVisibility(binding.showPassword, binding.etPassword)
-
-        // Set up the Login button click listener
+        binding.btnLogin.applyScaleAnimation()
         binding.btnLogin.setOnClickListener {
             val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -52,6 +50,9 @@ class LoginFragment : Fragment() {
             }
         }
 
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
         binding.tvForgotPassword.setOnClickListener {
             findNavController().navigate(com.example.authentication.R.id.action_loginFragment_to_forgotPasswordFragment)
         }
@@ -92,26 +93,9 @@ class LoginFragment : Fragment() {
                         CommonFun.deepLinkNav("homeFragment",requireContext())
                     }
                 } else {
-                    // If sign-in fails, show an error message
                     Toast.makeText(requireContext(), "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
-    }
-
-    private fun passwordVisibility(ivEye: ImageView, etPassword: EditText) {
-        var isPasswordVisible = false
-        ivEye.setOnClickListener {
-            if (isPasswordVisible) {
-                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                ivEye.setImageResource(R.drawable.show_password)
-            } else {
-                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                ivEye.setImageResource(R.drawable.hide_password)
-            }
-
-            etPassword.setSelection(etPassword.text.length)
-            isPasswordVisible = !isPasswordVisible
-        }
     }
 
     private fun setLoadingState() {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_calendar"
+    android:layout_margin="5dp"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/weekDaysContainer"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:gravity="center_vertical">
+
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="S"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:textColor="@color/error"
+            android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="M" android:layout_weight="1" android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="T" android:layout_weight="1" android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="W" android:layout_weight="1" android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="T" android:layout_weight="1" android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="F" android:layout_weight="1" android:gravity="center"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="0dp" android:fontFamily="@font/poppins_regular" android:textSize="16sp" android:text="S" android:layout_weight="1" android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Days RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/daysRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"/>
+
+</LinearLayout>
+

@@ -118,34 +118,13 @@
                         android:textSize="16sp"
                         android:padding="10dp"/>
 
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/toggleBtn2"
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tabFrequency"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:singleSelection="true">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDaily"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Daily"
-                            android:textSize="12sp"
-                            app:backgroundTint="@color/active_button"
-                            app:rippleColor="@null"
-                            app:strokeWidth="0dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnWeekly"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Weekly"
-                            android:textSize="12sp"
-                            app:backgroundTint="@color/button_gray"
-                            app:rippleColor="@null"
-                            app:strokeWidth="0dp" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                        app:tabIndicatorColor="@color/active_button"
+                        app:tabSelectedTextColor="@color/active_button"
+                        app:tabTextColor="@color/button_gray"/>
                 </LinearLayout>
 
 

@@ -1,4 +1,4 @@
-package com.example.goal_ui.view.addGoal
+package com.example.goal_ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View

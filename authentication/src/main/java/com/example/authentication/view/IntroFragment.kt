@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.authentication.R
 import com.example.authentication.databinding.FragmentIntroBinding
+import com.example.utils.CommonFun.applyScaleAnimation
 
 
 class IntroFragment : Fragment() {
@@ -25,10 +26,10 @@ class IntroFragment : Fragment() {
     }
 
     private fun initView() {
+        binding.btnSignup.applyScaleAnimation()
         binding.btnSignup.setOnClickListener {
             findNavController().navigate(R.id.action_introFragment_to_signupFragment)
         }
-
         binding.tvLogin.setOnClickListener {
             findNavController().navigate(R.id.action_introFragment_to_loginFragment)
         }

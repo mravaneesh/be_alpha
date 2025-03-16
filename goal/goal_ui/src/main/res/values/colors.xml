@@ -16,6 +16,7 @@
     <color name="inactive_button">#A6A6A9</color>
     <color name="active_button">#FCFCFF</color>
     <color name="transparent">@android:color/transparent</color>
+    <color name="color_pending">#50ffff00</color>
 
     <color name="option1">#6049c3dc</color>
     <color name="color1">#15FF5733</color>

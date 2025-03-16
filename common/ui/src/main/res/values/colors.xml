@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="button_primary">#49c3dc</color>
+    <color name="dark_contrast">#1A3A4A</color>
+    <color name="success">#2a9D8F</color>
+    <color name="error">#e76f51</color>
+    <color name="link_color">#007BFF</color>
+    <color name="button_secondary">#BDBDBD</color>
+    <color name="general_bg">#F1F1F3</color>
+    <color name="cool_gray">#B0BEC5</color>
+
+    <color name="common_bubble_bg">#F24A4A4A</color>
+    <color name="et_bg">#208fa4c4</color>
+    <color name="inactive_button">#A6A6A9</color>
+    <color name="active_button">#FCFCFF</color>
+    <color name="transparent">@android:color/transparent</color>
+</resources>

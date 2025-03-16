@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
+import com.example.goal_ui.adapter.TrackColorAdapter
 import com.example.goal_ui.databinding.BottomSheetTrackGoalBinding
+import com.example.goal_ui.viewmodel.AddGoalViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.UUID
 
@@ -49,8 +51,6 @@ class AddTrackGoalBottomSheetFragment : BottomSheetDialogFragment() {
                 id = UUID.randomUUID().toString(),
                 title = title,
                 description = description,
-                target = target,
-                unit = unit,
                 color = selectedColor
             )
 

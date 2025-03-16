@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <vector android:width="16dp"
+            android:height="12dp"
+            android:viewportWidth="32.0"
+            android:viewportHeight="24.0">
+            <path android:fillColor="@color/common_bubble_bg"
+                android:pathData="M0 0 h32 l-16 24 Z"/>
+        </vector>
+    </item>
+</selector>

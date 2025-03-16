@@ -1,5 +1,6 @@
 package com.example.goal_data.repository
 
+import android.util.Log
 import com.example.goal_data.mapper.toDomainGoal
 import com.example.goal_data.source.GoalRemoteDataSource
 import com.example.goal_domain.model.Goal
@@ -13,5 +14,4 @@ class GoalRepositoryImpl @Inject constructor
     override suspend fun getGoals(userId: String,category: String): List<Goal> {
         return dataSource.getGoals(userId,category).map { it.toDomainGoal() }
     }
-
 }

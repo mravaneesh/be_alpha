@@ -10,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 30
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":common:ui"))
     implementation(project(":common:utils"))
     implementation(project(":goal:goal_domain"))
     implementation(project(":goal:goal_data"))
@@ -64,6 +65,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.8.6")
 
     implementation(LottieAnimations.lottieAnimations)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
 
 // Allow references to generated code

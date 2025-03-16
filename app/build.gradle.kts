@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.bealpha_"
-        minSdk = 24
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -58,7 +58,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
     implementation("com.google.firebase:firebase-firestore-ktx") // Firestore for user data
     implementation("com.google.android.gms:play-services-base:18.3.0")
-
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -1,4 +1,4 @@
-package com.example.goal_ui.view.addGoal
+package com.example.goal_ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

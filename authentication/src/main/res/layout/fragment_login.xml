@@ -5,14 +5,14 @@
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/general_bg"
+    android:background="@color/white"
     tools:context=".view.LoginFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/general_bg"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,7 +21,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/general_bg"
+            android:background="@color/white"
             app:layout_collapseMode="pin"
             app:navigationIcon="@drawable/back_arrow"
             app:title="Log In"
@@ -98,12 +98,12 @@
                 android:background="@android:color/transparent"
                 android:inputType="textPassword"/>
 
-            <ImageView
+            <View
                 android:id="@+id/show_password"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/show_password"
-                android:src="@drawable/show_password"
+                android:background="@drawable/show_password"
                 tools:visibility="visible"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
