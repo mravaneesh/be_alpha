@@ -2,6 +2,7 @@ package com.example.goal_ui.analytics.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.goal_domain.model.Goal
@@ -16,6 +17,7 @@ class MonthAdapter(
     private var months: List<MonthItem>,
     private val goalViewModel: GoalViewModel,
     private var goal: Goal,
+    private val fragmentManager: FragmentManager,
     private val onMonthSelected: (YearMonth) -> Unit
 ) :
     RecyclerView.Adapter<MonthAdapter.MonthViewHolder>() {
@@ -32,10 +34,9 @@ class MonthAdapter(
 
     override fun onBindViewHolder(holder: MonthViewHolder, position: Int) {
         holder.binding.daysRecyclerView.layoutManager = GridLayoutManager(holder.itemView.context, 7)
-        holder.binding.daysRecyclerView.adapter = DayAdapter(months[position].days){goalViewModel.updateGoalAnalytics(
+        holder.binding.daysRecyclerView.adapter = DayAdapter(months[position].days,fragmentManager){goalViewModel.updateGoalAnalytics(
             CommonFun.getCurrentUserId()!!,
-            goal,
-            it.status == DayStatus.COMPLETED
+            goal
         )}
     }
 

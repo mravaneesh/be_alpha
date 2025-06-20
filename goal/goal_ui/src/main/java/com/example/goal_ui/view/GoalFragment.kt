@@ -49,9 +49,4 @@ class GoalFragment : Fragment() {
     }
 
 
-
-    private fun onGoalClicked(goal: Goal) {
-        // Handle goal item click (open details or edit)
-    }
-
 }

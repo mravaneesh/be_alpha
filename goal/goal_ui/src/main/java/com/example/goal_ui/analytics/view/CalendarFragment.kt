@@ -63,7 +63,7 @@ class CalendarFragment : Fragment() {
                         goal = selectedGoal
                         if(!::monthAdapter.isInitialized){
                             monthList = generateFiveMonths(currentMonth).toMutableList()
-                            monthAdapter = MonthAdapter(monthList, goalViewModel,goal) { updatedMonth, ->
+                            monthAdapter = MonthAdapter(monthList, goalViewModel,goal,parentFragmentManager) { updatedMonth, ->
                                 currentMonth = updatedMonth
                             }
                             setupRecyclerView()
@@ -72,7 +72,7 @@ class CalendarFragment : Fragment() {
                         }
                         updateYearMonthText(currentMonth)
                     }
-                Log.d("CalendarFragment", "Goal data: ${goal.progress}")
+                    Log.d("CalendarFragment", "Goal data: ${goal.progress}")
                 }
             }
     }
@@ -171,8 +171,8 @@ class CalendarFragment : Fragment() {
     private fun getDayStatus(date: LocalDate?): DayStatus {
         Log.d("CalendarFragment", "Goal progress: $date -> ${goal.progress[date.toString()]}")
         return when (goal.progress[date.toString()]) {
-            1 -> DayStatus.COMPLETED
-            0 -> DayStatus.MISSED
+            0 -> DayStatus.COMPLETED
+            1 -> DayStatus.MISSED
             3 -> DayStatus.PENDING
             else -> DayStatus.OUT_OF_RANGE
         }

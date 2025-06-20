@@ -56,11 +56,11 @@ class SignupFragment : Fragment() {
                 Toast.makeText(requireContext(), "All fields are required!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            binding.toolbar.setNavigationOnClickListener {
-                findNavController().navigateUp()
-            }
+            binding.btnSignup.isEnabled = false
             signUpUser(name, username, email, password)
+        }
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
@@ -73,7 +73,8 @@ class SignupFragment : Fragment() {
                     val userData = User(id = user?.uid!!, name = name, username = username, email = email)
                     user.sendEmailVerification()
                         .addOnSuccessListener {
-                            showVerificationDialog(userData)
+                            showVerificationDialog()
+                            saveUserData(userData)
                         }
                         .addOnFailureListener {
                             Toast.makeText(requireContext(), "Failed to send verification email!", Toast.LENGTH_SHORT).show()
@@ -85,48 +86,23 @@ class SignupFragment : Fragment() {
             }
     }
 
-    private fun showVerificationDialog(userData:User) {
-        val dialog = VerifyEmailDialog(
-            onVerified = { checkEmailVerification(userData) },
-            onCancel = {
-                setNormalState()
-                deleteUnverifiedUser()
-            }
-        )
+    private fun showVerificationDialog() {
+        val dialog = VerifyEmailDialog()
         dialog.show(parentFragmentManager, "VerifyEmailDialog")
     }
 
-    private fun deleteUnverifiedUser() {
-        val user = FirebaseAuth.getInstance().currentUser
-        user?.delete()?.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(
-                    requireContext(),
-                    "Signup canceled. Account deleted.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to delete unverified account.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun checkEmailVerification(userData:User) {
-        val user = FirebaseAuth.getInstance().currentUser
-        user?.reload()?.addOnSuccessListener {
-            if (user.isEmailVerified) {
-                saveUserData(userData)
-                CommonFun.deepLinkNav("homeFragment",requireContext())
-            } else {
-                Toast.makeText(requireContext(), "Email not verified yet!", Toast.LENGTH_SHORT).show()
-                showVerificationDialog(userData) // Show the dialog again
-            }
-        }
-    }
+//    private fun checkEmailVerification(userData:User) {
+//        val user = FirebaseAuth.getInstance().currentUser
+//        user?.reload()?.addOnSuccessListener {
+//            if (user.isEmailVerified) {
+//                saveUserData(userData)
+//                CommonFun.deepLinkNav("homeFragment",requireContext())
+//            } else {
+//                Toast.makeText(requireContext(), "Email not verified yet!", Toast.LENGTH_SHORT).show()
+//                showVerificationDialog(userData) // Show the dialog again
+//            }
+//        }
+//    }
 
     private fun saveUserData(user: User) {
         val userId = auth.currentUser?.uid
@@ -135,11 +111,11 @@ class SignupFragment : Fragment() {
                 .set(user)
                 .addOnSuccessListener {
                     setNormalState()
-                    CommonFun.deepLinkNav("homeFragment",requireContext())
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { exception ->
                     setNormalState()
-                    Toast.makeText(requireContext(), "Failed to save user data!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Failed to save user data: ${exception.message}", Toast.LENGTH_LONG).show()
+                    Log.e("FirestoreError", "Error saving user data", exception)
                 }
         }
     }
@@ -191,6 +167,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun setLoadingState() {
+        binding.btnSignup.isEnabled = false
         binding.btnSignup.visibility = View.INVISIBLE  // Hide button text
         binding.lottieProgress.visibility = View.VISIBLE // Show Lottie animation
         binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
@@ -199,6 +176,7 @@ class SignupFragment : Fragment() {
         binding.etEmail.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
     }
     private fun setNormalState() {
+        binding.btnSignup.isEnabled = true
         binding.btnSignup.visibility = View.VISIBLE  // Show button text
         binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
         binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))  // Reset text color

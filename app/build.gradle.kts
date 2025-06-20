@@ -58,6 +58,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
     implementation("com.google.firebase:firebase-firestore-ktx") // Firestore for user data
     implementation("com.google.android.gms:play-services-base:18.3.0")
+    implementation ("androidx.work:work-runtime-ktx:2.10.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

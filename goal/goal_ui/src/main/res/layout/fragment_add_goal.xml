@@ -105,78 +105,81 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
+                    android:orientation="vertical"
                     android:background="@drawable/bg_tab_select"
-                    android:gravity="center_vertical">
+                    android:gravity="center">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Frequency"
-                        android:layout_weight="1"
                         android:layout_margin="10dp"
                         android:textStyle="bold"
                         android:textSize="16sp"
-                        android:padding="10dp"/>
+                        android:padding="6dp"/>
 
-                    <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/tabFrequency"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/linearLayoutDays"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tabIndicatorColor="@color/active_button"
-                        app:tabSelectedTextColor="@color/active_button"
-                        app:tabTextColor="@color/button_gray"/>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:id="@+id/weeklyOptions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_marginHorizontal="10dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/tvTimesPerWeek"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:padding="8dp"
-                        android:layout_margin="10dp"
-                        android:layout_height="wrap_content"
-                        android:text="7 times a week"
-                        android:textSize="16sp" />
-
-                    <ImageView
-                        android:id="@+id/btnDecrease"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_margin="10dp"
-                        android:padding="6dp"
+                        android:orientation="horizontal"
                         android:gravity="center"
-                        android:background="@drawable/bg_general"
-                        android:backgroundTint="@color/option1"
-                        android:src="@drawable/ic_subtract"/>
+                        android:weightSum="7"
+                        android:padding="8dp">
 
-                    <TextView
-                        android:id="@+id/tvNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="6dp"
-                        android:layout_gravity="center"
-                        android:text="1"
-                        android:textSize="16sp" />
+                        <TextView
+                            android:id="@+id/tv_sunday"
+                            style="@style/DayTextView"
+                            android:text="S"
+                            android:tag="0"/>
 
-                    <ImageView
-                        android:id="@+id/btnIncrease"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_margin="10dp"
-                        android:padding="6dp"
-                        android:gravity="center"
-                        android:background="@drawable/bg_general"
-                        android:backgroundTint="@color/option1"
-                        android:src="@drawable/baseline_add_24"/>
+                        <TextView
+                            android:id="@+id/tv_monday"
+                            style="@style/DayTextView"
+                            android:text="M"
+                            android:tag="1"/>
+
+                        <TextView
+                            android:id="@+id/tv_tuesday"
+                            style="@style/DayTextView"
+                            android:text="T"
+                            android:tag="2"/>
+
+                        <TextView
+                            android:id="@+id/tv_wednesday"
+                            style="@style/DayTextView"
+                            android:text="W"
+                            android:tag="3"/>
+
+                        <TextView
+                            android:id="@+id/tv_thursday"
+                            style="@style/DayTextView"
+                            android:text="T"
+                            android:tag="4"/>
+
+                        <TextView
+                            android:id="@+id/tv_friday"
+                            style="@style/DayTextView"
+                            android:text="F"
+                            android:tag="5"/>
+
+                        <TextView
+                            android:id="@+id/tv_saturday"
+                            style="@style/DayTextView"
+                            android:text="S"
+                            android:tag="6"/>
+                    </LinearLayout>
+
+
+                    <!--                    <LinearLayout-->
+<!--                        android:id="@+id/weeklyOptions"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginHorizontal="10dp"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:visibility="gone">-->
+<!--                    </LinearLayout>-->
                 </LinearLayout>
             </LinearLayout>
 

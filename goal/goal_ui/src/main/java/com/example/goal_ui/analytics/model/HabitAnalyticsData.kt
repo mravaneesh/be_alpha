@@ -23,7 +23,7 @@ data class CalendarDay(
 )
 
 enum class DayStatus {
-    COMPLETED, MISSED, OUT_OF_RANGE,PENDING
+    COMPLETED,MISSED,OUT_OF_RANGE,PENDING
 }
 
 enum class DayType { CURRENT, PREVIOUS, NEXT }

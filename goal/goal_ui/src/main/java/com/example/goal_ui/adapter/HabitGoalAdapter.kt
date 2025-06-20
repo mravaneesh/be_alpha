@@ -1,5 +1,6 @@
 package com.example.goal_ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +40,7 @@ class HabitGoalAdapter(
             }
             binding.root.setOnClickListener {
                 val goal = getItem(adapterPosition)
+                Log.i("GoalAdapter", "Clicked on goal: $goal")
                 openAnalytics(goal)
             }
         }

@@ -63,7 +63,6 @@ class HabitFragment : Fragment() {
             "title" to habit.title,
             "description" to habit.description,
             "color" to habit.color,
-            "frequency" to habit.frequency,
             "selectedDays" to habit.selectedDays,
             "reminder" to habit.reminder,
             "isEditMode" to true // To differentiate between Add and Edit

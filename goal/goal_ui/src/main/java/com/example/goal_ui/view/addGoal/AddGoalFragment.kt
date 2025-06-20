@@ -5,8 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +18,8 @@ import com.example.goal_ui.R
 import com.example.goal_ui.databinding.FragmentAddGoalBinding
 import com.example.goal_ui.viewmodel.AddGoalViewModel
 import com.example.utils.CommonFun
-import com.google.android.material.tabs.TabLayout
+import com.google.android.material.chip.Chip
+
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,8 +29,7 @@ import java.util.UUID
 class AddGoalFragment : Fragment() {
 
     private val userId = CommonFun.getCurrentUserId()!!
-    private var timesPerWeek = 7
-    private var frequency = "Daily"
+    private val selectedDays = mutableSetOf(0, 1, 2, 3, 4, 5, 6)
     private var category = "Habit"
     private var _binding: FragmentAddGoalBinding? = null
     private val binding get() = _binding!!
@@ -54,24 +56,16 @@ class AddGoalFragment : Fragment() {
         val title = arguments?.getString("title") ?: ""
         val description = arguments?.getString("description") ?: ""
         val color = arguments?.getInt("color") ?: R.color.color1
-        val frequency = arguments?.getString("frequency") ?: "Daily"
-        val selectedDays = arguments?.getInt("selectedDays") ?: 7
+        val savedSelectedDays = arguments?.getIntegerArrayList("selectedDays") ?: arrayListOf()
         val reminder = arguments?.getString("reminder") ?: ""
 
         binding.etGoalTitle.setText(title)
         binding.etGoalDescription.setText(description)
         viewModel.setColor(color)
         binding.colorPreview.setBackgroundColor(color)
-
-        if (frequency == "Weekly") {
-            binding.tabFrequency.getTabAt(1)?.select() // Select 'Weekly' tab
-            binding.weeklyOptions.visibility = View.VISIBLE
-            binding.tvTimesPerWeek.text = "$selectedDays times a week"
-            binding.tvNumber.text = selectedDays.toString()
-        } else {
-            binding.tabFrequency.getTabAt(0)?.select() // Select 'Daily' tab
-            binding.weeklyOptions.visibility = View.GONE
-        }
+        selectedDays.clear()
+        selectedDays.addAll(savedSelectedDays)
+        updateDaySelectionUI()
 
         if (reminder.isNotEmpty()) {
             binding.switchReminder.isChecked = true
@@ -116,7 +110,7 @@ class AddGoalFragment : Fragment() {
     }
 
     private fun setupFragment() {
-        setupFrequencyTab()
+        setupDaySelection()
         setupLayout()
         setupViewmodel()
 
@@ -126,10 +120,6 @@ class AddGoalFragment : Fragment() {
                 binding.colorPreview.setBackgroundColor(selectedColor)
             }
         }
-        binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
-        binding.tvNumber.text = timesPerWeek.toString()
-        setupWeekFrequency()
-
         viewModel.selectedTime.observe(viewLifecycleOwner) { time ->
             binding.tvSelectedTime.text = time
         }
@@ -138,26 +128,31 @@ class AddGoalFragment : Fragment() {
     private fun setupViewmodel() {
         viewModel.setTime(CommonFun.getCurrentTime())
     }
+    private fun setupDaySelection() {
+        binding.linearLayoutDays.children.forEach { view ->
+            val textView = view as TextView
+            textView.isSelected = true
+            setDaySelectionUI(textView, true)
 
-    private fun setupWeekFrequency()
-    {
-        binding.btnIncrease.setOnClickListener {
-            if (timesPerWeek < 6) {
-                timesPerWeek++
-                binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
-                binding.tvNumber.text = timesPerWeek.toString()
+            textView.setOnClickListener {
+                val dayIndex = textView.tag.toString().toInt()
+
+                if (selectedDays.contains(dayIndex)) {
+                    selectedDays.remove(dayIndex)
+                    setDaySelectionUI(textView, false)
+                } else {
+                    selectedDays.add(dayIndex)
+                    setDaySelectionUI(textView, true)
+                }
             }
         }
-        binding.btnDecrease.setOnClickListener {
-            if (timesPerWeek > 1) {
-                timesPerWeek--
-                if(timesPerWeek == 1)
-                    binding.tvTimesPerWeek.text = "$timesPerWeek time a week"
-                else
-                    binding.tvTimesPerWeek.text = "$timesPerWeek times a week"
-                binding.tvNumber.text = timesPerWeek.toString()
-            }
-        }
+    }
+
+    private fun setDaySelectionUI(textView: TextView, isSelected: Boolean) {
+        textView.isSelected = isSelected
+        textView.setTextColor(
+            ContextCompat.getColor(requireContext(), if (isSelected) R.color.white else R.color.black)
+        )
     }
 
     private fun setupLayout()
@@ -202,29 +197,6 @@ class AddGoalFragment : Fragment() {
         }
     }
 
-    private fun setupFrequencyTab() {
-        val tabLayout = binding.tabFrequency
-        tabLayout.addTab(tabLayout.newTab().setText("Daily"))
-        tabLayout.addTab(tabLayout.newTab().setText("Weekly"))
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
-                        binding.weeklyOptions.visibility = View.GONE
-                    }
-                    1 -> {
-                        binding.weeklyOptions.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
-        })
-    }
 
     private fun saveGoal() {
         val description = binding.etGoalDescription.text.toString()
@@ -242,7 +214,7 @@ class AddGoalFragment : Fragment() {
         val goalId = UUID.randomUUID().toString()
         val startDate = LocalDate.now().toString()
         val goalDb = Goal(goalId, category, title,
-            description, frequency,timesPerWeek,selectedColor ,selectedTime,startDate = startDate )
+            description, selectedDays.toList(),selectedColor,selectedTime,startDate )
 
         db.collection("goals")
             .document(userId)
@@ -256,6 +228,16 @@ class AddGoalFragment : Fragment() {
                 Log.e("Firestore", "Error adding goal", e)
             }
     }
+
+    private fun updateDaySelectionUI() {
+        binding.linearLayoutDays.children.forEach { view ->
+            val textView = view as TextView
+            val dayIndex = textView.tag.toString().toInt()
+            textView.isSelected = selectedDays.contains(dayIndex)
+            setDaySelectionUI(textView, textView.isSelected)
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -66,6 +66,8 @@ dependencies {
 
     implementation(LottieAnimations.lottieAnimations)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("androidx.work:work-runtime-ktx:2.10.0")
+
 }
 
 // Allow references to generated code

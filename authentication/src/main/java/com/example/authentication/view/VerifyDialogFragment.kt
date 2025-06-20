@@ -7,12 +7,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.authentication.R
+import com.example.utils.CommonFun
 
 
-class VerifyEmailDialog(
-    private val onVerified: () -> Unit,
-    private val onCancel: () -> Unit
-) : DialogFragment() {
+class VerifyEmailDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
@@ -21,23 +19,24 @@ class VerifyEmailDialog(
 
         builder.setView(view)
 
-        val btnVerify = view.findViewById<TextView>(R.id.btnVerify)
-        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
-
-        btnVerify.setOnClickListener {
-            dismiss()
-            onVerified()
-        }
-
-        btnCancel.setOnClickListener {
-            dismiss()
-            onCancel()
-        }
-
         val dialog = builder.create()
+        dialog.setCanceledOnTouchOutside(false)  // Disables dismiss on outside touch
+        dialog.setCancelable(false)
+        // Intercept back button press
+        dialog.setOnKeyListener { _, keyCode, _ ->
+            keyCode == android.view.KeyEvent.KEYCODE_BACK
+        }
 
-        // Apply rounded corners to the dialog window
+        // Optional rounded corners
         dialog.window?.setBackgroundDrawableResource(com.example.utils.R.drawable.dialog_bg)
+
+        // Auto dismiss after 3 seconds
+        dialog.setOnShowListener {
+            view.postDelayed({
+                dismiss()
+                CommonFun.deepLinkNav("homeFragment", requireContext())
+            }, 3000)
+        }
 
         return dialog
     }

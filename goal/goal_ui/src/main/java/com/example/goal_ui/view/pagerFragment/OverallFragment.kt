@@ -13,6 +13,7 @@ import com.example.goal_ui.adapter.TrackGoalAdapter
 import com.example.goal_ui.databinding.FragmentOverallBinding
 import com.example.goal_ui.viewmodel.GoalViewModel
 import com.example.utils.CommonFun
+import com.example.utils.ProgressDialogUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -70,7 +71,7 @@ class OverallFragment : Fragment() {
 
     private fun fetchHabitGoals() {
         viewModel.loadHabitGoals(userId, "Habit")
-        viewModel.loadTrackGoals(userId, "Track", requireContext())
+        viewModel.loadTrackGoals(userId, "Track")
 
         observeGoals()
     }
@@ -82,10 +83,15 @@ class OverallFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
-            viewModel.trackGoals.collectLatest { state ->
-                state.goals.let { trackAdapter.submitList(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.trackGoals.collect { state ->
+                if (state.isLoading) {
+                    ProgressDialogUtil.showProgressDialog(requireContext())
+                } else {
+                    ProgressDialogUtil.hideProgressDialog()
+                }
             }
         }
+
     }
 }
