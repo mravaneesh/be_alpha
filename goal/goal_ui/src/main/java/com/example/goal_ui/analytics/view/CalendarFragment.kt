@@ -48,11 +48,27 @@ class CalendarFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
-        observeGoalData()
         binding.tvYearMonth.setOnClickListener {
             showMonthYearPickerDialog()
         }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        monthList = generateFiveMonths(currentMonth).toMutableList()
+        monthAdapter = MonthAdapter(
+            monthList,
+            goalViewModel,
+            goal,
+            parentFragmentManager
+        ) { updatedMonth ->
+            currentMonth = updatedMonth
+        }
+
+        setupRecyclerView()
+        updateYearMonthText(currentMonth)
     }
 
     private fun observeGoalData() {

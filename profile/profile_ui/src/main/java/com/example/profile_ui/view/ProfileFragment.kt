@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -70,19 +71,15 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateTabIcons() {
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                for (i in 0 until binding.tabLayout.tabCount) {
-                    val tab = binding.tabLayout.getTabAt(i)
-                    when (i) {
-                        0 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_post_filled else com.example.utils.R.drawable.ic_posts)
-                        1 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_stats_filled else com.example.utils.R.drawable.ic_stats)
-                        2 -> tab?.setIcon(if (i == position) com.example.utils.R.drawable.ic_goals_filled else com.example.utils.R.drawable.ic_goals)
-                    }
-                }
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Posts"
+                1 -> "Statistics"
+                2 -> "Challenges"
+                else -> ""
             }
-        })
+        }.attach()
+
     }
 
     private fun observeProfileData() {
@@ -109,6 +106,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun setUpTabs() {
+        val tabTitles = listOf("Posts", "Statistics", "Challenges")
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+
+
+        }
+    }
+
     private fun updateEditProfileViewModel(profile: UserProfile) {
         editProfileViewModel.setUserProfile(profile)
     }
@@ -117,7 +122,8 @@ class ProfileFragment : Fragment() {
         with(binding) {
             profileName.text = profile.name
             profileBio.text = profile.bio
-            usernameTitle.text = profile.userName
+            profileBio.visibility = if (profile.bio.isBlank()) View.GONE else View.VISIBLE
+            usernameTitle.text = "@${profile.userName}"
             postsCount.text = String.format(Locale.getDefault(), "%,d", profile.posts)
             followersCount.text = String.format(Locale.getDefault(), "%,d", profile.followers)
             followingCount.text = String.format(Locale.getDefault(), "%,d", profile.following)

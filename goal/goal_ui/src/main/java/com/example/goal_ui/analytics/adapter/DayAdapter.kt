@@ -68,7 +68,7 @@ class DayAdapter(
                         if (day.date == today && day.status == DayStatus.PENDING) {
                             // Show confirmation dialog
                             DialogConfirmation(
-                                message = "Mark this day as completed?",
+                                message = "Mark this habit completed for the day?",
                                 positiveText = "Yes",
                                 negativeText = "Cancel",
                                 onPositiveClick = {

@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +46,7 @@ class AddGoalFragment : Fragment() {
         if (isEditMode) {
             setUpEditMode()
         } else {
-            binding.btnSaveGoal.text = "Add Goal"
+            binding.btnSaveGoal.text = "Add"
             binding.btnSaveGoal.setOnClickListener { saveGoal() }
         }
         return binding.root
@@ -62,7 +63,6 @@ class AddGoalFragment : Fragment() {
         binding.etGoalTitle.setText(title)
         binding.etGoalDescription.setText(description)
         viewModel.setColor(color)
-        binding.colorPreview.setBackgroundColor(color)
         selectedDays.clear()
         selectedDays.addAll(savedSelectedDays)
         updateDaySelectionUI()
@@ -70,22 +70,38 @@ class AddGoalFragment : Fragment() {
         if (reminder.isNotEmpty()) {
             binding.switchReminder.isChecked = true
             binding.tvSelectedTime.visibility = View.VISIBLE
+            binding.icDropDown.visibility = View.VISIBLE
             binding.tvSelectedTime.text = reminder
             viewModel.setTime(reminder)
+            val (hour, minute) = parseTimeToHourMinute(reminder)
+            binding.timePicker.hour = hour
+            binding.timePicker.minute = minute
         } else {
             binding.switchReminder.isChecked = false
             binding.tvSelectedTime.visibility = View.GONE
+            binding.icDropDown.visibility = View.GONE
         }
-        binding.btnSaveGoal.text = "Update Goal"
+        binding.btnSaveGoal.text = "Update"
+        binding.toolbar.title = "Update Habit"
         binding.btnSaveGoal.setOnClickListener { updateGoal(goalId) }
     }
+
+    private fun parseTimeToHourMinute(time: String): Pair<Int, Int> {
+        val formatter = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+        val date = formatter.parse(time)
+        val calendar = java.util.Calendar.getInstance()
+        calendar.time = date!!
+        return Pair(calendar.get(java.util.Calendar.HOUR_OF_DAY), calendar.get(java.util.Calendar.MINUTE))
+    }
+
 
     private fun updateGoal(goalId: String) {
         val updatedGoal = Goal(
             id = goalId,
             title = binding.etGoalTitle.text.toString(),
             description = binding.etGoalDescription.text.toString(),
-            color = viewModel.selectedColor.value!!
+            color = viewModel.selectedColor.value!!,
+            selectedDays = selectedDays.toList()
         )
 
         FirebaseFirestore.getInstance()
@@ -97,7 +113,8 @@ class AddGoalFragment : Fragment() {
                 mapOf(
                     "title" to updatedGoal.title,
                     "description" to updatedGoal.description,
-                    "color" to updatedGoal.color
+                    "color" to updatedGoal.color,
+                    "selectedDays" to updatedGoal.selectedDays
                 )
             )
             .addOnSuccessListener {
@@ -115,11 +132,7 @@ class AddGoalFragment : Fragment() {
         setupViewmodel()
 
         viewModel.setColor(ContextCompat.getColor(requireContext(),R.color.color1))
-        lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.selectedColor.observe(viewLifecycleOwner) { selectedColor ->
-                binding.colorPreview.setBackgroundColor(selectedColor)
-            }
-        }
+
         viewModel.selectedTime.observe(viewLifecycleOwner) { time ->
             binding.tvSelectedTime.text = time
         }
@@ -151,24 +164,19 @@ class AddGoalFragment : Fragment() {
     private fun setDaySelectionUI(textView: TextView, isSelected: Boolean) {
         textView.isSelected = isSelected
         textView.setTextColor(
-            ContextCompat.getColor(requireContext(), if (isSelected) R.color.white else R.color.black)
+            ContextCompat.getColor(requireContext(), if (isSelected) R.color.black
+            else R.color.unselect_day)
         )
     }
 
     private fun setupLayout()
     {
-        binding.colorPreview.setOnClickListener {
-            val dialog = SelectionDialogFragment().apply {
-                arguments = Bundle().apply { putString("selection", "color") }
-            }
-            dialog.show(parentFragmentManager, "SelectionDialog")
-        }
-
-        binding.tvSelectedTime.setOnClickListener {
-            val dialog = SelectionDialogFragment().apply {
-                arguments = Bundle().apply { putString("selection", "reminder") }
-            }
-            dialog.show(parentFragmentManager, "SelectionDialog")
+        var isExpanded = false
+        binding.icDropDown.setOnClickListener {
+            isExpanded = !isExpanded
+            val rotation = if (isExpanded) 180f else 0f
+            binding.icDropDown.animate().rotation(rotation).setDuration(300).start()
+            binding.timePicker.isVisible = isExpanded
         }
 
         handleReminderSwitch()
@@ -180,6 +188,11 @@ class AddGoalFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+
+        binding.timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
+            val formattedTime = CommonFun.formatTime(hourOfDay, minute)
+            viewModel.setTime(formattedTime)
+        }
     }
 
     private fun handleReminderSwitch()
@@ -187,12 +200,11 @@ class AddGoalFragment : Fragment() {
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
             if(isChecked){
                 binding.tvSelectedTime.visibility = View.VISIBLE
+                binding.icDropDown.visibility = View.VISIBLE
             }
             else{
-                binding.tvSelectedTime.apply{
-                    visibility = View.GONE
-                    text = ""
-                }
+                binding.tvSelectedTime.visibility = View.GONE
+                binding.icDropDown.visibility = View.GONE
             }
         }
     }

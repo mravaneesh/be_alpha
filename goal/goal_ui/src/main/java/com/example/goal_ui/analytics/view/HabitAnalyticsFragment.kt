@@ -11,6 +11,9 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,10 +25,12 @@ import com.example.goal_ui.analytics.model.DayType
 import com.example.goal_ui.databinding.FragmentHabitAnalyticsBinding
 import com.example.goal_ui.viewmodel.GoalViewModel
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.flow.collectLatest
@@ -58,9 +63,8 @@ class HabitAnalyticsFragment : Fragment() {
 
         selectedDays = listOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
         habitData = generateSampleHabitData()
-        setupLineChart(true)
-        displaySuccessRateChart()
 
+        displaySuccessRateChart()
         return binding.root
     }
 
@@ -87,7 +91,7 @@ class HabitAnalyticsFragment : Fragment() {
                         selectedGoal?.let { filteredGoal ->
                             updateTextWithAnimation(binding.currentStreak, filteredGoal.currentStreak)
                             updateTextWithAnimation(binding.bestStreak, filteredGoal.bestStreak)
-                            updateTextWithAnimation(binding.successRate, filteredGoal.successRate)
+                            updateTextWithAnimation(binding.successRate, filteredGoal.successRate,"%")
                             updateTextWithAnimation(binding.totalDays, filteredGoal.totalCompleted)
                         } ?: Log.e("GoalFilter", "Goal with ID ${goal.id} not found")
                     }
@@ -96,8 +100,8 @@ class HabitAnalyticsFragment : Fragment() {
         }
     }
 
-    private fun updateTextWithAnimation(textView: TextView, targetValue: Int) {
-        val formattedValue = String.format(Locale.getDefault(), "%d", targetValue)
+    private fun updateTextWithAnimation(textView: TextView, targetValue: Int, suffix: String ="") {
+        val formattedValue = String.format(Locale.getDefault(), "%d%s", targetValue, suffix)
 
         if (textView.text.toString() == formattedValue) return // Skip animation if value hasn't changed
         textView.text = formattedValue
@@ -106,6 +110,7 @@ class HabitAnalyticsFragment : Fragment() {
     }
 
     private fun initCalendar() {
+        Log.i("HabitAnalyticsFragment", "GoalCalendar: $goal")
         val calendarFragment = CalendarFragment().apply {
             arguments = Bundle().apply {
                 putParcelable("goal", goal)
@@ -116,124 +121,103 @@ class HabitAnalyticsFragment : Fragment() {
             .commit()
     }
 
-    private fun setupLineChart(isWeekly: Boolean) {
-        val entries = mutableListOf<Entry>()
-        val dateLabels = mutableListOf<String>()
+    private fun displaySuccessRateChart() {
+        val chart: LineChart = binding.lineChart
+        val dates = listOf("Jun 20", "Jun 21", "Jun 22", "Jun 23", "Jun 24","Jun 25","Jun 26","Jun 27","Jun 28","Jun 29","Jun 30")
+        val successRates = listOf(0f, 60f, 90f, 100f, 70f,60f,80f,90f,100f,70f,80f)
+        setupSuccessRateChart(
+            chart = chart,
+            dateLabels = dates,
+            successRates = successRates,
+            habitName = "Meditate",
+            color = ContextCompat.getColor(requireContext(), R.color.button_primary)
+        )
+    }
 
-        val today = LocalDate.now()
+    private fun setupSuccessRateChart(
+        chart: LineChart,
+        dateLabels: List<String>,        // e.g., ["Jun 20", "Jun 21", ...]
+        successRates: List<Float>,       // e.g., [80f, 60f, 100f, ...]
+        habitName: String,               // e.g., "Meditate"
+        color: Int                       // e.g., ContextCompat.getColor(context, R.color.teal_700)
+    ) {
 
-        if (isWeekly) {
-            // Weekly View: Show selected days within the current week
-            selectedDays.forEachIndexed { index, dayOfWeek ->
-                val date = today.with(dayOfWeek)
-                entries.add(Entry(index.toFloat(), (50..100).random().toFloat()))
-                dateLabels.add(date.dayOfMonth.toString()) // Show day number for weekly
+        val entries = successRates.mapIndexed { index, value ->
+            Entry(index.toFloat(), value)
+        }
+
+        val dataSet = LineDataSet(entries, habitName).apply {
+            this.color = color
+            setCircleColor(color)
+            lineWidth = 2f
+            circleRadius = 4f
+            valueTextSize = 10f
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            setDrawFilled(true)
+            setDrawValues(false)
+            fillDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.line_shadow)
+            setDrawHorizontalHighlightIndicator(false)
+            setDrawVerticalHighlightIndicator(false)
+        }
+
+        val limitLine = LimitLine(100f).apply {
+            lineColor = R.color.cool_gray
+            lineWidth = 1f
+            enableDashedLine(10f, 10f, 0f)
+            label = ""
+        }
+        chart.apply {
+            data = LineData(dataSet)
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                granularity = 1f
+                isGranularityEnabled = true
+                valueFormatter = IndexAxisValueFormatter(dateLabels)
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                labelRotationAngle = 0f
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(requireContext(),R.font.raleway_regular)
+                setAvoidFirstLastClipping(false)
+                axisMinimum = -1f
+                axisMaximum = (dateLabels.size+1).toFloat()
             }
-        } else {
-            // Monthly View: Show selected days within the current month
-            val monthStart = today.withDayOfMonth(1)
-            (0 until today.lengthOfMonth()).forEach { day ->
-                val date = monthStart.plusDays(day.toLong())
-                if (date.dayOfWeek in selectedDays) {
-                    entries.add(Entry(entries.size.toFloat(), (50..100).random().toFloat()))
-                    dateLabels.add(date.dayOfMonth.toString()) // Show day number for monthly
+
+            axisLeft.apply {
+                isEnabled = true
+                axisMinimum = -10f
+                granularity = 10f
+                isGranularityEnabled = true
+                textSize = 12f
+                typeface = ResourcesCompat.getFont(requireContext(),R.font.raleway_regular)
+                axisMaximum = 110f
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                addLimitLine(limitLine)
+            }
+            axisLeft.valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return if(value == 110f || value == -10f) "" else "${value.toInt()}%"
                 }
             }
-        }
 
-        val dataSet = LineDataSet(entries, "Success Rate").apply {
-            color = ContextCompat.getColor(requireContext(), R.color.button_primary)
-            valueTextColor = Color.BLACK
-            lineWidth = 3f
-            setDrawCircles(true)
-            setCircleColor(Color.BLACK)
-            setCircleRadius(5f)
-            setDrawValues(false)
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-        }
-
-        with(binding.lineChart) {
-            data = LineData(dataSet)
+            axisRight.isEnabled = false
             description.isEnabled = false
             legend.isEnabled = false
 
-            // Disable Y-axis grid lines
-            axisLeft.setDrawGridLines(false)
-            axisRight.setDrawGridLines(false)
-
-            // X-Axis Configuration
-            xAxis.apply {
-                position = XAxis.XAxisPosition.BOTTOM
-                setDrawGridLines(false)
-                granularity = 1f  // Ensures each point corresponds to one entry
-                setLabelCount(dateLabels.size, true)  // Ensures all labels are visible
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return dateLabels.getOrNull(value.toInt()) ?: ""
-                    }
-                }
-            }
-
-            // Y-Axis Configuration
-            axisLeft.apply {
-                axisMinimum = 0f
-                axisMaximum = 100f
-                setDrawGridLines(false)
-                setDrawLabels(true)
-            }
-            axisRight.isEnabled = false
-
-            setTouchEnabled(true)
-            setPinchZoom(false)
+            setVisibleXRangeMaximum(6f)
+            isDragEnabled = true
             setScaleEnabled(false)
 
-            animateX(1000)
-            invalidate() 
+            dragDecelerationFrictionCoef = 0.9f
+            setExtraOffsets(0f, 0f, 0f, 0f)
+
+            moveViewToX(successRates.size.toFloat()) // start at end
+            invalidate()
         }
     }
 
 
-
-
-
-    private fun displaySuccessRateChart() {
-        val entries = mutableListOf<Entry>()
-
-        val groupedData = habitData
-            .groupBy { it.date.withDayOfMonth(1) }  // Group by month
-            .toSortedMap()
-
-        groupedData.entries.forEachIndexed { index, entry ->
-            val successRate = calculateSuccessRate(selectedDays, entry.value).toFloat()
-            entries.add(Entry(index.toFloat(), successRate))
-        }
-
-        val dataSet = LineDataSet(entries, "Success Rate").apply {
-            color = ColorTemplate.MATERIAL_COLORS[0]
-            valueTextColor = ColorTemplate.getHoloBlue()
-            valueTextSize = 12f
-            setCircleColor(ColorTemplate.MATERIAL_COLORS[0])
-            setDrawFilled(true)
-            fillColor = ColorTemplate.MATERIAL_COLORS[0]
-            mode = LineDataSet.Mode.CUBIC_BEZIER  // Smooth curve effect
-        }
-
-        lineChart.data = LineData(dataSet)
-        lineChart.invalidate() // Refresh the chart
-    }
-
-    private fun calculateSuccessRate(
-        selectedDays: List<DayOfWeek>,
-        habitData: List<CalendarDay>
-    ): Double {
-        val validDays = habitData.filter { it.date.dayOfWeek in selectedDays }
-        val completedDays = validDays.count { it.status == DayStatus.COMPLETED }
-
-        val totalValidDays = validDays.size
-        return if (totalValidDays > 0) {
-            ((completedDays + (0.5)) / totalValidDays) * 100
-        } else 0.0
-    }
 
     private fun generateSampleHabitData(): List<CalendarDay> {
         val today = LocalDate.now()

@@ -16,9 +16,15 @@ import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
 import com.example.goal_ui.adapter.HabitGoalAdapter
 import com.example.goal_ui.databinding.FragmentHabitBinding
+import com.example.goal_ui.state.HabitAnalyticsState
 import com.example.goal_ui.viewmodel.GoalViewModel
 import com.example.utils.CommonFun
+import com.example.utils.CommonFun.animateOnClick
+import com.example.utils.CommonFun.getGoalById
+import com.example.utils.ProgressDialogUtil
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -43,18 +49,72 @@ class HabitFragment : Fragment() {
         binding = FragmentHabitBinding.inflate(inflater, container, false)
         habitGoalAdapter = HabitGoalAdapter(
             onEditClick = { habit -> showEditDialog(habit) },
-            openAnalytics = { habit -> showAnalytics(habit) },
-            onDeleteClick = { habit -> deleteHabit(habit) }
+            openAnalytics = { goalId -> showAnalytics(goalId) },
+            onStatusChange = { goal -> updateStatus(goal)},
+            onDeleteClick = { habit -> deleteHabit(habit) },
+            parentFragmentManager
         )
         return binding.root
     }
 
-    private fun showAnalytics(habit: Goal) {
-        val bundle = Bundle().apply {
-            putParcelable("goal", habit)
+    private fun updateStatus(goal: Goal) {
+        viewModel.updateGoalAnalytics(userId, goal)
+    }
+
+    private fun showAnalytics(goalId: String) {
+        lifecycleScope.launch {
+            val goal = getGoalById<Goal>(goalId = goalId)
+            if (goal != null) {
+                Log.i("HabitFragment", "Goal: ${goal.progress}")
+            }
+            val bundle = Bundle().apply {
+                putParcelable("goal", goal)
+            }
+            requireParentFragment().findNavController()
+                .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundle)
         }
-        requireParentFragment().findNavController()
-            .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment,bundle)
+
+//        viewModel.syncHabitsIfNeeded(requireContext())
+//
+//        lifecycleScope.launch {
+//            viewModel.progressUpdate.collectLatest { state ->
+//                when (state) {
+//                    HabitAnalyticsState.LOADING -> {
+//                        ProgressDialogUtil.showProgressDialog(requireContext())
+//                    }
+//
+//                    HabitAnalyticsState.SUCCESS -> {
+//                        ProgressDialogUtil.hideProgressDialog()
+//                        val goal = getGoalById<Goal>(goalId = goalId)
+//                        if (goal != null) {
+//                            Log.i("HabitFragment", "Goal: ${goal.progress}")
+//                            val bundle = Bundle().apply {
+//                                putParcelable("goal", goal)
+//                            }
+//                            requireParentFragment().findNavController()
+//                                .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundle)
+//                        } else {
+//                            Toast.makeText(
+//                                requireContext(),
+//                                "Failed to fetch goal details",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//                        this.cancel()
+//                    }
+//
+//                    HabitAnalyticsState.ERROR -> {
+//                        ProgressDialogUtil.hideProgressDialog()
+//                        Toast.makeText(
+//                            requireContext(),
+//                            "Error fetching analytics",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                        this.cancel()
+//                    }
+//                }
+//            }
+//        }
     }
 
     private fun showEditDialog(habit: Goal) {
@@ -106,15 +166,17 @@ class HabitFragment : Fragment() {
             viewModel.habitGoals.collectLatest { state ->
                 when {
                     state.isLoading -> {
-                        Toast.makeText(requireContext(), "Loading Habits...", Toast.LENGTH_SHORT).show()
+                        ProgressDialogUtil.showProgressDialog(requireContext())
                     }
                     state.error.isNotBlank() -> {
-                        Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                        ProgressDialogUtil.hideProgressDialog()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                     }
                     else -> {
+                        ProgressDialogUtil.hideProgressDialog()
                         state.goals.let { goals ->
                             habitGoalAdapter.submitList(goals)
-                            Log.d("HabitFragment", "Goals: $goals")
+                            Log.i("HabitFragment", "Goals: $goals")
                         }
                     }
                 }
