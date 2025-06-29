@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/general_bg"
+    android:background="@color/white"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/general_bg">
+        android:background="@color/white">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -19,7 +19,8 @@
             app:navigationIcon="@drawable/back_arrow"
             app:title="Edit Profile"
             app:titleTextAppearance="@style/ToolbarTitleStyle"
-            android:background="@color/general_bg"/>
+            android:layout_gravity="center"
+            android:background="@color/white"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -38,6 +39,35 @@
             android:focusableInTouchMode="true"
             android:paddingHorizontal="16dp">
 
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:padding="5dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_no_profile" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="6dp"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Change Profile Photo"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Full Name"
+                android:textSize="16sp" />
+
             <EditText
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
@@ -48,6 +78,16 @@
                 android:hint="Name"
                 android:padding="16dp" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Username"
+                android:textSize="16sp" />
+
             <EditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
@@ -57,6 +97,16 @@
                 android:backgroundTint="@color/et_bg"
                 android:hint="UserName"
                 android:padding="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Bio"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etBio"
@@ -72,20 +122,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:background="@drawable/bg_tab_select"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingHorizontal="8dp">
+                android:paddingHorizontal="6dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
+                    android:layout_gravity="center_vertical"
+                    android:fontFamily="@font/raleway_semi_bold"
                     android:text="Gender"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/selectGender"
@@ -106,7 +154,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:background="@drawable/bg_tab_select"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:paddingHorizontal="8dp">
@@ -115,12 +162,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
+                    android:layout_gravity="center_vertical"
+                    android:fontFamily="@font/raleway_semi_bold"
                     android:text="Birthday"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
+                    android:textSize="16sp" />
                 <TextView
                     android:id="@+id/selectBday"
                     android:layout_width="wrap_content"

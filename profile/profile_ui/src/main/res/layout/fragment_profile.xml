@@ -7,206 +7,243 @@
     android:background="@color/white"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:visibility="gone"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- Top Bar -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/usernameTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:fontFamily="@font/raleway_regular"
-                android:text="freak"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:id="@+id/settingsIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentEnd="true"
-                android:contentDescription="Settings"
-                android:src="@drawable/settings_logo" />
-        </RelativeLayout>
-
-        <!-- Profile Section -->
+        android:layout_height="match_parent">
         <LinearLayout
+            android:id="@+id/linearLayout"
+            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="16dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/profileImage"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/profile_placeholder"
-                android:paddingVertical="16dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_no_profile" />
-
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <!-- Top Bar -->
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/profileName"
+                    android:id="@+id/tv_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_light"
-                    android:text="User Name"
+                    android:layout_alignParentStart="true"
+                    android:layout_margin="10dp"
+                    android:padding="3dp"
+                    android:fontFamily="@font/raleway_regular"
+                    android:text="Profile"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/profileBio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/opensans_regular"
-                    android:text="This is a short bio."
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
+                <ImageView
+                    android:id="@+id/settingsIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:contentDescription="Settings"
+                    android:src="@drawable/settings_logo" />
+            </RelativeLayout>
+
+            <!-- Profile Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:padding="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_no_profile" />
 
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/profileName"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="User Name"
+                        android:textColor="@color/black"
+                        android:textSize="18sp" />
 
-                        <TextView
-                            android:id="@+id/postsCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Posts"
-                            android:textColor="@android:color/black"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/usernameTitle"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_alignParentStart="true"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="freak"
+                        android:textColor="#85000000"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/followersCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Followers"
-                            android:textColor="@android:color/black"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/profileBio"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/followingCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Following"
-                            android:textColor="@android:color/black"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="This is a short bio."
+                        android:textColor="#90000000"
+                        android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/posts_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:padding="15dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/following_layout"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/common_border">
+
+                    <TextView
+                        android:id="@+id/postsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:fontFamily="@font/poppins_bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Posts"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/following_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:padding="15dp"
+                    app:layout_constraintStart_toEndOf="@id/posts_layout"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/followers_layout"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/common_border">
+
+                    <TextView
+                        android:id="@+id/followingCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:fontFamily="@font/poppins_bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Followers"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/followers_layout"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="5dp"
+                    app:layout_constraintStart_toEndOf="@id/following_layout"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="15dp"
+                    android:gravity="center"
+                    android:background="@drawable/common_border">
+                    <TextView
+                        android:id="@+id/followersCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        android:textSize="20sp"
+                        android:fontFamily="@font/poppins_semibold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Followers"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular"/>
+                </LinearLayout>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Edit Profile Button -->
+            <TextView
+                android:id="@+id/editProfileButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_profile_button"
+                android:fontFamily="@font/montserrat_regular"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="Edit Profile"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <!-- Tabs Section -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@null"
+                app:tabIndicatorAnimationMode="elastic"
+                app:tabIndicatorFullWidth="true"
+                app:tabIconTint="@null"
+                app:tabIndicatorColor="@color/button_primary"
+                app:tabMode="fixed"
+                app:tabRippleColor="@null" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/button_gray" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- Edit Profile Button -->
-        <TextView
-            android:id="@+id/editProfileButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_profile_button"
-            android:fontFamily="@font/montserrat_regular"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Edit Profile"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
-
-        <!-- Tabs Section -->
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@null"
-            app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorFullWidth="true"
-            app:tabIconTint="@null"
-            app:tabIndicatorColor="@color/button_primary"
-            app:tabMode="fixed"
-            app:tabRippleColor="@null" />
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-    </LinearLayout>
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieProgress"

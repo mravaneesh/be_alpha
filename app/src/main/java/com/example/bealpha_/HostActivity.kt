@@ -16,6 +16,7 @@ import com.example.utils.R
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.bealpha_.databinding.ActivityHostBinding
+import com.example.goal_ui.worker.HabitStatusFixer
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -1,22 +1,30 @@
 package com.example.goal_ui.adapter
 
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.goal_domain.model.Goal
+import com.example.goal_ui.R
 import com.example.goal_ui.databinding.HabitItemGoalBinding
 import com.example.ui.BubbleItemType
 import com.example.ui.BubblePopup
-import com.example.utils.CommonFun.applyScaleAnimation
+import com.example.ui.DialogConfirmation
+import com.example.utils.CommonFun.animateOnClick
+import java.time.LocalDate
 
 class HabitGoalAdapter(
     private val onEditClick: (Goal) -> Unit,
-    private val openAnalytics: (Goal) -> Unit,
-    private val onDeleteClick: (Goal) -> Unit
+    private val openAnalytics: (String) -> Unit,
+    private val onStatusChange: (Goal) -> Unit,
+    private val onDeleteClick: (Goal) -> Unit,
+    private val fragmentManager: FragmentManager
 ) : ListAdapter<Goal, HabitGoalAdapter.GoalViewHolder>(GoalDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GoalViewHolder {
@@ -31,22 +39,64 @@ class HabitGoalAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         private val bubblePopup = BubblePopup()
-        init {
-            binding.root.applyScaleAnimation()
-            binding.root.setOnLongClickListener {
-                val goal = getItem(adapterPosition)
-                showBubblePopup(it, goal)
-                true
-            }
-            binding.root.setOnClickListener {
-                val goal = getItem(adapterPosition)
-                Log.i("GoalAdapter", "Clicked on goal: $goal")
-                openAnalytics(goal)
-            }
-        }
 
         fun bind(goal: Goal) {
-            binding.tvGoalName.text = goal.title
+            binding.apply {
+
+                tvGoalName.text = goal.title
+
+                ivAnalytics.setOnClickListener {
+                    animateOnClick(ivAnalytics)
+                    Log.i("GoalAdapter", "Clicked on root: $goal")
+                    openAnalytics(goal.id)
+                }
+                val today = LocalDate.now().toString()
+                val status = goal.progress[today] ?: 3
+
+                when (status) {
+                    0 -> {
+                        habitCompleteCircle.setBackgroundResource(R.drawable.bg_completed_day)
+                        checkIcon.visibility = View.VISIBLE
+                        habitCompleteCircle.isClickable = false
+                    }
+                    3 -> {
+                        habitCompleteCircle.setBackgroundResource(com.example.utils.R.drawable.bg_circular_outline)
+                        checkIcon.visibility = View.GONE
+                        habitCompleteCircle.isClickable = true
+                    }
+                    2 -> {
+                        completeLayout.visibility = View.GONE
+                    }
+                }
+
+                tvDays.text = getSelectedDaysText(goal.selectedDays)
+
+                root.setOnLongClickListener {
+                    animateOnClick(root)
+                    showBubblePopup(it, goal)
+                    true
+                }
+                habitCompleteCircle.setOnClickListener{
+                    Log.i("GoalAdapter", "Clicked on root: $goal")
+                    if(checkIcon.isVisible) return@setOnClickListener
+                    DialogConfirmation(
+                        message = "Mark this habit as completed for the day?",
+                        positiveText = "Yes",
+                        negativeText = "Cancel",
+                        onPositiveClick = {
+                            onStatusChange(goal)
+                            animateOnClick(habitCompleteCircle)
+
+                            habitCompleteCircle.setBackgroundResource(R.drawable.bg_completed_day)
+                            checkIcon.visibility = View.VISIBLE
+                            habitCompleteCircle.isClickable = false
+                        },
+                        onNegativeClick = {
+                            // Handle negative button click if needed
+                        }
+                    ).show(fragmentManager, "ConfirmComplete")
+                }
+            }
         }
 
         private fun showBubblePopup(anchorView: View, goal: Goal) {
@@ -70,4 +120,8 @@ class HabitGoalAdapter(
         override fun areContentsTheSame(oldItem: Goal, newItem: Goal): Boolean = oldItem == newItem
     }
 
+    private fun getSelectedDaysText(days: List<Int>): String {
+        val dayNames = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        return days.sorted().joinToString("  |  ") { dayNames[it % 7] }
+    }
 }

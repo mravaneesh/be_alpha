@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
 import com.example.goal_ui.adapter.GoalPagerAdapter
 import com.example.goal_ui.databinding.FragmentGoalBinding

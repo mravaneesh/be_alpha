@@ -1,11 +1,14 @@
 package com.example.goal_ui.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.usecase.GetGoalsUseCase
 import com.example.goal_ui.state.GoalState
+import com.example.goal_ui.state.HabitAnalyticsState
+import com.example.goal_ui.worker.HabitStatusFixer
 import com.example.utils.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +30,9 @@ class GoalViewModel @Inject constructor(
 
     private val _trackGoals = MutableStateFlow(GoalState())
     val trackGoals: StateFlow<GoalState> = _trackGoals
+
+    private val _progressUpdate = MutableStateFlow(HabitAnalyticsState.LOADING)
+    val progressUpdate: StateFlow<HabitAnalyticsState> = _progressUpdate
 
      fun loadHabitGoals(userId: String,category:String) {
        getGoalsUseCase(userId,category).onEach{
@@ -128,5 +134,13 @@ class GoalViewModel @Inject constructor(
 
         return count
     }
+
+    fun syncHabitsIfNeeded(context: Context) {
+        HabitStatusFixer.syncMissedAndPendingDays { newState ->
+            _progressUpdate.value = newState
+        }
+    }
+
+
 
 }

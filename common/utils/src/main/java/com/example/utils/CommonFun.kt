@@ -16,6 +16,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.util.Calendar
 
 
@@ -36,6 +38,14 @@ object CommonFun {
         val currentUser = firebaseAuth.currentUser
 
         return currentUser?.uid // Returns the User ID if logged in, otherwise null
+    }
+
+    fun getTodayDate():String {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        return "$year-$month-$day"
     }
 
     fun getCurrentTime():String
@@ -70,6 +80,12 @@ object CommonFun {
         }
     }
 
+    fun animateOnClick(view: View) {
+        view.animate().scaleX(0.8f).scaleY(0.8f).setDuration(100).withEndAction {
+            view.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+        }.start()
+    }
+
     fun passwordVisibility(ivEye: View, etPassword: EditText) {
         var isPasswordVisible = false
         ivEye.setOnClickListener {
@@ -85,12 +101,30 @@ object CommonFun {
             isPasswordVisible = !isPasswordVisible
         }
     }
-    private fun formatTime(hour: Int, minute: Int): String {
+    fun formatTime(hour: Int, minute: Int): String {
         val formattedHour = if (hour > 12) hour - 12 else hour
         val amPm = if (hour >= 12) "PM" else "AM"
         return String.format("%02d:%02d %s", formattedHour, minute, amPm)
     }
 
+    suspend inline fun <reified T> getGoalById(
+        goalId: String,
+    ): T? {
+        return try {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("goals")
+                .document(getCurrentUserId()!!)
+                .collection("Habit")
+                .document(goalId)
+                .get()
+                .await()
+
+            snapshot.toObject(T::class.java)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     fun getScreenSize(context: Context): Point {
         val wm = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)

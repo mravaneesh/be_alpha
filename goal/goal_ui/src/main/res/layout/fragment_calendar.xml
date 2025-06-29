@@ -6,21 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:background="@color/fragment_bg">
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginHorizontal="20dp"
-        android:paddingHorizontal="15dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/raleway_semi_bold"
-            android:text="Calendar"
-            android:textSize="20sp"
+        android:paddingHorizontal="0dp">
+        <ImageView
+            android:id="@+id/back_left"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/back_arrow"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -28,6 +26,7 @@
         <TextView
             android:id="@+id/tvYearMonth"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_width="wrap_content"
@@ -37,6 +36,15 @@
             android:fontFamily="@font/poppins_regular"
             android:clickable="true"
             android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/back_right"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/back_arrow_inverted"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -44,8 +52,7 @@
         android:id="@+id/monthRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingHorizontal="15dp" />
+        android:clipToPadding="false" />
 </LinearLayout>
 
 

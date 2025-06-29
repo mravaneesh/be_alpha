@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/fragment_bg"
+    android:background="@color/white"
     xmlns:tools="http://schemas.android.com/tools">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/fragment_bg">
+        android:background="@color/white">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -21,7 +21,7 @@
                 app:navigationIcon="@drawable/fg_back_arrow"
                 app:title="Add Habit"
                 app:titleTextAppearance="@style/ToolbarTitleStyle"
-                android:background="@color/fragment_bg"/>
+                android:background="@color/white"/>
     </com.google.android.material.appbar.AppBarLayout>
 
 
@@ -38,17 +38,35 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Title"
+                android:textSize="16sp" />
             <!-- Title Input -->
             <EditText
                 android:id="@+id/etGoalTitle"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:padding="16dp"
                 android:backgroundTint="@color/et_bg"
                 android:background="@drawable/bg_tab_select"
                 android:hint="@string/title" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="10dp"
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Description"
+                android:textSize="16sp" />
             <!-- Description Input -->
             <EditText
                 android:id="@+id/etGoalDescription"
@@ -60,177 +78,142 @@
                 android:background="@drawable/bg_tab_select"
                 android:hint="@string/description" />
 
-            <!-- Color Selection -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_tab_select"
+                android:layout_marginHorizontal="10dp"
                 android:layout_margin="10dp"
-                android:padding="8dp">
+                android:padding="6dp"
+                android:fontFamily="@font/raleway_semi_bold"
+                android:text="Repeat On"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/linearLayoutDays"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:background="@drawable/day_unselected_background"
+                android:orientation="horizontal"
+                android:padding ="5dp"
+                android:layout_marginHorizontal="10dp"
+                android:weightSum="7">
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/choose_a_color"
-                    android:textSize="16sp"
-                    android:gravity="center_vertical"
-                    android:layout_margin="10dp"
-                    android:padding="10dp"
-                    android:layout_weight="1"
-                    android:textStyle="bold" />
-                <View
-                    android:id="@+id/colorPreview"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_margin="10dp"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_general"
-                    android:backgroundTint="@color/button_primary"
+                    android:id="@+id/tv_sunday"
+                    style="@style/DayTextView"
+                    android:tag="0"
                     android:clickable="true"
                     android:focusable="true"
-                    android:layout_gravity="center_vertical" />
-            </LinearLayout>
+                    android:text="Sun" />
 
-            <LinearLayout
-                android:id="@+id/frequency_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible"
-                android:background="@drawable/bg_tab_select"
-                android:layout_margin="10dp">
+                <TextView
+                    android:id="@+id/tv_monday"
+                    style="@style/DayTextView"
+                    android:tag="1"
+                    android:text="Mon" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_tab_select"
-                    android:gravity="center">
+                <TextView
+                    android:id="@+id/tv_tuesday"
+                    style="@style/DayTextView"
+                    android:tag="2"
+                    android:text="Tue" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Frequency"
-                        android:layout_margin="10dp"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:padding="6dp"/>
+                <TextView
+                    android:id="@+id/tv_wednesday"
+                    style="@style/DayTextView"
+                    android:tag="3"
+                    android:text="Wed" />
 
-                    <LinearLayout
-                        android:id="@+id/linearLayoutDays"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:weightSum="7"
-                        android:padding="8dp">
+                <TextView
+                    android:id="@+id/tv_thursday"
+                    style="@style/DayTextView"
+                    android:tag="4"
+                    android:text="Thu" />
 
-                        <TextView
-                            android:id="@+id/tv_sunday"
-                            style="@style/DayTextView"
-                            android:text="S"
-                            android:tag="0"/>
+                <TextView
+                    android:id="@+id/tv_friday"
+                    style="@style/DayTextView"
+                    android:tag="5"
+                    android:text="Fri" />
 
-                        <TextView
-                            android:id="@+id/tv_monday"
-                            style="@style/DayTextView"
-                            android:text="M"
-                            android:tag="1"/>
-
-                        <TextView
-                            android:id="@+id/tv_tuesday"
-                            style="@style/DayTextView"
-                            android:text="T"
-                            android:tag="2"/>
-
-                        <TextView
-                            android:id="@+id/tv_wednesday"
-                            style="@style/DayTextView"
-                            android:text="W"
-                            android:tag="3"/>
-
-                        <TextView
-                            android:id="@+id/tv_thursday"
-                            style="@style/DayTextView"
-                            android:text="T"
-                            android:tag="4"/>
-
-                        <TextView
-                            android:id="@+id/tv_friday"
-                            style="@style/DayTextView"
-                            android:text="F"
-                            android:tag="5"/>
-
-                        <TextView
-                            android:id="@+id/tv_saturday"
-                            style="@style/DayTextView"
-                            android:text="S"
-                            android:tag="6"/>
-                    </LinearLayout>
-
-
-                    <!--                    <LinearLayout-->
-<!--                        android:id="@+id/weeklyOptions"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:gravity="center"-->
-<!--                        android:layout_marginHorizontal="10dp"-->
-<!--                        android:orientation="horizontal"-->
-<!--                        android:visibility="gone">-->
-<!--                    </LinearLayout>-->
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_saturday"
+                    style="@style/DayTextView"
+                    android:tag="6"
+                    android:text="Sat"
+                    android:layout_marginEnd="0dp"/>
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/reminderSegment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@drawable/bg_tab_select"
-                android:padding="16dp">
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="10dp">
 
                 <TextView
-                    android:id="@+id/tvReminder"
+                    android:id="@+id/tv_reminder"
                     android:layout_width="wrap_content"
-                    android:layout_height="29dp"
-                    android:layout_margin="10dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:fontFamily="@font/raleway_semi_bold"
+                    android:padding="6dp"
                     android:text="@string/reminder"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tvSelectedTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/bg_tab_select"
-                    android:backgroundTint="@color/et_bg"
-                    app:layout_constraintStart_toEndOf="@id/tvReminder"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:padding="10dp"
+                    android:layout_marginVertical="10dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:textSize="16sp"
                     android:visibility="gone"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    tools:text="12:34" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_reminder"
+                    tools:text="12:34"
+                    tools:visibility="visible" />
 
-                <androidx.appcompat.widget.SwitchCompat
+                <Switch
                     android:id="@+id/switchReminder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:checked="false"
+                    android:paddingVertical="6dp"
+                    android:scaleY="1.44"
+                    android:thumb="@drawable/ic_switch_thumb"
+                    android:track="@drawable/bg_track"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:gravity="end"
-                    android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginVertical="10dp"/>
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ic_dropDown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginVertical="10dp"
+                    android:paddingVertical="6dp"
+                    android:src="@drawable/ic_drop_down"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/switchReminder" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+            <TimePicker
+                android:id="@+id/timePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginTop="-20dp"
+                android:layout_marginBottom="20dp"
+                android:timePickerMode="spinner"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -39,6 +39,7 @@ android {
 
 dependencies {
     implementation(project(":common:utils"))
+    implementation(project(":common:ui"))
     implementation(project(":profile:profile_domain"))
     implementation(project(":profile:profile_data"))
 
