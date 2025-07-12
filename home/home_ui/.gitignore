@@ -1,2 +1,2 @@
 /build
-home_ui/aws_credentials.properties
+**/aws_credentials.properties
