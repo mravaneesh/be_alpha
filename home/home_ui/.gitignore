@@ -1,3 +1,2 @@
 /build
-AWS_ACCESS_KEY=AKIARHPURCJ4B4XP2TNI
-AWS_SECRET_KEY=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
+/aws_credentials.properties
