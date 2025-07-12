@@ -23,9 +23,25 @@
         android:name="com.example.goal_ui.view.addGoal.AddGoalFragment"
         android:label="Add Goal"
         tools:layout="@layout/fragment_add_goal" />
+
     <fragment
         android:id="@+id/habitAnalyticsFragment"
         android:name="com.example.goal_ui.analytics.view.HabitAnalyticsFragment"
         android:label="fragment_habit_analytics"
-        tools:layout="@layout/fragment_habit_analytics"/>
+        tools:layout="@layout/fragment_habit_analytics">
+
+        <argument
+            android:name="goalId"
+            app:argType="string"
+            android:defaultValue=""/>
+
+        <argument
+            android:name="postMode"
+            app:argType="boolean"
+            android:defaultValue="false"/>
+
+        <deepLink
+            app:uri="bealpha://app/habitAnalytics?goalId={goalId}&amp;postMode={postMode}" />
+    </fragment>
+
 </navigation>

@@ -1,4 +1,4 @@
-package com.example.authentication.model
+package com.example.utils.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -13,8 +13,8 @@ data class User(
     val birthdate:String = "Select",
     val gender:String = "Select",
     val profileImageUrl:String="",
-    val followers:Int = 0,
-    val following:Int = 0,
+    val followers:List<String> = emptyList(),
+    val following:List<String> = emptyList(),
     val posts:Int = 0,
     val createdAt:Long = System.currentTimeMillis()
 ): Parcelable

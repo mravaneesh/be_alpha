@@ -48,6 +48,7 @@ class HabitFragment : Fragment() {
     ): View{
         binding = FragmentHabitBinding.inflate(inflater, container, false)
         habitGoalAdapter = HabitGoalAdapter(
+            requireContext(),
             onEditClick = { habit -> showEditDialog(habit) },
             openAnalytics = { goalId -> showAnalytics(goalId) },
             onStatusChange = { goal -> updateStatus(goal)},
@@ -68,53 +69,11 @@ class HabitFragment : Fragment() {
                 Log.i("HabitFragment", "Goal: ${goal.progress}")
             }
             val bundle = Bundle().apply {
-                putParcelable("goal", goal)
+                putString("goalId", goalId)
             }
             requireParentFragment().findNavController()
                 .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundle)
         }
-
-//        viewModel.syncHabitsIfNeeded(requireContext())
-//
-//        lifecycleScope.launch {
-//            viewModel.progressUpdate.collectLatest { state ->
-//                when (state) {
-//                    HabitAnalyticsState.LOADING -> {
-//                        ProgressDialogUtil.showProgressDialog(requireContext())
-//                    }
-//
-//                    HabitAnalyticsState.SUCCESS -> {
-//                        ProgressDialogUtil.hideProgressDialog()
-//                        val goal = getGoalById<Goal>(goalId = goalId)
-//                        if (goal != null) {
-//                            Log.i("HabitFragment", "Goal: ${goal.progress}")
-//                            val bundle = Bundle().apply {
-//                                putParcelable("goal", goal)
-//                            }
-//                            requireParentFragment().findNavController()
-//                                .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundle)
-//                        } else {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "Failed to fetch goal details",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//                        this.cancel()
-//                    }
-//
-//                    HabitAnalyticsState.ERROR -> {
-//                        ProgressDialogUtil.hideProgressDialog()
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "Error fetching analytics",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                        this.cancel()
-//                    }
-//                }
-//            }
-//        }
     }
 
     private fun showEditDialog(habit: Goal) {

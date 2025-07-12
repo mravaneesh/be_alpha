@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.utils.R
 import com.example.authentication.databinding.FragmentSignupBinding
-import com.example.authentication.model.User
+import com.example.utils.model.User
 import com.example.utils.CommonFun
 import com.example.utils.CommonFun.applyScaleAnimation
 import com.example.utils.CommonFun.passwordVisibility

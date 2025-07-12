@@ -6,6 +6,7 @@ import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.text.InputType
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -15,6 +16,8 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import com.example.utils.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -62,6 +65,15 @@ object CommonFun {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         context.startActivity(intent)
     }
+
+    fun navigateToDeepLinkFragment(
+        navController: NavController,
+        destination: String
+    ) {
+        val uri = Uri.parse("bealpha://app/$destination")
+        navController.navigate(uri)
+    }
+
 
     fun View.applyScaleAnimation() {
         setOnTouchListener { view, event ->
@@ -121,6 +133,22 @@ object CommonFun {
 
             snapshot.toObject(T::class.java)
         } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    suspend fun getUser(): User? {
+        return try {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(getCurrentUserId()!!)
+                .get()
+                .await()
+
+            snapshot.toObject(User::class.java)
+        } catch (e: Exception) {
+            Log.i("CommonFun", "getUser: ${e.message}")
             e.printStackTrace()
             null
         }

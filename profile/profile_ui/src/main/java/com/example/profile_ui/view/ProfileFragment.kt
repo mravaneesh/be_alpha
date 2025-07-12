@@ -1,6 +1,7 @@
 package com.example.profile_ui.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -119,14 +120,15 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateUI(profile: UserProfile) {
+        Log.i("ProfileFragment", "updateUI: $profile")
         with(binding) {
             profileName.text = profile.name
             profileBio.text = profile.bio
             profileBio.visibility = if (profile.bio.isBlank()) View.GONE else View.VISIBLE
             usernameTitle.text = "@${profile.userName}"
             postsCount.text = String.format(Locale.getDefault(), "%,d", profile.posts)
-            followersCount.text = String.format(Locale.getDefault(), "%,d", profile.followers)
-            followingCount.text = String.format(Locale.getDefault(), "%,d", profile.following)
+            followersCount.text = String.format(Locale.getDefault(), "%,d", profile.followers.size)
+            followingCount.text = String.format(Locale.getDefault(), "%,d", profile.following.size)
 
 //            // Load profile image using Glide
 //            Glide.with(requireContext())

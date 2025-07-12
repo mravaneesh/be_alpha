@@ -12,21 +12,20 @@ object HabitStatusFixer {
 
     private const val LAST_SYNC_PREF = "last_sync_date"
 
-    fun syncIfNeeded(context: Context, onStateChange: (HabitAnalyticsState) -> Unit) {
+    fun syncIfNeeded(context: Context) {
         val prefs = context.getSharedPreferences("habit_sync_prefs", Context.MODE_PRIVATE)
         val lastSyncDate = prefs.getString(LAST_SYNC_PREF, null)
         val today = LocalDate.now().toString()
 
         if (lastSyncDate != today) {
-            onStateChange(HabitAnalyticsState.LOADING)
-            syncMissedAndPendingDays(onStateChange)
+            syncMissedAndPendingDays()
             prefs.edit().putString(LAST_SYNC_PREF, today).apply()
         } else {
             Log.i("HabitFixer", "⏳ Sync skipped - already synced today.")
         }
     }
 
-    fun syncMissedAndPendingDays(onStateChange: (HabitAnalyticsState) -> Unit) {
+    private fun syncMissedAndPendingDays() {
         val userId = CommonFun.getCurrentUserId()
         Log.i("HabitStatusFixer", "⏳ Starting sync...$userId")
         val db = FirebaseFirestore.getInstance()
@@ -54,15 +53,30 @@ object HabitStatusFixer {
                             val dayStr = current.toString()
                             val dayOfWeek = current.dayOfWeek.value % 7
 
-                            if(!progress.containsKey(dayStr)) {
-                                if(current == today) {
-                                    progress[dayStr] = 3
-                                } else if(selectedDays.contains(dayOfWeek)) {
-                                    progress[dayStr] = 1
-                                } else {
-                                    progress[dayStr] = 2
+                            when{
+                                progress.containsKey(dayStr) ->{
+                                    if(progress[dayStr] == 3 && current.isBefore(today)) {
+                                        progress[dayStr] =1
+                                        updated = true
+                                    }
                                 }
-                                updated = true
+                                current == today ->{
+                                    if(selectedDays.contains(dayOfWeek)) {
+                                        progress[dayStr] = 3
+                                        updated = true
+                                    } else {
+                                        progress[dayStr] = 2
+                                        updated = true
+                                    }
+                                }
+                                selectedDays.contains(dayOfWeek) -> {
+                                    progress[dayStr] = 1
+                                    updated = true
+                                }
+                                else -> {
+                                    progress[dayStr] = 2
+                                    updated = true
+                                }
                             }
                             current = current.plusDays(1)
                         }
@@ -78,12 +92,12 @@ object HabitStatusFixer {
 
 
                             val completedRequiredDates = sortedProgress.entries
-                                .filter { (dateStr, value) ->
+                                .filter { (dateStr, _) ->
                                     val date = runCatching { LocalDate.parse(dateStr) }.getOrNull()
                                     date != null && selectedDays.contains(date.dayOfWeek.value % 7)
                                 }
 
-                            for ((dateStr, status) in completedRequiredDates) {
+                            for ((_, status) in completedRequiredDates) {
                                 if (status == 0) {
                                     tempStreak++
                                     totalCompleted++
@@ -123,18 +137,15 @@ object HabitStatusFixer {
                                     )
                                 )
                                 .addOnSuccessListener {
-                                    onStateChange(HabitAnalyticsState.SUCCESS)
                                     Log.i("HabitStatusFixer", "✅ Progress + Analytics updated for ${goal.title}")
                                 }
                                 .addOnFailureListener {
-                                    onStateChange(HabitAnalyticsState.ERROR)
                                     Log.e("HabitStatusFixer", "❌ Failed to update analytics: ${it.message}")
                                 }
                         }
                     }
                 }
                 .addOnFailureListener {
-                    onStateChange(HabitAnalyticsState.ERROR)
                     Log.e("HabitStatusFixer", "❌ Failed to fetch goals: ${it.message}")
                 }
         }

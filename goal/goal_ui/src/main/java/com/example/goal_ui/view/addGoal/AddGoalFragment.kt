@@ -12,18 +12,13 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
 import com.example.goal_ui.databinding.FragmentAddGoalBinding
 import com.example.goal_ui.viewmodel.AddGoalViewModel
 import com.example.utils.CommonFun
-import com.google.android.material.chip.Chip
-
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.UUID
 
@@ -96,35 +91,63 @@ class AddGoalFragment : Fragment() {
 
 
     private fun updateGoal(goalId: String) {
-        val updatedGoal = Goal(
-            id = goalId,
-            title = binding.etGoalTitle.text.toString(),
-            description = binding.etGoalDescription.text.toString(),
-            color = viewModel.selectedColor.value!!,
-            selectedDays = selectedDays.toList()
-        )
+        val updatedTitle = binding.etGoalTitle.text.toString()
+        val updatedDescription = binding.etGoalDescription.text.toString()
+        val updatedColor = viewModel.selectedColor.value!!
+        val updatedSelectedDays = selectedDays.toList()
+        val today = LocalDate.now().toString()
 
-        FirebaseFirestore.getInstance()
-            .collection("goals")
+        val db = FirebaseFirestore.getInstance()
+        val goalDocRef = db.collection("goals")
             .document(userId)
             .collection("Habit")
             .document(goalId)
-            .update(
-                mapOf(
-                    "title" to updatedGoal.title,
-                    "description" to updatedGoal.description,
-                    "color" to updatedGoal.color,
-                    "selectedDays" to updatedGoal.selectedDays
-                )
-            )
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Goal updated successfully", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
+
+        goalDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val currentProgressMap = mutableMapOf<String, Long>()
+                    val rawMap = document.get("progress") as? Map<*, *>
+
+                    // Safely cast and convert the map
+                    rawMap?.forEach { (key, value) ->
+                        if (key is String && value is Number) {
+                            currentProgressMap[key] = value.toLong()
+                        }
+                    }
+
+                    // Determine current status for today
+                    val oldStatus = currentProgressMap[today]?.toInt() ?: 3 // Default to pending (3)
+
+                    val todayDayIndex = LocalDate.now().dayOfWeek.value % 7
+                    val isTodaySelected = updatedSelectedDays.contains(todayDayIndex)
+
+                    if (!isTodaySelected && oldStatus == 3) {
+                        currentProgressMap[today] = 2L // Set to Out of Range
+                    } else if (isTodaySelected && oldStatus == 2) {
+                        currentProgressMap[today] = 3L // Set back to Pending
+                    }
+
+                    goalDocRef.update(
+                        mapOf(
+                            "title" to updatedTitle,
+                            "description" to updatedDescription,
+                            "color" to updatedColor,
+                            "selectedDays" to updatedSelectedDays,
+                            "progress" to currentProgressMap
+                        )
+                    ).addOnSuccessListener {
+                        Log.i("AddGoalFragment", "Goal updated successfully")
+                        findNavController().popBackStack()
+                    }.addOnFailureListener { e ->
+                        Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to fetch goal: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun setupFragment() {
         setupDaySelection()
