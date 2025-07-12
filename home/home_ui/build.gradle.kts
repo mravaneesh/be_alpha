@@ -1,3 +1,6 @@
+import java.util.Properties
+
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -14,6 +17,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        val awsProps = Properties()
+        val propsFile = file("aws_credentials.properties")
+        if (propsFile.exists()) {
+            awsProps.load(propsFile.inputStream())
+        }
+        buildConfigField("String", "AWS_ACCESS_KEY", "\"${awsProps["AWS_ACCESS_KEY"]}\"")
+        buildConfigField("String", "AWS_SECRET_KEY", "\"${awsProps["AWS_SECRET_KEY"]}\"")
+        buildConfigField("String", "AWS_BUCKET_NAME", "\"${awsProps["AWS_BUCKET_NAME"]}\"")
     }
 
     buildTypes {
@@ -34,6 +45,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 

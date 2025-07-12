@@ -7,12 +7,15 @@ import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3Client
+import com.example.home_ui.BuildConfig
+import java.util.Properties
+
 
 object AwsS3Helper {
 
-    private const val BUCKET_NAME = "bealpha-posts"
-    private val ACCESS_KEY = System.getenv("AWS_ACCESS_KEY")
-    private val SECRET_KEY = System.getenv("AWS_SECRET_KEY")
+    private const val BUCKET_NAME = BuildConfig.AWS_BUCKET_NAME
+    private const val ACCESS_KEY = BuildConfig.AWS_ACCESS_KEY
+    private const val SECRET_KEY = BuildConfig.AWS_SECRET_KEY
 
     fun getTransferUtility(context: Context):TransferUtility {
         val credentials by lazy {
