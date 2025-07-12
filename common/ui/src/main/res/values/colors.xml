@@ -16,5 +16,6 @@
     <color name="et_bg">#208fa4c4</color>
     <color name="inactive_button">#A6A6A9</color>
     <color name="active_button">#FCFCFF</color>
+    <color name="inactive_text">#85000000</color>
     <color name="transparent">@android:color/transparent</color>
 </resources>

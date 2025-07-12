@@ -1,5 +1,6 @@
 package com.example.goal_ui.view
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import com.example.goal_ui.R
 import com.example.goal_ui.adapter.GoalPagerAdapter
 import com.example.goal_ui.databinding.FragmentGoalBinding
 import com.example.goal_ui.view.addGoal.AddTrackGoalBottomSheetFragment
+import com.example.goal_ui.worker.HabitStatusFixer
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,6 +38,12 @@ class GoalFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.i("GoalFragment", "onResume called")
+        HabitStatusFixer.syncIfNeeded(requireContext())
+    }
+
     private fun setupViewPagerAndTabs() {
         adapter = GoalPagerAdapter(this)
         binding.viewPager.adapter = adapter
@@ -46,6 +54,4 @@ class GoalFragment : Fragment() {
             }
         }.attach()
     }
-
-
 }

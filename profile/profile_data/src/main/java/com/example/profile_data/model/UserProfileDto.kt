@@ -9,8 +9,8 @@ data class UserProfileDto(
     val birthdate:String = "",
     val gender:String = "",
     val profileImageUrl:String="",
-    val followers:Int = 0,
-    val following:Int = 0,
+    val followers:List<String> = emptyList(),
+    val following:List<String> = emptyList(),
     val posts:Int = 0,
     val createdAt:Long = System.currentTimeMillis()
 )

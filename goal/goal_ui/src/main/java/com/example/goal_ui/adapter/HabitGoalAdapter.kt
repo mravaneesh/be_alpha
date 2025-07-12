@@ -1,6 +1,7 @@
 package com.example.goal_ui.adapter
 
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import com.example.utils.CommonFun.animateOnClick
 import java.time.LocalDate
 
 class HabitGoalAdapter(
+    private val context: Context,
     private val onEditClick: (Goal) -> Unit,
     private val openAnalytics: (String) -> Unit,
     private val onStatusChange: (Goal) -> Unit,
@@ -65,7 +67,10 @@ class HabitGoalAdapter(
                         habitCompleteCircle.isClickable = true
                     }
                     2 -> {
-                        completeLayout.visibility = View.GONE
+                        val color = context.resources.getColor(com.example.ui.R.color.inactive_text)
+                        habitCompleteCircle.visibility = View.GONE
+                        tvGoalName.setTextColor(color)
+                        ivSchedule.visibility = View.VISIBLE
                     }
                 }
 

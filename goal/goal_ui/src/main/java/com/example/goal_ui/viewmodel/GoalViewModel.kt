@@ -135,11 +135,11 @@ class GoalViewModel @Inject constructor(
         return count
     }
 
-    fun syncHabitsIfNeeded(context: Context) {
-        HabitStatusFixer.syncMissedAndPendingDays { newState ->
-            _progressUpdate.value = newState
-        }
-    }
+//    fun syncHabitsIfNeeded(context: Context) {
+//        HabitStatusFixer.syncMissedAndPendingDays { newState ->
+//            _progressUpdate.value = newState
+//        }
+//    }
 
 
 

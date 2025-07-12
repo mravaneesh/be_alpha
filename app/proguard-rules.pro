@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# AWS SDK
+-keep class com.amazonaws.** { *; }
+-keep class com.amazonaws.services.s3.** { *; }
+-keepattributes Signature, *Annotation*, EnclosingMethod
+-dontwarn com.amazonaws.**

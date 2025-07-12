@@ -44,6 +44,9 @@ android {
 
 dependencies {
 
+    implementation("com.amazonaws:aws-android-sdk-s3:2.22.+")
+    implementation("com.amazonaws:aws-android-sdk-core:2.22.+")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.6")
