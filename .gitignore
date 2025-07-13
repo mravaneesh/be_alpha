@@ -13,3 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+home_ui/aws_credentials.properties
