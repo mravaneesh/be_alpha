@@ -1,72 +1,56 @@
-# 🧠 BeAlpha – Habit & Goal Tracker
+# 🌟 beAlpha — Your AI-Powered Habit, Fitness & Lifestyle Coach
 
-**BeAlpha** is a beautiful and efficient habit tracking app built with modern Android architecture. It helps users build better routines, stay consistent, and analyze their self-growth through rich analytics and a visual calendar.
+![beAlpha Banner](https://via.placeholder.com/1000x250.png?text=beAlpha+AI+Agent+App)
+
+**beAlpha** is a smart AI-powered assistant that helps users build habits, track fitness progress, manage schedules, explore nearby gyms, and join social challenges — all in one place.
 
 ---
 
 ## 🚀 Features
 
-### 🗓 Habit & Goal Management
-- Add daily or weekly **habit goals** and **tracking metrics** (e.g., steps, water intake).
-- Customize goal details with:
-  - Title & description
-  - Reminder time
-  - Color-coded goals
-  - Selectable days of the week
-
-### 📆 Interactive Calendar
-- Visual monthly calendar for each habit
-- Displays:
-  - ✅ Completed days
-  - ❌ Missed days
-  - 🟡 Pending days
-  - ⛔ Non-required days
-- Smart snapping and gesture-based navigation
-
-### 📊 Powerful Analytics
-- Track success rate, streaks, and total completions
-- Weekly & monthly line charts for visual progress
-- Detailed goal history logs
-
-### 🔔 Reminders & Automation
-- Daily reminder notifications
-- Background task worker to auto-mark missed habits at midnight
-- Intelligent handling for non-required days
+- 📅 **Habit Tracking** — Track progress with a smart calendar UI.
+- 🤖 **AI Coaching** — Personalized habit and fitness suggestions.
+- 🏋️ **Nearby Gyms** — Discover gyms and fitness centers with integrated payment options.
+- 💬 **Social Feed** — Share progress, like & comment on posts.
+- 🏆 **Challenges** — Join community challenges and stay motivated.
+- 💳 **Pro Membership** — Unlock premium features & exclusive benefits.
 
 ---
 
-## 🧱 Tech Stack
+## 🛠 Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| Architecture | MVVM + Clean Architecture + Hilt |
-| UI | Jetpack ViewBinding + RecyclerView + ViewPager + ChipGroup |
-| Backend | Firebase Firestore |
-| Background Tasks | WorkManager |
-| Charts | MPAndroidChart |
-| Dependency Injection | Hilt |
-| Time API | Java 8 Time (LocalDate, YearMonth) |
+| Layer          | Technology Used |
+|----------------|-----------------|
+| **Frontend**   | Kotlin, Android Jetpack (ViewBinding, LiveData, ViewModel) |
+| **Backend**    | Firebase Firestore, Firebase Auth, AWS S3 |
+| **AI Engine**  | OpenAI API, Custom ML Recommendations |
+| **Payments**   | Razorpay / Stripe |
+| **Deployment** | GitHub Actions, Play Store |
 
 ---
 
-## 🛠 Architecture Overview
+## 📸 Screenshots
 
-```text
-App Module
-│
-├── goal_ui/
-│   ├── view/              → Fragments & UI logic
-│   ├── adapter/           → Calendar & goal cards
-│   ├── analytics/         → Habit analytics features
-│   ├── viewmodel/         → Shared state and business logic
-│
-├── goal_domain/
-│   ├── usecase/           → Business rules
-│   ├── model/             → Goal data classes
-│
-├── goal_data/
-│   ├── repository/        → Firestore integration
-│   ├── datasource/        → Firebase SDK wrappers
-│
-└── common/
-    └── utils/             → Helpers (Time, Dialogs, etc.)
+| Habit Tracking | Social Feed | Gym Finder |
+|---|---|---|
+| ![Habit Tracking](https://via.placeholder.com/200x400.png?text=Habit+Tracking) | ![Social Feed](https://via.placeholder.com/200x400.png?text=Social+Feed) | ![Gym Finder](https://via.placeholder.com/200x400.png?text=Gym+Finder) |
+
+---
+
+## 📍 Roadmap
+
+- [x] Core habit tracking with analytics
+- [x] Social media-style feed
+- [x] Nearby gym & payments integration
+- [ ] AI-powered fitness chatbot
+- [ ] Cross-platform support (iOS + Web)
+- [ ] Wearable device integration
+
+---
+
+
+## 📬 Contact
+
+👤 **Avaneesh Pandey**  
+📧 Email: [your-email@example.com](mailto:avaneeshpandey0830@gmail.com)  
+🔗 LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/avaneesh-pandey0830/)  
