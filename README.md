@@ -30,10 +30,10 @@
 ---
 
 ## 📸 Screenshots
-<img width="100" height="200" alt="bealpha1" src="https://github.com/user-attachments/assets/0fc76b83-4580-40e2-ab27-c1cf122ff0cc" />
-<img width="100" height="200" alt="belapha2" src="https://github.com/user-attachments/assets/dedaadef-d698-46d3-97f8-b7ffcdaf15bf" />
-<img width="100" height="200" alt="bealpha3" src="https://github.com/user-attachments/assets/994e1e56-bba3-43f8-8c56-be4f274e27e1" />
-<img width="100" height="200" alt="bealpha4" src="https://github.com/user-attachments/assets/2731370e-629e-42fd-a7b7-9f5daf55cec2" />
+<img width="200" height="400" alt="bealpha1" src="https://github.com/user-attachments/assets/0fc76b83-4580-40e2-ab27-c1cf122ff0cc" />
+<img width="200" height="400" alt="belapha2" src="https://github.com/user-attachments/assets/dedaadef-d698-46d3-97f8-b7ffcdaf15bf" />
+<img width="200" height="400" alt="bealpha3" src="https://github.com/user-attachments/assets/994e1e56-bba3-43f8-8c56-be4f274e27e1" />
+<img width="200" height="400" alt="bealpha4" src="https://github.com/user-attachments/assets/2731370e-629e-42fd-a7b7-9f5daf55cec2" />
 
 ---
 
