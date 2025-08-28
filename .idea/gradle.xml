@@ -21,6 +21,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ai_agent" />
+            <option value="$PROJECT_DIR$/ai_agent/ai_data" />
+            <option value="$PROJECT_DIR$/ai_agent/ai_domain" />
+            <option value="$PROJECT_DIR$/ai_agent/ai_ui" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/authentication" />
             <option value="$PROJECT_DIR$/buildSrc" />
@@ -39,6 +43,15 @@
             <option value="$PROJECT_DIR$/home/home_data" />
             <option value="$PROJECT_DIR$/home/home_domain" />
             <option value="$PROJECT_DIR$/home/home_ui" />
+            <option value="$PROJECT_DIR$/notification" />
+            <option value="$PROJECT_DIR$/notification/notification_data" />
+            <option value="$PROJECT_DIR$/notification/notification_domain" />
+            <option value="$PROJECT_DIR$/notification/notification_ui" />
+            <option value="$PROJECT_DIR$/notification_data" />
+            <option value="$PROJECT_DIR$/onboarding" />
+            <option value="$PROJECT_DIR$/onboarding/onboarding_data" />
+            <option value="$PROJECT_DIR$/onboarding/onboarding_domain" />
+            <option value="$PROJECT_DIR$/onboarding/onboarding_ui" />
             <option value="$PROJECT_DIR$/profile" />
             <option value="$PROJECT_DIR$/profile/profile_data" />
             <option value="$PROJECT_DIR$/profile/profile_domain" />

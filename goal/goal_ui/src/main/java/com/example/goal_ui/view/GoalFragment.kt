@@ -41,7 +41,7 @@ class GoalFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.i("GoalFragment", "onResume called")
-        HabitStatusFixer.syncIfNeeded(requireContext())
+        HabitStatusFixer.syncMissedAndPendingDays()
     }
 
     private fun setupViewPagerAndTabs() {

@@ -3,6 +3,7 @@ package com.example.authentication.view
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
@@ -32,9 +33,11 @@ class VerifyEmailDialog : DialogFragment() {
 
         // Auto dismiss after 3 seconds
         dialog.setOnShowListener {
+            val nextScreen = "onboarding"
+            Log.i("VerifyEmailDialog", "nextScreen: $nextScreen")
             view.postDelayed({
                 dismiss()
-                CommonFun.deepLinkNav("homeFragment", requireContext())
+                CommonFun.deepLinkNav(nextScreen, requireContext())
             }, 3000)
         }
 

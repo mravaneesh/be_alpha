@@ -16,6 +16,7 @@ data class User(
     val followers:List<String> = emptyList(),
     val following:List<String> = emptyList(),
     val posts:Int = 0,
-    val createdAt:Long = System.currentTimeMillis()
+    val createdAt:Long = System.currentTimeMillis(),
+    val onboardingCompleted: Boolean = false
 ): Parcelable
 

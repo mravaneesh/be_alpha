@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.home_domain.model.Post
+import com.example.home_domain.usecase.GetFeedPostUseCase
 import com.example.profile_domain.usecase.GetProfileUseCase
 import com.example.profile_ui.databinding.FragmentProfileBinding
 import com.example.profile_ui.state.ProfileState
@@ -19,11 +21,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel@Inject constructor(
-    private val getProfileUseCase: GetProfileUseCase
+    private val getProfileUseCase: GetProfileUseCase,
+    private val getFeedPostUseCase: GetFeedPostUseCase
 ): ViewModel() {
 
     private val _profile = MutableStateFlow(ProfileState())
     val profile: StateFlow<ProfileState> = _profile
+
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> = _posts
 
     fun loadProfile(userId: String) {
         getProfileUseCase(userId)
@@ -38,6 +44,25 @@ class ProfileViewModel@Inject constructor(
                     is Resource.Error -> {
                         _profile.value = ProfileState(error = resource.message)
                     }
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun loadUserPosts(userId: String) {
+        getFeedPostUseCase(userId)
+            .onEach { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        _posts.value = emptyList()
+                    }
+
+                    is Resource.Success -> {
+                        _posts.value = resource.data
+                            .filter { it.userId == userId }
+                    }
+
+                    is Resource.Error -> TODO()
                 }
             }
             .launchIn(viewModelScope)

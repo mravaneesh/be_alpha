@@ -13,11 +13,11 @@
         <deepLink
             app:uri="bealpha://app/homeFragment"/>
         <action
-            android:id="@+id/action_homeFragment_to_createPostFragment"
-            app:destination="@id/createPostFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_notificationFragment"
             app:destination="@id/notificationFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_habitSelectFragment"
+            app:destination="@id/habitSelectFragment" />
     </fragment>
     <fragment
         android:id="@+id/createPostFragment"
@@ -25,6 +25,17 @@
         android:label="fragment_create_post"
         tools:layout="@layout/fragment_create_post" >
 
+        <argument
+            android:name="habitTitle"
+            app:argType="string"
+            android:defaultValue=""/>
+
+        <deepLink
+            app:uri="bealpha://app/createPostFragment?habitTitle={habitTitle}"/>
+
+        <action
+            android:id="@+id/action_createPostFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 
     <fragment
@@ -32,5 +43,9 @@
         android:name="com.example.home_ui.notification.NotificationFragment"
         android:label="fragment_notification"
         tools:layout="@layout/fragment_notification" />
+    <fragment
+        android:id="@+id/habitSelectFragment"
+        android:name="com.example.home_ui.addPost.HabitSelectFragment"
+        android:label="HabitSelectFragment" />
 
 </navigation>

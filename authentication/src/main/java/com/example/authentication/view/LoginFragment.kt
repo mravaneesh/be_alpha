@@ -1,6 +1,7 @@
 package com.example.authentication.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import com.example.authentication.databinding.FragmentLoginBinding
 import com.example.utils.CommonFun
 import com.example.utils.CommonFun.applyScaleAnimation
 import com.example.utils.CommonFun.passwordVisibility
+import com.example.utils.Prefs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -42,7 +44,8 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-
+            binding.btnLogin.isEnabled = false
+            Log.i("LoginFragment", "initView: $username")
             if (username.isNotEmpty() && password.isNotEmpty()) {
                 loginUser(username, password)
             } else {
@@ -60,6 +63,7 @@ class LoginFragment : Fragment() {
 
     private fun loginUser(username: String, password: String) {
         setLoadingState()
+        Log.i("LoginFragment", "loginUser: $username")
         db.collection("users")
             .whereEqualTo("username", username)
             .get()
@@ -84,18 +88,50 @@ class LoginFragment : Fragment() {
     }
 
     private fun authenticateWithEmailAndPassword(email: String, password: String) {
+        Log.i("LoginFragment", "authenticateWithEmailAndPassword: $email")
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
-                setNormalState()
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null) {
-                        CommonFun.deepLinkNav("homeFragment",requireContext())
+                        navigateAsOnboardingCompleted(user.uid)
                     }
                 } else {
+                    setNormalState()
                     Toast.makeText(requireContext(), "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun navigateAsOnboardingCompleted(userId: String) {
+        Log.i("LoginFragment", ".navigateAsOnboardingCompleted: $userId")
+        if(Prefs.isKeyExists(requireContext())) {
+            setNormalState()
+            Log.i("LoginFragment", ".navigateAsOnboardingCompleted : ${Prefs.isOnboardingCompleted(requireContext())}")
+            if (Prefs.isOnboardingCompleted(requireContext())) {
+                CommonFun.deepLinkNav("homeFragment",requireContext())
+            } else {
+                CommonFun.navigateToDeepLinkFragment(findNavController(), "onboarding")
+            }
+        } else {
+            Log.i("LoginFragment", ".navigateAsOnboardingCompleted isKeyExists: ${Prefs.isKeyExists(requireContext())}")
+            FirebaseFirestore.getInstance().collection("users")
+                .document(userId).get()
+                .addOnSuccessListener { snapshot ->
+                    setNormalState()
+                    val onboardingCompleted = snapshot.getBoolean("onboardingCompleted")
+                    if (onboardingCompleted == true) {
+                        Prefs.setOnboardingCompleted(requireContext(), true)
+                        CommonFun.deepLinkNav("homeFragment", requireContext())
+                    } else {
+                        Prefs.setOnboardingCompleted(requireContext(), false)
+                        CommonFun.navigateToDeepLinkFragment(findNavController(), "onboarding")
+                    }
+                } .addOnFailureListener {
+                    setNormalState()
+                    CommonFun.deepLinkNav("homeFragment", requireContext())
+                }
+        }
     }
 
     private fun setLoadingState() {
@@ -105,7 +141,9 @@ class LoginFragment : Fragment() {
         binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
         binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
     }
+
     private fun setNormalState() {
+        binding.btnLogin.isEnabled = true
         binding.btnLogin.visibility = View.VISIBLE  // Show button text
         binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
         binding.tvForgotPassword.visibility = View.VISIBLE

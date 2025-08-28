@@ -1,4 +1,4 @@
-package com.example.home_ui.addPost
+package com.example.home_ui.addPost.adapter
 
 import android.graphics.Bitmap
 import android.view.LayoutInflater
@@ -21,7 +21,7 @@ class CreatePostAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): CreatePostAdapter.CreatePostViewHolder {
+    ): CreatePostViewHolder {
         val binding = ItemPostPreviewBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -30,7 +30,7 @@ class CreatePostAdapter(
         return CreatePostViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: CreatePostAdapter.CreatePostViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CreatePostViewHolder, position: Int) {
         holder.bind(bitmaps[position])
     }
 
