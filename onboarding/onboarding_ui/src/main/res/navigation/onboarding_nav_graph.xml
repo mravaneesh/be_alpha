@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/onboarding_nav_graph"
+    app:startDestination="@id/welcomeFragment">
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.onboarding_ui.view.WelcomeFragment"
+        android:label="fragment_welcome"
+        tools:layout="@layout/fragment_welcome" >
+        <action
+            android:id="@+id/action_welcomeFragment_to_basicInfoFragment"
+            app:destination="@id/basicInfoFragment" />
+
+        <deepLink app:uri="bealpha://app/onboarding"/>
+    </fragment>
+    <fragment
+        android:id="@+id/basicInfoFragment"
+        android:name="com.example.onboarding_ui.view.BasicInfoFragment"
+        android:label="fragment_basic_info"
+        tools:layout="@layout/fragment_basic_info" >
+        <action
+            android:id="@+id/action_basicInfoFragment_to_goalSelectionFragment"
+            app:destination="@id/goalSelectionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/goalSelectionFragment"
+        android:name="com.example.onboarding_ui.view.GoalSelectionFragment"
+        android:label="fragment_goal_selection"
+        tools:layout="@layout/fragment_goal_selection" >
+        <action
+            android:id="@+id/action_goalSelectionFragment_to_activityLevelFragment"
+            app:destination="@id/activityLevelFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/activityLevelFragment"
+        android:name="com.example.onboarding_ui.view.ActivityLevelFragment"
+        android:label="fragment_activity_level"
+        tools:layout="@layout/fragment_activity_level" >
+        <action
+            android:id="@+id/action_activityLevelFragment_to_dietFragment"
+            app:destination="@id/dietFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dietFragment"
+        android:name="com.example.onboarding_ui.view.DietFragment"
+        android:label="fragment_diet"
+        tools:layout="@layout/fragment_diet" />
+</navigation>

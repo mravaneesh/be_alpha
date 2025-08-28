@@ -20,6 +20,8 @@ import com.example.utils.model.User
 import com.example.utils.CommonFun
 import com.example.utils.CommonFun.applyScaleAnimation
 import com.example.utils.CommonFun.passwordVisibility
+import com.example.utils.Prefs
+import com.google.android.gms.common.internal.service.Common
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -70,10 +72,11 @@ class SignupFragment : Fragment() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val userData = User(id = user?.uid!!, name = name, username = username, email = email)
+                    val userData = User(id = user?.uid!!, name = name, username = username, email = email, onboardingCompleted = false)
                     user.sendEmailVerification()
                         .addOnSuccessListener {
-                            showVerificationDialog()
+//                            showVerificationDialog()
+                            CommonFun.navigateToDeepLinkFragment(findNavController(), "onboarding")
                             saveUserData(userData)
                         }
                         .addOnFailureListener {
@@ -111,6 +114,7 @@ class SignupFragment : Fragment() {
                 .set(user)
                 .addOnSuccessListener {
                     setNormalState()
+                    Prefs.setOnboardingCompleted(requireContext(), false)
                 }
                 .addOnFailureListener { exception ->
                     setNormalState()

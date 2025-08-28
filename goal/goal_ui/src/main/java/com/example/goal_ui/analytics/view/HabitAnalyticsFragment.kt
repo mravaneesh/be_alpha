@@ -69,6 +69,10 @@ class HabitAnalyticsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHabitAnalyticsBinding.inflate(inflater, container, false)
+        binding.tvAdd.isVisible = isPostMode
+        binding.ivAddSummary.isVisible = isPostMode
+        binding.ivAddCalendar.isVisible = isPostMode
+        binding.ivAddProgress.isVisible = isPostMode
 
         lifecycleScope.launch {
             val goalId = arguments?.getString("goalId")
@@ -93,10 +97,6 @@ class HabitAnalyticsFragment : Fragment() {
         habitData = generateSampleHabitData()
 
         displaySuccessRateChart()
-        binding.tvAdd.isVisible = isPostMode
-        binding.ivAddSummary.isVisible = isPostMode
-        binding.ivAddCalendar.isVisible = isPostMode
-        binding.ivAddProgress.isVisible = isPostMode
 
         return binding.root
     }
@@ -112,7 +112,11 @@ class HabitAnalyticsFragment : Fragment() {
         }
 
         binding.tvAdd.setOnClickListener {
-            findNavController().navigateUp()
+            val destination = "createPostFragment?habitTitle=${goal.title}"
+            CommonFun.navigateToDeepLinkFragment(
+                findNavController(),
+                destination
+            )
         }
 
         onClickAdd(binding.ivAddCalendar,"calendar")

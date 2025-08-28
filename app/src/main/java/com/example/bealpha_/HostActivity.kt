@@ -11,12 +11,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
-import com.example.utils.R
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.bealpha_.databinding.ActivityHostBinding
-import com.example.goal_ui.worker.HabitStatusFixer
+import com.example.utils.Prefs
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -58,10 +56,11 @@ class HostActivity : AppCompatActivity() {
         if (savedInstanceState == null && !navController.handleDeepLink(intent)) {
             val navGraph = navController.navInflater.inflate(com.example.bealpha_.R.navigation.nav_graph)
             navGraph.setStartDestination(
-                if (isUserLoggedIn) {
-                    com.example.home_ui.R.id.home_nav_graph
-                } else {
-                    com.example.authentication.R.id.auth_nav_graph
+                when{
+                    !isUserLoggedIn -> com.example.authentication.R.id.auth_nav_graph
+                    Prefs.isKeyExists(this) && !Prefs.isOnboardingCompleted(this) ->
+                        com.example.onboarding_ui.R.id.onboarding_nav_graph
+                    else -> com.example.home_ui.R.id.home_nav_graph
                 }
             )
             navController.graph = navGraph

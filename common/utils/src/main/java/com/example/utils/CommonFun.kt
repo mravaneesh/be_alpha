@@ -4,16 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
-import android.os.Build
 import android.text.InputType
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageView
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
@@ -60,11 +57,12 @@ object CommonFun {
         return formatTime(hour,minute)
     }
 
-    fun deepLinkNav(destination: String, context:Context) {
+    fun deepLinkNav(destination: String, context: Context) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("bealpha://app/$destination"))
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         context.startActivity(intent)
     }
+
 
     fun navigateToDeepLinkFragment(
         navController: NavController,

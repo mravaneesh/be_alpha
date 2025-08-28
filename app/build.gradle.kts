@@ -74,6 +74,7 @@ dependencies {
 
     implementation(project(":authentication"))
     implementation(project(":home:home_ui"))
+    implementation(project(":onboarding:onboarding_ui"))
     implementation(project(":profile:profile_ui"))
     implementation(project(":goal:goal_ui"))
     implementation(project(":create:create_ui"))

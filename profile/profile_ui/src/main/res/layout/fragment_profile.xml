@@ -172,7 +172,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers"
+                        android:text="Following"
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_regular"/>
                 </LinearLayout>
@@ -224,13 +224,15 @@
             <!-- Tabs Section -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@null"
+                app:tabTextAppearance="@style/CustomTabTextStyle"
                 app:tabIndicatorAnimationMode="elastic"
                 app:tabIndicatorFullWidth="true"
                 app:tabIconTint="@null"
+                app:tabPadding="0dp"
                 app:tabIndicatorColor="@color/button_primary"
                 app:tabMode="fixed"
                 app:tabRippleColor="@null" />

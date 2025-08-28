@@ -5,19 +5,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.profile_domain.model.UserProfile
 import com.example.profile_ui.R
+import com.example.profile_ui.adapter.PostsAdapter
 import com.example.profile_ui.adapter.ProfilePagerAdapter
 import com.example.profile_ui.databinding.FragmentProfileBinding
 import com.example.profile_ui.viewmodel.EditProfileViewModel
 import com.example.profile_ui.viewmodel.ProfileViewModel
 import com.example.utils.CommonFun
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -27,6 +32,12 @@ class ProfileFragment : Fragment() {
     private val viewModel: ProfileViewModel by activityViewModels()
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
     private lateinit var binding: FragmentProfileBinding
+    private val tabTitles = listOf("Posts", "Statistics", "Challenges")
+    private val tabIcons = listOf(
+        com.example.utils.R.drawable.ic_post_filled,
+        com.example.utils.R.drawable.ic_stats_filled,
+        com.example.utils.R.drawable.ic_goals_filled
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +61,8 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,28 +72,32 @@ class ProfileFragment : Fragment() {
         val adapter = ProfilePagerAdapter(this)
         binding.viewPager.adapter = adapter
 
-        // Attach TabLayout with ViewPager2
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            when (position) {
-                0 -> tab.setIcon(com.example.utils.R.drawable.ic_posts)
-                1 -> tab.setIcon(com.example.utils.R.drawable.ic_stats)
-                2 -> tab.setIcon(com.example.utils.R.drawable.ic_goals)
-            }
-        }.attach()
-        updateTabIcons()
+        setUpTabs()
         observeProfileData()
     }
 
-    private fun updateTabIcons() {
+    private fun setUpTabs() {
+
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "Posts"
-                1 -> "Statistics"
-                2 -> "Challenges"
-                else -> ""
-            }
+            tab.text = tabTitles[position]
         }.attach()
 
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                tab.setIcon(tabIcons[tab.position])
+                tab.text = null
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                tab.setIcon(null) // Remove icon
+                tab.text = tabTitles[tab.position] // Show text
+            }
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+
+        val initialTab = binding.tabLayout.getTabAt(binding.tabLayout.selectedTabPosition)
+        initialTab?.setIcon(tabIcons[initialTab.position])
+        initialTab?.text = null
     }
 
     private fun observeProfileData() {
@@ -104,14 +121,6 @@ class ProfileFragment : Fragment() {
                     }
                 }
             }
-        }
-    }
-
-    private fun setUpTabs() {
-        val tabTitles = listOf("Posts", "Statistics", "Challenges")
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-
-
         }
     }
 

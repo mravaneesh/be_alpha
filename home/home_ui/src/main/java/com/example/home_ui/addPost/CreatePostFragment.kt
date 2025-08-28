@@ -1,6 +1,5 @@
 package com.example.home_ui.addPost
 
-import android.R
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -8,19 +7,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.home_domain.model.Post
+import com.example.home_ui.addPost.adapter.CreatePostAdapter
 import com.example.home_ui.addPost.utils.ImagePreviewDialogFragment
 import com.example.home_ui.databinding.FragmentCreatePostBinding
 import com.example.utils.CommonFun
-import com.example.utils.model.GoalModel
-import com.example.utils.model.Post
 import com.example.utils.shared_viewmodel.CreatePostViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.collectLatest
@@ -29,8 +27,7 @@ import kotlinx.coroutines.launch
 class CreatePostFragment : Fragment() {
     private var _binding: FragmentCreatePostBinding? = null
     private val binding get() = _binding!!
-    private lateinit var habitList: List<GoalModel>
-    private lateinit var selectedHabit: GoalModel
+    private var selectedHabitTitle: String? = null
     private lateinit var createPostAdapter: CreatePostAdapter
     private val postViewModel: CreatePostViewModel by activityViewModels()
 
@@ -39,6 +36,7 @@ class CreatePostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCreatePostBinding.inflate(inflater, container, false)
+        selectedHabitTitle = arguments?.getString("habitTitle")
         setupViews()
         observeViewModel()
         return binding.root
@@ -55,21 +53,16 @@ class CreatePostFragment : Fragment() {
 
 
     private fun setupViews() {
-        setupHabitsSpinner()
         setupRecyclerView()
-
-        binding.btnAddFromAnalytics.setOnClickListener {
-            val destination = "habitAnalytics?goalId=${selectedHabit.id}&postMode=true"
-            CommonFun.navigateToDeepLinkFragment(
-                findNavController(),
-                destination
-            )
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
+        binding.tvHabitTitle.text = selectedHabitTitle
 
         binding.btnPost.setOnClickListener {
             lifecycleScope.launch {
                 val userId = CommonFun.getCurrentUserId() ?: return@launch
-                val habitId = selectedHabit.id
+                val userName = CommonFun.getUser()?.username ?: return@launch
                 val caption = binding.etCaption.text.toString()
                 val bitmaps = postViewModel.getCapturedBitmaps()
 
@@ -94,8 +87,8 @@ class CreatePostFragment : Fragment() {
                     val post = Post(
                         id = postId,
                         userId = userId,
-                        habitId = habitId,
-                        habitTitle = selectedHabit.title,
+                        userName = userName,
+                        habitTitle = selectedHabitTitle?:"",
                         caption = caption,
                         imageUrls = urls,
                         createdAt = System.currentTimeMillis()
@@ -110,7 +103,12 @@ class CreatePostFragment : Fragment() {
                                 .show()
                             postViewModel.clearPreviews()
                             binding.etCaption.text.clear()
-                            findNavController().navigateUp()
+                            findNavController().navigate(
+                                com.example.home_ui.R.id.action_createPostFragment_to_homeFragment,
+                                null,
+                                NavOptions.Builder()
+                                    .setPopUpTo(com.example.home_ui.R.id.homeFragment,true).build()
+                            )
                         }
                         .addOnFailureListener {
                             Toast.makeText(requireContext(), "Failed to post", Toast.LENGTH_SHORT)
@@ -143,38 +141,6 @@ class CreatePostFragment : Fragment() {
             urls.add(url)
         }
         return urls
-    }
-
-
-    private fun setupHabitsSpinner() {
-        // Load your goal list from Firestore or ViewModel (filter only Habits)
-        FirebaseFirestore.getInstance()
-            .collection("goals")
-            .document(CommonFun.getCurrentUserId()!!)
-            .collection("Habit")
-            .get()
-            .addOnSuccessListener { result ->
-                habitList = result.documents.mapNotNull { it.toObject(GoalModel::class.java) }
-
-                val titles = habitList.map { it.title }
-
-                val adapter = ArrayAdapter(requireContext(), R.layout.simple_spinner_item, titles)
-                adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-
-                binding.spinnerHabit.adapter = adapter
-
-                binding.spinnerHabit.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                        selectedHabit = habitList[position]
-                        // You can use selectedHabit.title to pass to analytics
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>) {}
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load habits", Toast.LENGTH_SHORT).show()
-            }
     }
 
     override fun onDestroyView() {

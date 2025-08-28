@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:allowBackup="true"
         android:name=".BaseApplication"
@@ -34,7 +35,7 @@
             android:exported="true">
         </activity>
 
-            <receiver android:name=".receiver.HabitAlarmReceiver"
+            <receiver android:name="ReminderReceiver"
                 android:exported="false"/>
     </application>
 </manifest>

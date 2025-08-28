@@ -40,6 +40,7 @@ android {
 dependencies {
     implementation(project(":common:utils"))
     implementation(project(":common:ui"))
+    implementation(project(":home:home_domain"))
     implementation(project(":profile:profile_domain"))
     implementation(project(":profile:profile_data"))
 
@@ -65,6 +66,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.6")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 }
 
 // Allow references to generated code
