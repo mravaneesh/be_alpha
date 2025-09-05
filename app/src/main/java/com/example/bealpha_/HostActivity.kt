@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.NavController
@@ -38,6 +39,7 @@ class HostActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         binding = ActivityHostBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         applyWindowInsets()
         setupNavigation(savedInstanceState)
     }
@@ -50,7 +52,7 @@ class HostActivity : AppCompatActivity() {
 
      private fun setupNavigation(savedInstanceState: Bundle?) {
         val navHostFragment =
-            supportFragmentManager.findFragmentById(com.example.bealpha_.R.id.nav_host_fragment) as NavHostFragment
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         if (savedInstanceState == null && !navController.handleDeepLink(intent)) {
@@ -72,19 +74,16 @@ class HostActivity : AppCompatActivity() {
             } else {
                 View.GONE
             }
+            if(startDestinations.contains(destination.id)) {
+
+            }
         }
     }
     private fun ComponentActivity.applyWindowInsets()
     {
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView.rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right,systemBars.bottom)
-            insets
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, insets ->
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = 0
-            }
+            v.setPadding(systemBars.left,0, systemBars.right,0)
             insets
         }
     }

@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/goalSelectionFragment"
-        android:name="com.example.onboarding_ui.view.GoalSelectionFragment"
+        android:name="com.example.onboarding_ui.view.FinishFragment"
         android:label="fragment_goal_selection"
         tools:layout="@layout/fragment_goal_selection" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/dietFragment"
-        android:name="com.example.onboarding_ui.view.DietFragment"
+        android:name="com.example.onboarding_ui.preferences.PreferencesFragment"
         android:label="fragment_diet"
-        tools:layout="@layout/fragment_diet" />
+        tools:layout="@layout/fragment_preferences" />
 </navigation>

@@ -1,41 +1,52 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fillViewport="true"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/common_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
+    <!-- Progress bar -->
     <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="24dp"
+        android:id="@+id/progressContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="2dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="26dp">
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:text="beAlpha"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <View
+            android:id="@+id/step1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_progress_track"
+            android:layout_marginEnd="1dp"/>
 
-        <TextView
-            android:id="@+id/tvSubtitle"
-            android:text="Your AI coach for food, habits, and fitness."
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginBottom="32dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <View
+            android:id="@+id/step2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_progress_track"
+            android:layout_marginEnd="1dp"
+            android:layout_marginStart="1dp"/>
 
-        <!-- (Optional) Illustration/Image here -->
-
-        <Button
-            android:id="@+id/btnGetStarted"
-            android:text="Get Started"
-            android:layout_marginTop="40dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <View
+            android:id="@+id/step3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_progress_track"
+            android:layout_marginStart="1dp"/>
     </LinearLayout>
-</ScrollView>
+
+
+    <!-- ViewPager for onboarding screens -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"/>
+</LinearLayout>
