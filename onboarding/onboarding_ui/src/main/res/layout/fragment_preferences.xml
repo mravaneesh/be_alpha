@@ -1,0 +1,80 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Preferences"
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="16dp"
+        style="@style/ToolbarTitleStyle"
+        android:gravity="center"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSections"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="20dp"
+        android:clipToPadding="false"
+        android:paddingBottom="60dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:id="@+id/bottomBar">
+
+        <TextView
+            android:id="@+id/btnprev"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_tab_select"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="Previous"
+            android:backgroundTint="#10000000"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="26dp"
+            android:layout_marginEnd="5dp"/>
+
+        <TextView
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_background"
+            android:text="Next"
+            android:gravity="center"
+            android:padding="12dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:enabled="false"
+            android:textColor="@color/white"
+            android:layout_marginEnd="26dp"
+            android:layout_marginStart="5dp"/>
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieProgress"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="45dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            android:visibility="gone"
+            android:layout_marginEnd="26dp"
+            android:layout_marginStart="5dp"
+            app:lottie_rawRes="@raw/loading" />
+    </LinearLayout>
+</LinearLayout>

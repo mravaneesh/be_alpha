@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -18,6 +20,9 @@ import com.example.utils.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 
@@ -71,6 +76,31 @@ object CommonFun {
         val uri = Uri.parse("bealpha://app/$destination")
         navController.navigate(uri)
     }
+
+    fun calculateAge(birthdate: String): Int {
+        Log.i("CommonFun", "calculateAge: $birthdate")
+        return try {
+            val formatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+            val birthDate = LocalDate.parse(birthdate, formatter)
+            val today = LocalDate.now()
+            Period.between(birthDate, today).years
+        } catch (e: Exception) {
+            Log.e("CommonFun", "calculateAge: ${e.message}")
+            0
+        }
+    }
+
+    fun EditText.afterTextChanged(onChanged: () -> Unit) {
+        this.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                onChanged()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+
 
 
     fun View.applyScaleAnimation() {

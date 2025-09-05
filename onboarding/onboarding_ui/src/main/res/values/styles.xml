@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="PreferenceText_Selected">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:padding">12dp</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
+
+    <style name="PreferenceText_Unselected">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:padding">12dp</item>
+    </style>
+</resources>

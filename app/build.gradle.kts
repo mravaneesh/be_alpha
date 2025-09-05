@@ -78,6 +78,7 @@ dependencies {
     implementation(project(":profile:profile_ui"))
     implementation(project(":goal:goal_ui"))
     implementation(project(":create:create_ui"))
+    implementation(project(":onboarding:onboarding_data"))
     implementation(project(":common:utils"))
 }
 
