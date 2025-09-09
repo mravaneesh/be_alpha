@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.first
 @HiltWorker
 class HabitReminderWorker @AssistedInject constructor(
     @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters
+    @Assisted workerParams: WorkerParameters,
     private val getNotificationUseCase: GetNotificationUseCase
 ): CoroutineWorker(appContext, workerParams) {
 

@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.ai_domain.model.AiSuggestion
 import com.example.home_domain.model.Post
 import com.example.home_ui.R
 import com.example.home_ui.adapter.FeedAdapter
@@ -30,6 +31,7 @@ import java.util.Calendar
 import java.util.Locale
 
 class HomeFragment : Fragment() {
+    private val TAG = "HomeFragment"
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var feedAdapter: FeedAdapter
@@ -40,10 +42,16 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupFragment()
         setupRecyclerView()
         loadFeed()
-        return binding.root
+        viewModel.loadSuggestions(userId = CommonFun.getCurrentUserId()!!)
+        observeViewModel()
     }
 
     private fun setupFragment() {
@@ -120,7 +128,6 @@ class HomeFragment : Fragment() {
 
     private fun loadFeed() {
         viewModel.loadFeed(userId = CommonFun.getCurrentUserId()!!)
-        observeViewModel()
     }
 
     private fun observeViewModel() {
@@ -137,6 +144,18 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.suggestions.observe(viewLifecycleOwner){ suggestion ->
+            Log.i(TAG, "AI suggestion received: $suggestion")
+            displaySuggestions(suggestion)
+        }
+    }
+
+    private fun displaySuggestions(suggestion: AiSuggestion) {
+        binding.coachMessageTextView.text = suggestion.coachMessage
+        binding.tipOfTheDayTextView.text = suggestion.tipOfTheDay
+        binding.progressFeedbackTextView.text = suggestion.progressFeedback
+        binding.habitSuggestionsTextView.text = suggestion.habitSuggestions.joinToString("\n")
     }
 
     private fun updateProgress(completed: Int, total: Int) {

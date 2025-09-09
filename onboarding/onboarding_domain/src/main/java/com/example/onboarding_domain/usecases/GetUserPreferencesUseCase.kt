@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetUserPreferencesUseCase @Inject constructor(
     private val repository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(userId: String): UserPreferences? {
+    suspend operator fun invoke(userId: String): UserPreferences {
         return repository.getUserPreferences(userId)
     }
 }

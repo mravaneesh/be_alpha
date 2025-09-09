@@ -26,8 +26,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         remote.saveUserPreferences(prefs.userId, entity)
     }
 
-    override suspend fun getUserPreferences(userId: String): UserPreferences? {
-        val entity = remote.getUserPreferences(userId) ?: return null
+    override suspend fun getUserPreferences(userId: String): UserPreferences {
+        val entity = remote.getUserPreferences(userId) ?: return UserPreferences()
         return UserPreferences(
             userId = userId,
             gender = entity.gender,

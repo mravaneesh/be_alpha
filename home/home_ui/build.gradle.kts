@@ -54,6 +54,8 @@ dependencies {
     implementation(project(":common:utils"))
     implementation(project(":common:ui"))
     implementation(project(":home:home_domain"))
+    implementation(project(":onboarding:onboarding_domain"))
+    implementation(project(":ai_agent:ai_domain"))
     implementation(project(":home:home_data"))
 
     implementation(libs.androidx.core.ktx)

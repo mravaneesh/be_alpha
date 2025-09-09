@@ -80,6 +80,9 @@ dependencies {
     implementation(project(":create:create_ui"))
     implementation(project(":onboarding:onboarding_data"))
     implementation(project(":common:utils"))
+    implementation(project(":ai_agent:ai_data"))
+    implementation(project(":ai_agent:ai_domain"))
+    implementation(project(":ai_agent:ai_ui"))
 }
 
 // Allow references to generated code
