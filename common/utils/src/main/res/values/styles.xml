@@ -43,4 +43,9 @@
         <item name="android:focusable">true</item>
     </style>
 
+    <style name="CustomTabTextStyle" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+    </style>
 </resources>

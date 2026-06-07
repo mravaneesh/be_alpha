@@ -13,4 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
-home_ui/aws_credentials.properties
+
+# Secret/credential files — match in any module directory
+**/aws_credentials.properties
+**/*.keystore
+**/*.jks

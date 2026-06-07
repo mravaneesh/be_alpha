@@ -23,8 +23,8 @@ android {
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField(
             "String",
-            "GROQ_API_KEY",
-            "\"${localProperties.getProperty("GROQ_API_KEY","")}\""
+            "AI_BASE_URL",
+            "\"${localProperties.getProperty("AI_BASE_URL","http://192.168.1.67:8000/")}\""
         )
     }
 

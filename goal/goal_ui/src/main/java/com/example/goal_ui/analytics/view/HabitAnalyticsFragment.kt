@@ -101,6 +101,11 @@ class HabitAnalyticsFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setUpFragment() {
         observeViewmodel()
         binding.tvToolbarTitle.text = goal.title

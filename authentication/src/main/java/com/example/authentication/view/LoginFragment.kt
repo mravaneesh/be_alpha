@@ -38,6 +38,11 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun initView() {
         passwordVisibility(binding.showPassword, binding.etPassword)
         binding.btnLogin.applyScaleAnimation()

@@ -25,6 +25,11 @@ class IntroFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun initView() {
         binding.btnSignup.applyScaleAnimation()
         binding.btnSignup.setOnClickListener {

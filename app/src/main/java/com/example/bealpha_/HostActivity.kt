@@ -74,9 +74,6 @@ class HostActivity : AppCompatActivity() {
             } else {
                 View.GONE
             }
-            if(startDestinations.contains(destination.id)) {
-
-            }
         }
     }
     private fun ComponentActivity.applyWindowInsets()

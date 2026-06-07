@@ -9,6 +9,7 @@
         android:name=".BaseApplication"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -32,10 +33,14 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 
-            <receiver android:name="ReminderReceiver"
-                android:exported="false"/>
+        <!--
+            ReminderReceiver was declared here but pointed at a class that is not on
+            the app classpath (the :notification feature module is not a dependency of
+            :app, and the name was unqualified). Re-add this once the notification
+            module is wired into the app and the receiver is actually scheduled.
+        -->
     </application>
 </manifest>

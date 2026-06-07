@@ -1,7 +1,7 @@
 package com.example.ai_data.di
 
 import android.util.Log
-import com.example.ai_data.remote.GroqApiService
+import com.example.ai_data.remote.AiApiService
 import com.example.ai_data.repository.AiAgentRepositoryImpl
 import com.example.ai_domain.repository.AiAgentRepository
 import com.example.ai_data.BuildConfig
@@ -33,25 +33,26 @@ object DataProvideModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        Log.i("DataProvideModule", "provideOkHttpClient called api key")
+        Log.i("DataProvideModule", "provideOkHttpClient called")
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer ${BuildConfig.GROQ_API_KEY}")
-                    .build()
-                chain.proceed(request)
+                val request = chain.request()
+                Log.i("AiApiHttp", "Request -> ${request.method} ${request.url}")
+                val response = chain.proceed(request)
+                Log.i("AiApiHttp", "Response <- ${response.code} ${response.message} ${request.url}")
+                response
             }
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideGroqApiService(client: OkHttpClient): GroqApiService {
+    fun provideAiApiService(client: OkHttpClient): AiApiService {
         return Retrofit.Builder()
-            .baseUrl("https://api.groq.com/openai/v1/")
+            .baseUrl(BuildConfig.AI_BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(GroqApiService::class.java)
+            .create(AiApiService::class.java)
     }
 }

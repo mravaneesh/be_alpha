@@ -57,6 +57,11 @@ class BottomSheetFragment() : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setupDatePicker(datePicker: DatePicker, recyclerView: RecyclerView) {
         datePicker.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE

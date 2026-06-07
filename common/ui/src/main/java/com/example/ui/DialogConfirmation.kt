@@ -42,4 +42,9 @@ class DialogConfirmation(
 
         return dialog
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

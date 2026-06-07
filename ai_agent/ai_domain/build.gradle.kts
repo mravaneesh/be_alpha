@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation(project(":common:utils"))
     implementation(project(":onboarding:onboarding_domain"))
+    implementation(project(":goal:goal_domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
