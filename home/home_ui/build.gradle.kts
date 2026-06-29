@@ -46,6 +46,10 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
@@ -53,7 +57,9 @@ dependencies {
 
     implementation(project(":common:utils"))
     implementation(project(":common:ui"))
+    implementation(project(":common:designsystem"))
     implementation(project(":home:home_domain"))
+    implementation(project(":goal:goal_domain"))
     implementation(project(":onboarding:onboarding_domain"))
     implementation(project(":ai_agent:ai_domain"))
     implementation(project(":home:home_data"))

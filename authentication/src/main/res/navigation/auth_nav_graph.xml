@@ -37,4 +37,8 @@
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.authentication.view.ForgotPasswordFragment"
         android:label="ForgotPasswordFragment" />
+    <fragment
+        android:id="@+id/completeProfileFragment"
+        android:name="com.example.authentication.view.CompleteProfileFragment"
+        android:label="CompleteProfileFragment" />
 </navigation>

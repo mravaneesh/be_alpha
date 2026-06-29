@@ -21,4 +21,16 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.profile_ui.view.SettingsFragment"/>
+
+    <fragment
+        android:id="@+id/termsFragment"
+        android:name="com.example.profile_ui.legal.TermsFragment">
+        <deepLink app:uri="bealpha://app/terms" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/privacyFragment"
+        android:name="com.example.profile_ui.legal.PrivacyFragment">
+        <deepLink app:uri="bealpha://app/privacy" />
+    </fragment>
 </navigation>

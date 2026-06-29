@@ -1,21 +1,108 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Pact type scale: standardized on Poppins (replaces the old Raleway/Montserrat/OpenSans mix).
+         Heavier weights for display/headline/title, regular for body, medium for labels.
+         Colors resolve against the active theme so they adapt between light and dark. -->
+    <style name="Pact.Display.Large" parent="">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">34sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Display.Medium" parent="">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Pact.Headline.Large" parent="">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Headline.Medium" parent="">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Headline.Small" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Pact.Title.Large" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Title.Medium" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Title.Small" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Pact.Body.Large" parent="">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Body.Medium" parent="">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="Pact.Body.Small" parent="">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Pact.Label.Large" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="Pact.Label.Medium" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+    <style name="Pact.Label.Small" parent="">
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Existing component styles, restyled onto Poppins for a consistent, modern look -->
     <style name="ExpandedTitle">
         <item name="android:textSize">32sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="CollapsedTitle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="ToolbarTitleStyle">
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:fontFamily">@font/raleway_regular</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/dark_contrast</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
     <style name="DayTextView">
         <item name="android:layout_width">0dp</item>
@@ -24,8 +111,8 @@
         <item name="android:gravity">center</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingVertical">6dp</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textColor">@color/dark_contrast</item>
         <item name="android:background">@drawable/day_selector</item>
         <item name="android:layout_marginEnd">5dp</item>
         <item name="android:clickable">true</item>
@@ -36,8 +123,8 @@
         <item name="android:gravity">center</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingVertical">6dp</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textColor">@color/dark_contrast</item>
         <item name="android:background">@drawable/day_selector</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
@@ -45,7 +132,6 @@
 
     <style name="CustomTabTextStyle" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">11sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="fontFamily">@font/montserrat_bold</item>
+        <item name="fontFamily">@font/poppins_semibold</item>
     </style>
 </resources>

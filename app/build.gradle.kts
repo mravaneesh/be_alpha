@@ -39,6 +39,10 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
@@ -60,8 +64,12 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
     implementation("com.google.firebase:firebase-firestore-ktx") // Firestore for user data
+    implementation("com.google.firebase:firebase-messaging-ktx") // FCM push for friend nudges
     implementation("com.google.android.gms:play-services-base:18.3.0")
     implementation ("androidx.work:work-runtime-ktx:2.10.0")
+
+    // Glance — home-screen habit widgets (Apex design)
+    implementation("androidx.glance:glance-appwidget:1.1.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -72,17 +80,20 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation(project(":common:designsystem"))
     implementation(project(":authentication"))
     implementation(project(":home:home_ui"))
     implementation(project(":onboarding:onboarding_ui"))
     implementation(project(":profile:profile_ui"))
     implementation(project(":goal:goal_ui"))
+    implementation(project(":goal:goal_domain"))
     implementation(project(":create:create_ui"))
     implementation(project(":onboarding:onboarding_data"))
     implementation(project(":common:utils"))
     implementation(project(":ai_agent:ai_data"))
     implementation(project(":ai_agent:ai_domain"))
     implementation(project(":ai_agent:ai_ui"))
+    implementation(project(":social"))
 }
 
 // Allow references to generated code

@@ -3,114 +3,158 @@ package com.example.authentication.view
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.utils.R
-import com.example.authentication.databinding.FragmentSignupBinding
-import com.example.utils.model.User
+import com.example.authentication.R
+import com.example.authentication.compose.SignUpScreen
+import com.example.authentication.google.GoogleAuthHelper
+import com.example.authentication.google.handleGoogleResult
+import com.example.designsystem.theme.PactTheme
 import com.example.utils.CommonFun
-import com.example.utils.CommonFun.applyScaleAnimation
-import com.example.utils.CommonFun.passwordVisibility
 import com.example.utils.Prefs
-import com.google.android.gms.common.internal.service.Common
+import com.example.utils.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SignupFragment : Fragment() {
 
-    private var _binding: FragmentSignupBinding? = null
-    private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
+    private var isLoading by mutableStateOf(false)
+    // null = unknown/empty, true = available, false = taken
+    private var usernameAvailable by mutableStateOf<Boolean?>(null)
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var usernameCheck: Runnable? = null
+
+    private val googleSignInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            handleGoogleResult(
+                data = result.data,
+                onExisting = {
+                    isLoading = false
+                    Prefs.setOnboardingCompleted(requireContext(), true)
+                    CommonFun.deepLinkNav("homeFragment", requireContext())
+                },
+                onNewUser = {
+                    isLoading = false
+                    findNavController().navigate(R.id.completeProfileFragment)
+                },
+                onError = {
+                    isLoading = false
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                },
+                onCancel = { isLoading = false },
+            )
+        }
+
+    private fun startGoogleSignIn() {
+        val client = GoogleAuthHelper.signInClient(requireContext())
+        if (client == null) {
+            Toast.makeText(requireContext(), "Google sign-in isn't configured yet", Toast.LENGTH_SHORT).show()
+            return
+        }
+        isLoading = true
+        client.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(client.signInIntent)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentSignupBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
-
-        initView()
-        return binding.root
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                PactTheme {
+                    SignUpScreen(
+                        modifier = Modifier.systemBarsPadding(),
+                        isLoading = isLoading,
+                        usernameAvailable = usernameAvailable,
+                        onUsernameChange = ::onUsernameChanged,
+                        onSignUp = { name, username, email, password ->
+                            if (name.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                                Toast.makeText(requireContext(), "All fields are required!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                signUpUser(name, username, email, password)
+                            }
+                        },
+                        onSignIn = { findNavController().navigate(R.id.loginFragment) },
+                        onBack = { findNavController().navigateUp() },
+                        onSocial = { provider ->
+                            if (provider == "Google") startGoogleSignIn()
+                            else Toast.makeText(requireContext(), "$provider sign-up coming soon", Toast.LENGTH_SHORT).show()
+                        },
+                    )
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        usernameCheck?.let { handler.removeCallbacks(it) }
     }
 
-    private fun initView() {
-        textWatcher(binding.etUsername)
-        passwordVisibility(binding.showPassword, binding.etPassword)
-        binding.btnSignup.applyScaleAnimation()
-        binding.btnSignup.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val username = binding.etUsername.text.toString().trim()
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
+    /** Debounced availability check — mirrors the previous TextWatcher behavior. */
+    private fun onUsernameChanged(username: String) {
+        usernameCheck?.let { handler.removeCallbacks(it) }
+        if (username.isEmpty()) {
+            usernameAvailable = null
+            return
+        }
+        usernameCheck = Runnable { checkUsernameAvailability(username) }
+        handler.postDelayed(usernameCheck!!, 500)
+    }
 
-            if (name.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "All fields are required!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            binding.btnSignup.isEnabled = false
-            signUpUser(name, username, email, password)
-        }
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+    private fun checkUsernameAvailability(username: String) {
+        db.collection("users")
+            .whereEqualTo("username", username)
+            .get()
+            .addOnSuccessListener { documents -> usernameAvailable = documents.isEmpty }
+            .addOnFailureListener { e -> Log.e("Firestore", "Error checking username", e) }
     }
 
     private fun signUpUser(name: String, username: String, email: String, password: String) {
-        setLoadingState()
+        isLoading = true
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    val userData = User(id = user?.uid!!, name = name, username = username, email = email, onboardingCompleted = false)
+                    // Onboarding (AI user-profiling) is skipped for now — new users go straight to Home.
+                    val userData = User(id = user?.uid!!, name = name, username = username, email = email, onboardingCompleted = true)
                     user.sendEmailVerification()
                         .addOnSuccessListener {
-//                            showVerificationDialog()
-                            CommonFun.navigateToDeepLinkFragment(findNavController(), "onboarding")
                             saveUserData(userData)
+                            CommonFun.deepLinkNav("homeFragment", requireContext())
                         }
                         .addOnFailureListener {
+                            isLoading = false
                             Toast.makeText(requireContext(), "Failed to send verification email!", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    setNormalState()
+                    isLoading = false
                     Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
-    private fun showVerificationDialog() {
-        val dialog = VerifyEmailDialog()
-        dialog.show(parentFragmentManager, "VerifyEmailDialog")
-    }
-
-//    private fun checkEmailVerification(userData:User) {
-//        val user = FirebaseAuth.getInstance().currentUser
-//        user?.reload()?.addOnSuccessListener {
-//            if (user.isEmailVerified) {
-//                saveUserData(userData)
-//                CommonFun.deepLinkNav("homeFragment",requireContext())
-//            } else {
-//                Toast.makeText(requireContext(), "Email not verified yet!", Toast.LENGTH_SHORT).show()
-//                showVerificationDialog(userData) // Show the dialog again
-//            }
-//        }
-//    }
 
     private fun saveUserData(user: User) {
         val userId = auth.currentUser?.uid
@@ -118,79 +162,14 @@ class SignupFragment : Fragment() {
             db.collection("users").document(userId)
                 .set(user)
                 .addOnSuccessListener {
-                    setNormalState()
-                    Prefs.setOnboardingCompleted(requireContext(), false)
+                    isLoading = false
+                    Prefs.setOnboardingCompleted(requireContext(), true)
                 }
                 .addOnFailureListener { exception ->
-                    setNormalState()
+                    isLoading = false
                     Toast.makeText(requireContext(), "Failed to save user data: ${exception.message}", Toast.LENGTH_LONG).show()
                     Log.e("FirestoreError", "Error saving user data", exception)
                 }
         }
-    }
-
-
-    private fun textWatcher(editText: EditText)
-    {
-        editText.addTextChangedListener(object : TextWatcher {
-            private var handler = Handler(Looper.getMainLooper()) // For debouncing
-            private var workRunnable: Runnable? = null
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val username = s.toString().trim()
-                workRunnable?.let { handler.removeCallbacks(it) }
-
-                if (username.isNotEmpty()) {
-                    workRunnable = Runnable { checkUsernameAvailability(username) }
-                    handler.postDelayed(workRunnable!!, 500) // Debounce: wait 500ms before checking
-                }
-                else{
-                    binding.ivUsernameStatus.visibility = View.GONE
-                }
-
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    private fun checkUsernameAvailability(username: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users")
-            .whereEqualTo("username", username)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    binding.ivUsernameStatus.setImageResource(R.drawable.check_green)
-                } else {
-                    binding.ivUsernameStatus.setImageResource(R.drawable.cross_red)
-                }
-                binding.ivUsernameStatus.visibility = View.VISIBLE
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error checking username", e)
-            }
-    }
-
-    private fun setLoadingState() {
-        binding.btnSignup.isEnabled = false
-        binding.btnSignup.visibility = View.INVISIBLE  // Hide button text
-        binding.lottieProgress.visibility = View.VISIBLE // Show Lottie animation
-        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))  // Change text color
-        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
-        binding.etName.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
-        binding.etEmail.setTextColor(ContextCompat.getColor(requireContext(), R.color.cool_gray))
-    }
-    private fun setNormalState() {
-        binding.btnSignup.isEnabled = true
-        binding.btnSignup.visibility = View.VISIBLE  // Show button text
-        binding.lottieProgress.visibility = View.GONE // Hide Lottie animation
-        binding.etUsername.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))  // Reset text color
-        binding.etPassword.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-        binding.etName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
-        binding.etEmail.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
     }
 }

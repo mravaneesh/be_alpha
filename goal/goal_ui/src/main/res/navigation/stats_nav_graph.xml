@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/stats_nav_graph"
+    app:startDestination="@id/trackFragment">
+
+    <!-- Stats tab: analytics/progress as its own top-level graph (clean bottom-nav save/restore). -->
+    <fragment
+        android:id="@+id/trackFragment"
+        android:name="com.example.goal_ui.view.pagerFragment.TrackFragment"
+        android:label="Stats">
+        <deepLink app:uri="bealpha://app/trackFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/weeklyRecapFragment"
+        android:name="com.example.goal_ui.view.WeeklyRecapFragment"
+        android:label="Weekly recap">
+        <deepLink app:uri="bealpha://app/weeklyRecap"/>
+    </fragment>
+
+</navigation>

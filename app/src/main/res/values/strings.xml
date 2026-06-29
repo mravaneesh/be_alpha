@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Be Alpha</string>
+    <string name="app_name">Apogee</string>
     <string name="sign_up">Sign Up</string>
     <string name="already_have_an_account">Already have an account?</string>
     <string name="log_in">Log In</string>
@@ -13,4 +13,6 @@
     <string name="show_password">Show Password</string>
     <string name="more_options">More Options</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="widget_label">Apogee Habits</string>
+    <string name="widget_description">Track today\'s habits and tap to complete them from your home screen.</string>
 </resources>

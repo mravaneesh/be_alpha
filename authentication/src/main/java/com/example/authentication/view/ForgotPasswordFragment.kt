@@ -1,112 +1,97 @@
 package com.example.authentication.view
 
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.authentication.R
-import com.example.authentication.databinding.FragmentForgotPasswordBinding
+import com.example.authentication.compose.ForgotPasswordScreen
+import com.example.designsystem.theme.PactTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ForgotPasswordFragment : Fragment() {
 
-    private var _binding: FragmentForgotPasswordBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var firestore: FirebaseFirestore
-    private lateinit var auth: FirebaseAuth
-    private var userEmail: String? = null  // Store the fetched email
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
+    private var isLoading by mutableStateOf(false)
+    private var sentMaskedEmail by mutableStateOf<String?>(null)
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentForgotPasswordBinding.inflate(inflater,container,false)
-        firestore = FirebaseFirestore.getInstance()
-        auth = FirebaseAuth.getInstance()
-        return binding.root
-    }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        firestore = FirebaseFirestore.getInstance()
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                PactTheme {
+                    ForgotPasswordScreen(
+                        modifier = Modifier.systemBarsPadding(),
+                        isLoading = isLoading,
+                        sentMaskedEmail = sentMaskedEmail,
+                        onSubmit = ::fetchUserEmail,
+                        onDone = { findNavController().navigateUp() },
+                        onBack = { findNavController().navigateUp() },
+                    )
+                }
+            }
         }
-        binding.btnContinue.setOnClickListener { fetchUserEmail() }
     }
 
-    private fun fetchUserEmail() {
-        val username = binding.etUsername.text.toString().trim()
+    private fun fetchUserEmail(username: String) {
         if (username.isEmpty()) {
-            binding.etUsername.error = "Please enter your username"
+            Toast.makeText(requireContext(), "Please enter your username", Toast.LENGTH_SHORT).show()
             return
         }
-
-        // Query Firestore for email
-        firestore.collection("users").whereEqualTo("username", username)
-            .get()
+        isLoading = true
+        firestore.collection("users").whereEqualTo("username", username).get()
             .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val userDoc = documents.documents[0]
-                    val userEmail = userDoc.getString("email")
-
-                    if (!userEmail.isNullOrEmpty()) {
-                        sendPasswordResetEmail(userEmail)
-                    } else {
-                        binding.etUsername.error = "Email not found!"
-                    }
+                val email = documents.documents.firstOrNull()?.getString("email")
+                if (!documents.isEmpty && !email.isNullOrEmpty()) {
+                    sendPasswordResetEmail(email)
                 } else {
-                    binding.etUsername.error = "Username not found!"
+                    isLoading = false
+                    Toast.makeText(requireContext(), "Username not found!", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
+                isLoading = false
                 Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
     private fun sendPasswordResetEmail(email: String) {
         auth.sendPasswordResetEmail(email)
             .addOnSuccessListener {
-                view?.let { updateUIForEmailFound(email) } // Ensure view is not null before updating UI
+                isLoading = false
+                sentMaskedEmail = maskEmail(email)
             }
             .addOnFailureListener {
+                isLoading = false
                 Toast.makeText(requireContext(), "Failed to send reset email: ${it.message}", Toast.LENGTH_SHORT).show()
             }
-    }
-    private fun updateUIForEmailFound(email: String) {
-        binding.etUsername.visibility = View.GONE
-        binding.tvDescEmail.text = "Link sent to: ${maskEmail(email)}"
-        binding.tvDescEmail.visibility = View.VISIBLE
-        binding.btnContinue.text = "Done"
-        binding.btnContinue.setOnClickListener { findNavController().navigateUp() }
     }
 
     private fun maskEmail(email: String): String {
         val parts = email.split("@")
-        if (parts.size < 2) return email  // If email format is invalid, return as is
-
-        val namePart = parts[0] // Get the username part before '@'
-        val domainPart = parts[1] // Get the domain part after '@'
-
+        if (parts.size < 2) return email
+        val namePart = parts[0]
+        val domainPart = parts[1]
         return if (namePart.length > 4) {
-            val visibleChars = 2 // Number of characters to keep visible at the start and end
-            val maskedLength = namePart.length - (2 * visibleChars) // Length of the masked part
-            val mask = "*".repeat(maskedLength) // Generate dynamic mask
-
+            val visibleChars = 2
+            val mask = "*".repeat(namePart.length - 2 * visibleChars)
             "${namePart.take(visibleChars)}$mask${namePart.takeLast(visibleChars)}@$domainPart"
         } else {
-            "***@$domainPart" // If too short, mask everything before '@'
+            "***@$domainPart"
         }
     }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
 }

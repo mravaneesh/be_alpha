@@ -3,23 +3,23 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="button_primary">#49c3dc</color>
-    <color name="dark_contrast">#1A3A4A</color>
-    <color name="success">#2a9D8F</color>
-    <color name="et_bg">#208fa4c4</color>
-    <color name="error">#e76f51</color>
-    <color name="link_color">#007BFF</color>
-    <color name="button_secondary">#BDBDBD</color>
+    <color name="button_primary">@color/pact_primary</color>
+    <color name="dark_contrast">@color/pact_text_primary_light</color>
+    <color name="success">@color/pact_success</color>
+    <color name="et_bg">#1A4D9BFF</color>
+    <color name="error">@color/pact_error</color>
+    <color name="link_color">@color/pact_primary</color>
+    <color name="button_secondary">@color/pact_outline_light</color>
     <color name="button_gray">#25000000</color>
     <color name="unselect_day">#85000000</color>
-    <color name="cool_gray">#B0BEC5</color>
-    <color name="fragment_bg">#F1F1F3</color>
-    <color name="inactive_button">#A6A6A9</color>
-    <color name="active_button">#FCFCFF</color>
+    <color name="cool_gray">@color/pact_text_secondary_light</color>
+    <color name="fragment_bg">@color/pact_bg_light</color>
+    <color name="inactive_button">#697080</color>
+    <color name="active_button">#FFFDFB</color>
     <color name="transparent">@android:color/transparent</color>
     <color name="color_pending">#50ffff00</color>
 
-    <color name="option1">#6049c3dc</color>
+    <color name="option1">#604D9BFF</color>
     <color name="color1">#15FF5733</color>
     <color name="color2">#1533FF57</color>
     <color name="color3">#153357FF</color>

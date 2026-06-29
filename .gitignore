@@ -18,3 +18,16 @@ local.properties
 **/aws_credentials.properties
 **/*.keystore
 **/*.jks
+
+# Gradle build outputs in every module (root /build only caught the top level)
+build/
+
+# Stray local/working files
+/build_log.txt
+/pact_shot.png
+*.apk
+
+# Assistant + extra IDE files
+/CLAUDE.md
+/.idea/deviceManager.xml
+/.idea/inspectionProfiles/

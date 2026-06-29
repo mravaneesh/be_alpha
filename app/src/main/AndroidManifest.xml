@@ -42,5 +42,32 @@
             :app, and the name was unqualified). Re-add this once the notification
             module is wired into the app and the receiver is actually scheduled.
         -->
+
+        <!-- Evening streak-risk nudge -->
+        <receiver
+            android:name=".reminder.StreakRiskReceiver"
+            android:exported="false" />
+
+        <!-- FCM — friend nudge pushes -->
+        <service
+            android:name=".fcm.ApogeeMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Apogee home-screen habit widget (Glance) -->
+        <receiver
+            android:name=".widget.ApogeeWidgetReceiver"
+            android:label="@string/widget_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/apogee_widget_info" />
+        </receiver>
     </application>
 </manifest>

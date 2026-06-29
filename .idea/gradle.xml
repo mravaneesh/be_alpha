@@ -29,6 +29,7 @@
             <option value="$PROJECT_DIR$/authentication" />
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/common/designsystem" />
             <option value="$PROJECT_DIR$/common/ui" />
             <option value="$PROJECT_DIR$/common/utils" />
             <option value="$PROJECT_DIR$/create" />
@@ -47,7 +48,6 @@
             <option value="$PROJECT_DIR$/notification/notification_data" />
             <option value="$PROJECT_DIR$/notification/notification_domain" />
             <option value="$PROJECT_DIR$/notification/notification_ui" />
-            <option value="$PROJECT_DIR$/notification_data" />
             <option value="$PROJECT_DIR$/onboarding" />
             <option value="$PROJECT_DIR$/onboarding/onboarding_data" />
             <option value="$PROJECT_DIR$/onboarding/onboarding_domain" />
@@ -56,9 +56,9 @@
             <option value="$PROJECT_DIR$/profile/profile_data" />
             <option value="$PROJECT_DIR$/profile/profile_domain" />
             <option value="$PROJECT_DIR$/profile/profile_ui" />
+            <option value="$PROJECT_DIR$/social" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

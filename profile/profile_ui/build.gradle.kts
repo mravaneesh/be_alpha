@@ -34,13 +34,19 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
 dependencies {
     implementation(project(":common:utils"))
     implementation(project(":common:ui"))
+    implementation(project(":common:designsystem"))
     implementation(project(":home:home_domain"))
+    implementation(project(":goal:goal_domain"))
     implementation(project(":profile:profile_domain"))
     implementation(project(":profile:profile_data"))
 
@@ -54,6 +60,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
     implementation("com.google.firebase:firebase-firestore-ktx") // Firestore for user data
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")

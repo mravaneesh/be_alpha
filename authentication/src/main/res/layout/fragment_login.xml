@@ -51,11 +51,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/username"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -74,11 +72,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/password"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <LinearLayout
@@ -124,8 +120,9 @@
         android:layout_marginTop="40dp"
         android:text="@string/log_in"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="17sp"
+        android:letterSpacing="0.02"
         app:layout_constraintTop_toBottomOf="@id/scrollView" />
 
     <TextView
@@ -133,8 +130,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Forgot Password?"
-        android:textColor="@color/black"
-        android:fontFamily="@font/poppins_regular"
+        android:textColor="@color/link_color"
+        android:fontFamily="@font/poppins_medium"
         app:layout_constraintTop_toBottomOf="@id/btn_login"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="30dp"

@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "BeAlpha_"
 include(":app")
 include(":common:utils")
+include(":common:designsystem")
 include(":home:home_data")
 include(":create:create_data")
 include(":goal:goal_data")
@@ -46,3 +47,4 @@ include(":ai_agent:ai_ui")
 include(":onboarding:onboarding_data")
 include(":onboarding:onboarding_domain")
 include(":onboarding:onboarding_ui")
+include(":social")

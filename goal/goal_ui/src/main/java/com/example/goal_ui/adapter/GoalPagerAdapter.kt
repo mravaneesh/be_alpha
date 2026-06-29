@@ -8,12 +8,13 @@ import com.example.goal_ui.view.pagerFragment.TrackFragment
 
 class GoalPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
-    override fun getItemCount(): Int = 2 // Track and Habit
+    // Habit-only for the current design scope; Track is now its own top-level "Stats" tab.
+    override fun getItemCount(): Int = 1
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> HabitFragment()
-            1 -> TrackFragment()
+            // 1 -> TrackFragment()  // moved to the Stats bottom-nav tab
             else -> throw IllegalStateException("Unexpected position: $position")
         }
     }

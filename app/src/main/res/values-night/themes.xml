@@ -1,12 +1,34 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.BeAlpha_" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <!-- Pact dark theme: lighter indigo/coral on warm charcoal surfaces — a real dark mode, not a copy of light. -->
+    <style name="Base.Theme.BeAlpha_" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/pact_primary_dark_mode</item>
+        <item name="colorOnPrimary">@color/pact_bg_dark</item>
+        <item name="colorPrimaryContainer">@color/pact_primary_variant</item>
+        <item name="colorOnPrimaryContainer">@color/pact_primary_container</item>
+
+        <item name="colorSecondary">@color/pact_accent_dark_mode</item>
+        <item name="colorOnSecondary">@color/pact_bg_dark</item>
+        <item name="colorSecondaryContainer">@color/pact_surface_variant_dark</item>
+        <item name="colorOnSecondaryContainer">@color/pact_accent_container</item>
+
+        <item name="colorTertiary">@color/pact_success</item>
+        <item name="colorOnTertiary">@color/pact_bg_dark</item>
+
+        <item name="colorError">@color/pact_error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <item name="android:colorBackground">@color/pact_bg_dark</item>
+        <item name="colorOnBackground">@color/pact_text_primary_dark</item>
+        <item name="colorSurface">@color/pact_surface_dark</item>
+        <item name="colorOnSurface">@color/pact_text_primary_dark</item>
+        <item name="colorSurfaceVariant">@color/pact_surface_variant_dark</item>
+        <item name="colorOnSurfaceVariant">@color/pact_text_secondary_dark</item>
+        <item name="colorOutline">@color/pact_outline_dark</item>
+
         <item name="popupMenuBackground">@drawable/bg_popup_menu</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

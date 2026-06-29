@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Apogee security rules.
+// Data model:
+//   users/{uid}                     profile + denormalized activity summary (read by any signed-in
+//                                    user for search / feed / leaderboard; written only by owner)
+//   users/{uid}/friends/{friendUid} accepted friends (written to BOTH sides on accept, removed on
+//                                    unfriend)
+//   users/{uid}/nudges/{id}         incoming in-app cheers (anyone may send; owner reads/marks seen)
+//   users/{uid}/tokens/{token}      FCM registration tokens (private to owner)
+//   friendRequests/{id}             pending requests { fromUid, toUid, status }
+//   goals/{uid}/{category}/{id}     habits (strictly private to owner)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    match /users/{uid} {
+      // Profiles are visible to any signed-in user so search, the feed and the leaderboard can read
+      // the denormalized summary. Only the owner can change their own document.
+      allow read: if signedIn();
+      allow create, update, delete: if isOwner(uid);
+
+      // Accepting a request writes a friend card to both users' lists, so a user may write the doc
+      // that represents THEM in someone else's friends collection. Unfriend removes both sides.
+      match /friends/{friendUid} {
+        allow read: if isOwner(uid);
+        allow create, delete: if isOwner(uid) || isOwner(friendUid);
+      }
+
+      // Cheers: any signed-in user may send one (the sender id can't be spoofed); only the
+      // recipient may read them or mark them seen.
+      match /nudges/{nudgeId} {
+        allow read, update, delete: if isOwner(uid);
+        allow create: if signedIn() && request.resource.data.fromUid == request.auth.uid;
+      }
+
+      // Push tokens are private to the owner.
+      match /tokens/{tokenId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    match /friendRequests/{reqId} {
+      // Only the two parties can see / act on a request.
+      allow read, update, delete: if signedIn() &&
+        (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid);
+      // The sender creates it and can't forge a different fromUid.
+      allow create: if signedIn() && request.resource.data.fromUid == request.auth.uid;
+    }
+
+    match /goals/{uid}/{document=**} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Group challenges — single doc per challenge with members + per-member progress denormalized.
+    match /challenges/{cid} {
+      function uid() { return request.auth.uid; }
+      function memberOf(d) { return uid() in d.memberUids; }
+      function invitedTo(d) { return uid() in d.invitedUids; }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      // A given top-level map (members/progress) only changed the caller's own entry.
+      function onlyMine(field) {
+        return request.resource.data[field].diff(resource.data[field]).affectedKeys().hasOnly([uid()]);
+      }
+
+      // Participants (members + pending invitees) can see a challenge; public ones are visible to all.
+      allow read: if signedIn() &&
+        (resource.data.isPublic == true || uid() in resource.data.participantUids);
+
+      // Creator owns it and must include themselves as the sole initial member + a participant.
+      allow create: if signedIn() &&
+        request.resource.data.ownerUid == uid() &&
+        uid() in request.resource.data.memberUids &&
+        uid() in request.resource.data.participantUids;
+
+      // (a) A member writes ONLY their own progress / daily check-in entry.
+      allow update: if signedIn() && memberOf(resource.data) &&
+        changed().hasOnly(['progress', 'doneToday']) &&
+        onlyMine('progress') && onlyMine('doneToday');
+
+      // (b) Accept an invite: I move myself invited -> member, touching only my own member/progress entries.
+      allow update: if signedIn() &&
+        invitedTo(resource.data) && memberOf(request.resource.data) &&
+        changed().hasOnly(['memberUids', 'invitedUids', 'members', 'progress', 'doneToday']) &&
+        onlyMine('members') && onlyMine('progress') && onlyMine('doneToday');
+
+      // (b2) Join a PUBLIC challenge directly: a non-member adds only themselves.
+      allow update: if signedIn() && resource.data.isPublic == true &&
+        !memberOf(resource.data) && memberOf(request.resource.data) &&
+        changed().hasOnly(['memberUids', 'participantUids', 'members', 'progress', 'doneToday']) &&
+        onlyMine('members') && onlyMine('progress') && onlyMine('doneToday');
+
+      // (c) Decline an invite or leave: I remove only myself (also drop out of participantUids).
+      allow update: if signedIn() &&
+        (invitedTo(resource.data) || memberOf(resource.data)) &&
+        !memberOf(request.resource.data) && !invitedTo(request.resource.data) &&
+        changed().hasOnly(['memberUids', 'invitedUids', 'participantUids', 'members', 'progress', 'doneToday']) &&
+        onlyMine('members') && onlyMine('progress') && onlyMine('doneToday');
+
+      allow delete: if signedIn() && resource.data.ownerUid == uid();
+    }
+  }
+}

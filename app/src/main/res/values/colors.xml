@@ -3,12 +3,38 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="button_primary">#49c3dc</color>
-    <color name="dark_contrast">#1A3A4A</color>
-    <color name="success">#2a9D8F</color>
-    <color name="error">#e76f51</color>
-    <color name="link_color">#007BFF</color>
-    <color name="button_secondary">#BDBDBD</color>
-    <color name="general_bg">#F1F1F3</color>
-    <color name="cool_gray">#B0BEC5</color>
+    <!-- "Apex" brand palette (kept in lockstep with common/utils/colors.xml). -->
+    <color name="pact_primary">#2F6FE0</color>
+    <color name="pact_primary_variant">#234E86</color>
+    <color name="pact_primary_container">#DCE9FF</color>
+    <color name="pact_accent">#4D9BFF</color>
+    <color name="pact_accent_container">#DCE9FF</color>
+    <color name="pact_success">#16A472</color>
+    <color name="pact_warning">#FF9F45</color>
+    <color name="pact_error">#E5484D</color>
+
+    <color name="pact_bg_light">#F4F5F7</color>
+    <color name="pact_surface_light">#FFFFFF</color>
+    <color name="pact_surface_variant_light">#EDEFF2</color>
+    <color name="pact_outline_light">#D7DBE0</color>
+    <color name="pact_text_primary_light">#15171C</color>
+    <color name="pact_text_secondary_light">#6B7280</color>
+
+    <color name="pact_bg_dark">#000000</color>
+    <color name="pact_surface_dark">#0D0E11</color>
+    <color name="pact_surface_variant_dark">#16181D</color>
+    <color name="pact_outline_dark">#2A2D33</color>
+    <color name="pact_text_primary_dark">#F4F5F7</color>
+    <color name="pact_text_secondary_dark">#9DA3AF</color>
+    <color name="pact_primary_dark_mode">#4D9BFF</color>
+    <color name="pact_accent_dark_mode">#6FB0FF</color>
+
+    <color name="button_primary">@color/pact_primary</color>
+    <color name="dark_contrast">@color/pact_text_primary_light</color>
+    <color name="success">@color/pact_success</color>
+    <color name="error">@color/pact_error</color>
+    <color name="link_color">@color/pact_primary</color>
+    <color name="button_secondary">@color/pact_outline_light</color>
+    <color name="general_bg">@color/pact_bg_light</color>
+    <color name="cool_gray">@color/pact_text_secondary_light</color>
 </resources>

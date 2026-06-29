@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
-    android:background="@color/common_bg"
+    android:background="?android:attr/colorBackground"
     tools:context=".view.HomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -36,10 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:textSize="18sp"
             android:text="Hello World"
-            android:fontFamily="@font/poppins_medium"
-            android:textColor="@color/black"
+            style="@style/Pact.Title.Large"
             app:layout_constraintStart_toEndOf="@id/ivNotification"
             app:layout_constraintEnd_toStartOf="@id/ivAddPost"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -66,9 +64,7 @@
         android:layout_gravity="center"
         android:padding="5dp"
         android:text="freak"
-        android:textColor="#85000000"
-        android:textSize="14sp"
-        android:fontFamily="@font/poppins_medium"
+        style="@style/Pact.Body.Medium"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

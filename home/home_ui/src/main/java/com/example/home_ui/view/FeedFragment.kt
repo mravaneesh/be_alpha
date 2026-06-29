@@ -1,103 +1,85 @@
 package com.example.home_ui.view
 
-import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.doOnLayout
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ai_domain.model.AiSuggestion
+import com.example.designsystem.theme.PactTheme
 import com.example.home_domain.model.Post
-import com.example.home_ui.R
-import com.example.home_ui.adapter.FeedAdapter
-import com.example.home_ui.databinding.FragmentFeedBinding
+import com.example.home_ui.compose.FeedScreen
 import com.example.home_ui.viewModel.HomeViewModel
 import com.example.utils.CommonFun
-import com.example.utils.CommonFun.getUser
 import com.example.utils.Resource
 import com.example.utils.model.GoalModel
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.Calendar
-import java.util.Locale
 
 class FeedFragment : Fragment() {
     companion object {
-        private val TAG = "FeedFragment"
+        private const val TAG = "FeedFragment"
     }
-    private var _binding: FragmentFeedBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var feedAdapter: FeedAdapter
+
     private val viewModel: HomeViewModel by activityViewModels()
+
+    // UI state surfaced to Compose; all mutations happen from the existing logic below.
+    private var posts by mutableStateOf<List<Post>>(emptyList())
+    private var isLoading by mutableStateOf(true)
+    private var suggestion by mutableStateOf<AiSuggestion?>(null)
+    private var showHabitCard by mutableStateOf(false)
+    private var habitPercent by mutableIntStateOf(0)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFeedBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                PactTheme {
+                    FeedScreen(
+                        posts = posts,
+                        isLoading = isLoading,
+                        currentUserId = CommonFun.getCurrentUserId().orEmpty(),
+                        onLike = ::toggleLike,
+                        onComment = { /* comments not yet implemented */ },
+                        suggestion = suggestion,
+                        showHabitCard = showHabitCard,
+                        habitPercent = habitPercent,
+                        onCloseHabitCard = {
+                            showHabitCard = false
+                            viewModel.isHabitCardClosed = true
+                        },
+                    )
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupFragment()
-        setupRecyclerView()
+        showHabitCard = !viewModel.isHabitCardClosed
+        if (showHabitCard) loadTodaysHabitProgress()
         loadFeed()
         viewModel.loadSuggestions(userId = CommonFun.getCurrentUserId()!!)
         observeViewModel()
     }
 
-    private fun setupFragment() {
-        if (!viewModel.isHabitCardClosed) {
-            binding.todaysHabitContainer.visibility = View.VISIBLE
-            (binding.customProgress.parent as View).doOnLayout {
-                loadTodaysHabitProgress()
-            }
-        }
-
-        binding.ivClose.setOnClickListener {
-            binding.todaysHabitContainer.visibility = View.GONE
-            viewModel.isHabitCardClosed = true
-        }
-    }
-
-    private fun setupRecyclerView() {
-        feedAdapter = FeedAdapter(
-            onLikeClicked = { post ->
-                toggleLike(post)
-            },
-            onCommentClicked = { post ->
-                // Handle comment click
-            }
-        )
-        binding.rvFeed.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvFeed.adapter = feedAdapter
-    }
-
     private fun toggleLike(post: Post) {
-        val currentUserId = CommonFun.getCurrentUserId()?: return
+        val currentUserId = CommonFun.getCurrentUserId() ?: return
         val isLiked = post.likes.contains(currentUserId)
 
-        val updatedLikes = if (isLiked) {
-            post.likes - currentUserId
-        } else {
-            post.likes + currentUserId
-        }
-
+        val updatedLikes = if (isLiked) post.likes - currentUserId else post.likes + currentUserId
         val updatedPost = post.copy(likes = updatedLikes)
 
         val postRef = FirebaseFirestore.getInstance()
@@ -107,12 +89,11 @@ class FeedFragment : Fragment() {
             .document(post.id)
 
         // Optimistically update the UI, then reconcile with the server result.
-        feedAdapter.updatePost(updatedPost)
+        updatePostInState(updatedPost)
 
         postRef.update("likes", updatedLikes)
             .addOnFailureListener { e ->
-                // Revert the optimistic change and let the user know.
-                feedAdapter.updatePost(post)
+                updatePostInState(post) // revert
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Couldn't update like", Toast.LENGTH_SHORT).show()
                 }
@@ -120,6 +101,9 @@ class FeedFragment : Fragment() {
             }
     }
 
+    private fun updatePostInState(updated: Post) {
+        posts = posts.map { if (it.id == updated.id) updated else it }
+    }
 
     private fun loadFeed() {
         viewModel.loadFeed(userId = CommonFun.getCurrentUserId()!!)
@@ -127,57 +111,24 @@ class FeedFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.feedState.observe(viewLifecycleOwner) { result ->
-            when(result) {
+            when (result) {
                 is Resource.Success -> {
-                    feedAdapter.submitList(result.data)
+                    posts = result.data.orEmpty()
+                    isLoading = false
                 }
-                is Resource.Error ->{
+                is Resource.Error -> {
+                    isLoading = false
                     Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {
-                    // Handle loading state if needed
-                }
+                is Resource.Loading -> isLoading = true
             }
         }
 
-        viewModel.suggestions.observe(viewLifecycleOwner){ suggestion ->
-            Log.i(TAG, "AI suggestion received: $suggestion")
-            displaySuggestions(suggestion)
+        viewModel.suggestions.observe(viewLifecycleOwner) { result ->
+            Log.i(TAG, "AI suggestion received: $result")
+            suggestion = result
         }
     }
-
-    private fun displaySuggestions(suggestion: AiSuggestion) {
-        binding.coachMessageTextView.text = suggestion.coachMessage
-        binding.tipOfTheDayTextView.text = suggestion.tipOfTheDay
-        binding.progressFeedbackTextView.text = suggestion.progressFeedback
-        binding.habitSuggestionsTextView.text = suggestion.habitSuggestions.joinToString("\n")
-    }
-
-    private fun updateProgress(completed: Int, total: Int) {
-        val percent = if (total == 0) 0 else (completed * 100 / total)
-
-        // Delay until layout is drawn
-        (binding.customProgress.parent as View).doOnLayout {
-            val fullWidth = it.width
-
-            // Calculate target width for progress
-            val targetWidth = (fullWidth * percent / 100f).toInt()
-
-            // Animate from current width to target width
-            val anim = ValueAnimator.ofInt(0, targetWidth)
-            anim.duration = 800 // Duration in ms
-            anim.addUpdateListener { animator ->
-                val newWidth = animator.animatedValue as Int
-                binding.customProgress.layoutParams.width = newWidth
-                binding.customProgress.requestLayout()
-            }
-            anim.start()
-
-            // Optional: update percentage text
-            binding.tvProgressPercent.text = "$percent% completed"
-        }
-    }
-
 
     private fun loadTodaysHabitProgress() {
         val userId = CommonFun.getCurrentUserId() ?: return
@@ -201,20 +152,14 @@ class FeedFragment : Fragment() {
 
                     if (selectedDays.contains(todayIndex)) {
                         totalScheduledToday++
-                        val todayStr = today.toString()
-
-                        if (progress[todayStr] == 0) {
-                            completedCount++
-                        }
+                        if (progress[today.toString()] == 0) completedCount++
                     }
                 }
 
-                updateProgress(completedCount, totalScheduledToday)
+                habitPercent = if (totalScheduledToday == 0) 0 else completedCount * 100 / totalScheduledToday
             }
             .addOnFailureListener {
                 Log.e("ProgressLoad", "Failed to load habits: ${it.message}")
             }
     }
-
-
 }

@@ -1,281 +1,137 @@
 package com.example.goal_ui.view.addGoal
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.view.children
-import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.designsystem.theme.PactTheme
 import com.example.goal_domain.model.Goal
-import com.example.goal_ui.R
-import com.example.goal_ui.databinding.FragmentAddGoalBinding
-import com.example.goal_ui.viewmodel.AddGoalViewModel
+import com.example.goal_ui.compose.AddGoalScreen
 import com.example.utils.CommonFun
+import com.example.utils.reminder.HabitReminderScheduler
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDate
+import java.util.Calendar
 import java.util.UUID
 
+/**
+ * Create / edit a habit. Hosts the Compose [AddGoalScreen]; the Firestore create/update logic
+ * (including the edit-mode progress recompute) is preserved here.
+ */
 class AddGoalFragment : Fragment() {
 
     private val userId = CommonFun.getCurrentUserId()!!
-    private val selectedDays = mutableSetOf(0, 1, 2, 3, 4, 5, 6)
-    private var category = "Habit"
-    private var _binding: FragmentAddGoalBinding? = null
-    private val binding get() = _binding!!
-    private val viewModel: AddGoalViewModel by activityViewModels()
+    private val db = FirebaseFirestore.getInstance()
+    private val category = "Habit"
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddGoalBinding.inflate(inflater, container, false)
-        setupFragment()
-
-        val isEditMode = arguments?.getBoolean("isEditMode", false) ?: false
-        if (isEditMode) {
-            setUpEditMode()
-        } else {
-            binding.btnSaveGoal.text = "Add"
-            binding.btnSaveGoal.setOnClickListener { saveGoal() }
-        }
-        return binding.root
-    }
-
-    private fun setUpEditMode() {
+        val isEdit = arguments?.getBoolean("isEditMode", false) ?: false
         val goalId = arguments?.getString("goalId") ?: ""
-        val title = arguments?.getString("title") ?: ""
-        val description = arguments?.getString("description") ?: ""
-        val color = arguments?.getInt("color") ?: R.color.color1
-        val savedSelectedDays = arguments?.getIntegerArrayList("selectedDays") ?: arrayListOf()
-        val reminder = arguments?.getString("reminder") ?: ""
+        val initialTitle = arguments?.getString("title") ?: ""
+        val initialDescription = arguments?.getString("description") ?: ""
+        val initialColor = arguments?.getInt("color") ?: 0
+        val initialDays = (arguments?.getIntegerArrayList("selectedDays") ?: arrayListOf()).toSet()
+        val initialReminder = arguments?.getString("reminder") ?: ""
 
-        binding.etGoalTitle.setText(title)
-        binding.etGoalDescription.setText(description)
-        viewModel.setColor(color)
-        selectedDays.clear()
-        selectedDays.addAll(savedSelectedDays)
-        updateDaySelectionUI()
-
-        if (reminder.isNotEmpty()) {
-            binding.switchReminder.isChecked = true
-            binding.tvSelectedTime.visibility = View.VISIBLE
-            binding.icDropDown.visibility = View.VISIBLE
-            binding.tvSelectedTime.text = reminder
-            viewModel.setTime(reminder)
-            val (hour, minute) = parseTimeToHourMinute(reminder)
-            binding.timePicker.hour = hour
-            binding.timePicker.minute = minute
-        } else {
-            binding.switchReminder.isChecked = false
-            binding.tvSelectedTime.visibility = View.GONE
-            binding.icDropDown.visibility = View.GONE
-        }
-        binding.btnSaveGoal.text = "Update"
-        binding.toolbar.title = "Update Habit"
-        binding.btnSaveGoal.setOnClickListener { updateGoal(goalId) }
-    }
-
-    private fun parseTimeToHourMinute(time: String): Pair<Int, Int> {
-        val formatter = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
-        val date = formatter.parse(time)
-        val calendar = java.util.Calendar.getInstance()
-        calendar.time = date!!
-        return Pair(calendar.get(java.util.Calendar.HOUR_OF_DAY), calendar.get(java.util.Calendar.MINUTE))
-    }
-
-
-    private fun updateGoal(goalId: String) {
-        val updatedTitle = binding.etGoalTitle.text.toString()
-        val updatedDescription = binding.etGoalDescription.text.toString()
-        val updatedColor = viewModel.selectedColor.value!!
-        val updatedSelectedDays = selectedDays.toList()
-        val today = LocalDate.now().toString()
-
-        val db = FirebaseFirestore.getInstance()
-        val goalDocRef = db.collection("goals")
-            .document(userId)
-            .collection("Habit")
-            .document(goalId)
-
-        goalDocRef.get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val currentProgressMap = mutableMapOf<String, Long>()
-                    val rawMap = document.get("progress") as? Map<*, *>
-
-                    // Safely cast and convert the map
-                    rawMap?.forEach { (key, value) ->
-                        if (key is String && value is Number) {
-                            currentProgressMap[key] = value.toLong()
-                        }
-                    }
-
-                    // Determine current status for today
-                    val oldStatus = currentProgressMap[today]?.toInt() ?: 3 // Default to pending (3)
-
-                    val todayDayIndex = LocalDate.now().dayOfWeek.value % 7
-                    val isTodaySelected = updatedSelectedDays.contains(todayDayIndex)
-
-                    if (!isTodaySelected && oldStatus == 3) {
-                        currentProgressMap[today] = 2L // Set to Out of Range
-                    } else if (isTodaySelected && oldStatus == 2) {
-                        currentProgressMap[today] = 3L // Set back to Pending
-                    }
-
-                    goalDocRef.update(
-                        mapOf(
-                            "title" to updatedTitle,
-                            "description" to updatedDescription,
-                            "color" to updatedColor,
-                            "selectedDays" to updatedSelectedDays,
-                            "progress" to currentProgressMap
-                        )
-                    ).addOnSuccessListener {
-                        Log.i("AddGoalFragment", "Goal updated successfully")
-                        findNavController().popBackStack()
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }.addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to fetch goal: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-
-    private fun setupFragment() {
-        setupDaySelection()
-        setupLayout()
-        setupViewmodel()
-
-        viewModel.setColor(ContextCompat.getColor(requireContext(),R.color.color1))
-
-        viewModel.selectedTime.observe(viewLifecycleOwner) { time ->
-            binding.tvSelectedTime.text = time
-        }
-    }
-
-    private fun setupViewmodel() {
-        viewModel.setTime(CommonFun.getCurrentTime())
-    }
-    private fun setupDaySelection() {
-        binding.linearLayoutDays.children.forEach { view ->
-            val textView = view as TextView
-            textView.isSelected = true
-            setDaySelectionUI(textView, true)
-
-            textView.setOnClickListener {
-                val dayIndex = textView.tag.toString().toInt()
-
-                if (selectedDays.contains(dayIndex)) {
-                    selectedDays.remove(dayIndex)
-                    setDaySelectionUI(textView, false)
-                } else {
-                    selectedDays.add(dayIndex)
-                    setDaySelectionUI(textView, true)
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                PactTheme {
+                    AddGoalScreen(
+                        modifier = Modifier.systemBarsPadding(),
+                        isEdit = isEdit,
+                        initialTitle = initialTitle,
+                        initialDescription = initialDescription,
+                        initialDays = initialDays,
+                        initialColor = initialColor,
+                        initialReminder = initialReminder,
+                        onPickTime = ::pickTime,
+                        onBack = { findNavController().popBackStack() },
+                        onSave = { title, description, days, color, reminder ->
+                            if (isEdit) {
+                                updateGoal(goalId, title, description, days, color, reminder)
+                            } else {
+                                saveGoal(title, description, days, color, reminder)
+                            }
+                        },
+                    )
                 }
             }
         }
     }
 
-    private fun setDaySelectionUI(textView: TextView, isSelected: Boolean) {
-        textView.isSelected = isSelected
-        textView.setTextColor(
-            ContextCompat.getColor(requireContext(), if (isSelected) R.color.black
-            else R.color.unselect_day)
-        )
-    }
-
-    private fun setupLayout()
-    {
-        var isExpanded = false
-        binding.icDropDown.setOnClickListener {
-            isExpanded = !isExpanded
-            val rotation = if (isExpanded) 180f else 0f
-            binding.icDropDown.animate().rotation(rotation).setDuration(300).start()
-            binding.timePicker.isVisible = isExpanded
-        }
-
-        handleReminderSwitch()
-
-        binding.btnSaveGoal.setOnClickListener {
-            saveGoal()
-        }
-
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
-
-        binding.timePicker.setOnTimeChangedListener { _, hourOfDay, minute ->
-            val formattedTime = CommonFun.formatTime(hourOfDay, minute)
-            viewModel.setTime(formattedTime)
-        }
-    }
-
-    private fun handleReminderSwitch()
-    {
-        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            if(isChecked){
-                binding.tvSelectedTime.visibility = View.VISIBLE
-                binding.icDropDown.visibility = View.VISIBLE
-            }
-            else{
-                binding.tvSelectedTime.visibility = View.GONE
-                binding.icDropDown.visibility = View.GONE
+    private fun pickTime(current: String, onPicked: (String) -> Unit) {
+        val cal = Calendar.getInstance()
+        runCatching {
+            if (current.isNotBlank()) {
+                val parsed = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).parse(current)
+                if (parsed != null) cal.time = parsed
             }
         }
+        TimePickerDialog(
+            requireContext(),
+            { _, hour, minute -> onPicked(CommonFun.formatTime(hour, minute)) },
+            cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false,
+        ).show()
     }
 
-
-    private fun saveGoal() {
-        val description = binding.etGoalDescription.text.toString()
-        val title = binding.etGoalTitle.text.toString()
-        val selectedColor = viewModel.selectedColor.value!!
-        val selectedTime = viewModel.selectedTime.value!!
-
-        saveGoalToFirestore(category,description,title,selectedColor,selectedTime)
+    private fun saveGoal(title: String, description: String, days: List<Int>, color: Int, reminder: String) {
+        val goalId = UUID.randomUUID().toString()
+        val startDate = LocalDate.now().toString()
+        val goal = Goal(goalId, category, title, description, days, color, reminder, startDate)
+        db.collection("goals").document(userId).collection(category).document(goalId)
+            .set(goal)
+            .addOnSuccessListener { Log.d("Firestore", "Goal successfully added") }
+            .addOnFailureListener { e -> Log.e("Firestore", "Error adding goal", e) }
+        HabitReminderScheduler.schedule(requireContext(), goalId, title, reminder, days)
         findNavController().popBackStack()
     }
 
-    private fun saveGoalToFirestore(category: String, description:String,
-                                    title: String,selectedColor:Int, selectedTime:String) {
-        val db = FirebaseFirestore.getInstance()
-        val goalId = UUID.randomUUID().toString()
-        val startDate = LocalDate.now().toString()
-        val goalDb = Goal(goalId, category, title,
-            description, selectedDays.toList(),selectedColor,selectedTime,startDate )
+    private fun updateGoal(goalId: String, title: String, description: String, days: List<Int>, color: Int, reminder: String) {
+        val today = LocalDate.now().toString()
+        val goalDocRef = db.collection("goals").document(userId).collection("Habit").document(goalId)
+        goalDocRef.get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) return@addOnSuccessListener
+                val currentProgressMap = mutableMapOf<String, Long>()
+                (document.get("progress") as? Map<*, *>)?.forEach { (key, value) ->
+                    if (key is String && value is Number) currentProgressMap[key] = value.toLong()
+                }
+                val oldStatus = currentProgressMap[today]?.toInt() ?: 3
+                val todayDayIndex = LocalDate.now().dayOfWeek.value % 7
+                val isTodaySelected = days.contains(todayDayIndex)
+                if (!isTodaySelected && oldStatus == 3) currentProgressMap[today] = 2L
+                else if (isTodaySelected && oldStatus == 2) currentProgressMap[today] = 3L
 
-        db.collection("goals")
-            .document(userId)
-            .collection(category)
-            .document(goalId)
-            .set(goalDb)
-            .addOnSuccessListener {
-                Log.d("Firestore", "Goal successfully added")
+                goalDocRef.update(
+                    mapOf(
+                        "title" to title,
+                        "description" to description,
+                        "color" to color,
+                        "reminder" to reminder,
+                        "selectedDays" to days,
+                        "progress" to currentProgressMap,
+                    )
+                ).addOnSuccessListener {
+                    HabitReminderScheduler.schedule(requireContext(), goalId, title, reminder, days)
+                    findNavController().popBackStack()
+                }.addOnFailureListener { e ->
+                    Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error adding goal", e)
+                Toast.makeText(requireContext(), "Failed to fetch goal: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun updateDaySelectionUI() {
-        binding.linearLayoutDays.children.forEach { view ->
-            val textView = view as TextView
-            val dayIndex = textView.tag.toString().toInt()
-            textView.isSelected = selectedDays.contains(dayIndex)
-            setDaySelectionUI(textView, textView.isSelected)
-        }
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

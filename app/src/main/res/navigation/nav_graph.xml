@@ -4,9 +4,12 @@
     app:startDestination="@id/auth_nav_graph">
 
     <include app:graph="@navigation/goal_nav_graph"/>
+    <include app:graph="@navigation/stats_nav_graph"/>
     <include app:graph="@navigation/home_nav_graph"/>
-    <include app:graph="@navigation/create_nav_graph"/>
+    <!-- Explore (social) retired for current design scope -->
+    <!-- <include app:graph="@navigation/create_nav_graph"/> -->
     <include app:graph="@navigation/profile_nav_graph"/>
+    <include app:graph="@navigation/social_nav_graph"/>
     <include app:graph="@navigation/auth_nav_graph" />
     <include app:graph="@navigation/onboarding_nav_graph"/>
 

@@ -7,10 +7,10 @@ plugins {
 
 android {
     namespace = "com.example.onboarding_ui"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 30
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -34,6 +34,10 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 }
 
@@ -41,6 +45,7 @@ dependencies {
 
     implementation(project(":common:ui"))
     implementation(project(":common:utils"))
+    implementation(project(":common:designsystem"))
     implementation(project(":onboarding:onboarding_domain"))
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication

@@ -1,0 +1,9 @@
+{
+  "name": "apogee-social-push",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Free serverless push for Apogee friend nudges (Vercel + Firebase Admin / FCM).",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

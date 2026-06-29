@@ -2,29 +2,30 @@ package com.example.goal_ui.view.pagerFragment
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.designsystem.theme.PactTheme
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.R
-import com.example.goal_ui.adapter.HabitGoalAdapter
-import com.example.goal_ui.databinding.FragmentHabitBinding
-import com.example.goal_ui.state.HabitAnalyticsState
+import com.example.goal_ui.compose.HabitScreen
+import com.example.goal_ui.state.GoalState
 import com.example.goal_ui.viewmodel.GoalViewModel
 import com.example.utils.CommonFun
-import com.example.utils.CommonFun.animateOnClick
 import com.example.utils.CommonFun.getGoalById
-import com.example.utils.ProgressDialogUtil
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -32,47 +33,50 @@ class HabitFragment : Fragment() {
 
     private val userId = CommonFun.getCurrentUserId()!!
     private val db = FirebaseFirestore.getInstance()
-    private lateinit var binding: FragmentHabitBinding
-    private val viewModel: GoalViewModel by  activityViewModels() // Shared ViewModel
-    private lateinit var habitGoalAdapter: HabitGoalAdapter
+    private val viewModel: GoalViewModel by activityViewModels() // Shared ViewModel
+
+    private var state by mutableStateOf(GoalState(isLoading = true))
 
     override fun onResume() {
         super.onResume()
-        setupRecyclerView()
         fetchHabitGoals()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
-        binding = FragmentHabitBinding.inflate(inflater, container, false)
-        habitGoalAdapter = HabitGoalAdapter(
-            requireContext(),
-            onEditClick = { habit -> showEditDialog(habit) },
-            openAnalytics = { goalId -> showAnalytics(goalId) },
-            onStatusChange = { goal -> updateStatus(goal)},
-            onDeleteClick = { habit -> deleteHabit(habit) },
-            parentFragmentManager
-        )
-        return binding.root
-    }
-
-    private fun updateStatus(goal: Goal) {
-        viewModel.updateGoalAnalytics(userId, goal)
+    ): View {
+        return ComposeView(requireContext()).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                PactTheme {
+                    val focusId by viewModel.focusHabitId.collectAsState()
+                    HabitScreen(
+                        goals = state.goals,
+                        isLoading = state.isLoading,
+                        onStatusChange = { goal -> viewModel.updateGoalAnalytics(userId, goal) },
+                        onUndo = { goal -> viewModel.undoGoalAnalytics(userId, goal) },
+                        onEdit = ::showEditDialog,
+                        onDelete = ::deleteHabit,
+                        onAnalytics = ::showAnalytics,
+                        focusHabitId = focusId,
+                        onFocusConsumed = { viewModel.focusHabit(null) },
+                    )
+                }
+            }
+        }
     }
 
     private fun showAnalytics(goalId: String) {
         lifecycleScope.launch {
             val goal = getGoalById<Goal>(goalId = goalId)
-            if (goal != null) {
-                Log.i("HabitFragment", "Goal: ${goal.progress}")
-            }
-            val bundle = Bundle().apply {
-                putString("goalId", goalId)
-            }
+            if (goal != null) Log.i("HabitFragment", "Goal: ${goal.progress}")
             requireParentFragment().findNavController()
-                .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundle)
+                .navigate(R.id.action_goalFragment_to_habitAnalyticsFragment, bundleOf("goalId" to goalId))
         }
     }
 
@@ -84,63 +88,31 @@ class HabitFragment : Fragment() {
             "color" to habit.color,
             "selectedDays" to habit.selectedDays,
             "reminder" to habit.reminder,
-            "isEditMode" to true // To differentiate between Add and Edit
+            "isEditMode" to true
         )
         requireParentFragment().findNavController()
             .navigate(R.id.action_goalFragment_to_addGoalFragment, bundle)
     }
 
     private fun deleteHabit(habit: Goal) {
-        db.collection("goals")
-            .document(userId)
-            .collection("Habit")
-            .document(habit.id)
-            .delete()
-            .addOnSuccessListener {
-                val updatedList = habitGoalAdapter.currentList.toMutableList()
-                updatedList.remove(habit)
-                habitGoalAdapter.submitList(updatedList)
-                viewModel.loadHabitGoals(userId,"Habit")
-                Toast.makeText(requireContext(), "Habit deleted successfully", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Error deleting habit: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        viewModel.deleteHabit(userId, habit)
+        com.example.utils.reminder.HabitReminderScheduler.cancel(requireContext(), habit.id)
+        Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_SHORT).show()
     }
 
     private fun fetchHabitGoals() {
-        viewModel.loadHabitGoals(userId,"Habit")
+        viewModel.loadHabitGoals(userId, "Habit")
         observeData()
     }
 
-    private fun setupRecyclerView() {
-        binding.habitRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = habitGoalAdapter
-        }
-    }
-
     private fun observeData() {
-        lifecycleScope.launch{
-            viewModel.habitGoals.collectLatest { state ->
-                when {
-                    state.isLoading -> {
-                        ProgressDialogUtil.showProgressDialog(requireContext())
-                    }
-                    state.error.isNotBlank() -> {
-                        ProgressDialogUtil.hideProgressDialog()
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {
-                        ProgressDialogUtil.hideProgressDialog()
-                        state.goals.let { goals ->
-                            habitGoalAdapter.submitList(goals)
-                            Log.i("HabitFragment", "Goals: $goals")
-                        }
-                    }
+        lifecycleScope.launch {
+            viewModel.habitGoals.collectLatest { newState ->
+                state = newState
+                if (newState.error.isNotBlank()) {
+                    Toast.makeText(requireContext(), newState.error, Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
-
 }

@@ -44,11 +44,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -65,11 +63,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/email"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -86,11 +82,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/username"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <LinearLayout
@@ -125,11 +119,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/password"
-            android:textSize="16sp"
-            android:textColor="@color/button_primary"
+            style="@style/Pact.Title.Small"
             android:layout_marginTop="10dp"
             android:layout_marginStart="32dp"
-            android:textStyle="bold"
             />
 
         <LinearLayout
@@ -182,8 +174,9 @@
             android:padding="10dp"
             android:text="@string/sign_up"
             android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="17sp"
+            android:letterSpacing="0.02"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="24dp" />
 

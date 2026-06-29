@@ -44,6 +44,12 @@ object HabitStatusFixer {
                         val selectedDays = goal.selectedDays
                         val startDate = runCatching { LocalDate.parse(goal.startDate) }.getOrNull() ?: continue
 
+                        // A missed scheduled day consumes a freeze (status 4 = frozen, streak survives)
+                        // instead of breaking the streak (status 1 = missed) when freezes remain.
+                        var freezesAvailable = goal.freezesAvailable
+                        fun missedOrFrozen(): Int =
+                            if (freezesAvailable > 0) { freezesAvailable--; 4 } else 1
+
                         // Find the last recorded completed or missed date
                         val lastRecorded = progress.entries
                             .filter { it.value == 0 || it.value == 1 }
@@ -60,11 +66,11 @@ object HabitStatusFixer {
                             if (selectedDays.contains(dayOfWeek)) {
                                 if (progress.containsKey(dayStr)) {
                                     if (progress[dayStr] == 3) {
-                                        progress[dayStr] = 1 // pending -> missed
+                                        progress[dayStr] = missedOrFrozen() // pending -> missed/frozen
                                         updated = true
                                     }
                                 } else {
-                                    progress[dayStr] = 1 // mark as missed
+                                    progress[dayStr] = missedOrFrozen() // mark as missed/frozen
                                     updated = true
                                 }
                             }
@@ -126,7 +132,8 @@ object HabitStatusFixer {
                                         "totalCompleted" to totalCompleted,
                                         "currentStreak" to currentStreak,
                                         "bestStreak" to bestStreak,
-                                        "successRate" to successRate
+                                        "successRate" to successRate,
+                                        "freezesAvailable" to freezesAvailable
                                     )
                                 )
                                 .addOnSuccessListener {

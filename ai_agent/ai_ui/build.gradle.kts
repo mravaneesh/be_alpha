@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.ai_ui"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -32,12 +32,19 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
 }
 
 dependencies {
 
     implementation(project(":common:ui"))
     implementation(project(":common:utils"))
+    implementation(project(":common:designsystem"))
     implementation(project(":ai_agent:ai_domain"))
 
     implementation(libs.androidx.core.ktx)

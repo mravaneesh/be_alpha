@@ -1,8 +1,30 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Pact light theme: warm indigo-violet primary on warm off-white surfaces. -->
     <style name="Base.Theme.BeAlpha_" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/pact_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/pact_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/pact_primary_variant</item>
+
+        <item name="colorSecondary">@color/pact_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/pact_accent_container</item>
+        <item name="colorOnSecondaryContainer">@color/pact_text_primary_light</item>
+
+        <item name="colorTertiary">@color/pact_success</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <item name="colorError">@color/pact_error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <item name="android:colorBackground">@color/pact_bg_light</item>
+        <item name="colorOnBackground">@color/pact_text_primary_light</item>
+        <item name="colorSurface">@color/pact_surface_light</item>
+        <item name="colorOnSurface">@color/pact_text_primary_light</item>
+        <item name="colorSurfaceVariant">@color/pact_surface_variant_light</item>
+        <item name="colorOnSurfaceVariant">@color/pact_text_secondary_light</item>
+        <item name="colorOutline">@color/pact_outline_light</item>
+
         <item name="popupMenuBackground">@drawable/bg_popup_menu</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
