@@ -14,11 +14,6 @@ object HabitCompletion {
     const val DONE = 0
     const val MISSED = 1
     const val PENDING = 3
-    const val FROZEN = 4 // missed but a streak-freeze kept the streak alive
-
-    /** Most freezes a habit can bank, and how many completions earn one. */
-    const val MAX_FREEZES = 2
-    private const val FREEZE_EARN_EVERY = 7
 
     /** True when [goal] is already marked complete for [date]. */
     fun isDoneOn(goal: Goal, date: LocalDate = LocalDate.now()): Boolean =
@@ -28,21 +23,118 @@ object HabitCompletion {
     fun isScheduledOn(goal: Goal, date: LocalDate = LocalDate.now()): Boolean =
         goal.selectedDays.contains(date.dayOfWeek.value % 7)
 
+    /**
+     * This habit's current chain, derived from [Goal.progress] (never the stored counter, so all
+     * surfaces agree). Walks back from [today] over scheduled days: DONE extends the chain, and
+     * today still pending doesn't break it — the chain only breaks on a *finished* scheduled day
+     * that wasn't completed.
+     */
+    fun habitStreak(goal: Goal, today: LocalDate = LocalDate.now()): Int {
+        val start = runCatching { LocalDate.parse(goal.startDate) }.getOrNull() ?: return 0
+        var count = 0
+        var d = today
+        while (!d.isBefore(start)) {
+            if (isScheduledOn(goal, d)) {
+                when (goal.progress[d.toString()] ?: PENDING) {
+                    DONE -> count++
+                    else -> if (d != today) return count // past miss/pending ends it
+                }
+            }
+            d = d.minusDays(1)
+        }
+        return count
+    }
+
+    /**
+     * The headline day streak across all habits: consecutive days on which at least one scheduled
+     * habit was completed. Rest days (nothing scheduled) and today-still-pending are neutral.
+     */
+    fun dayStreak(goals: List<Goal>, today: LocalDate = LocalDate.now()): Int {
+        val habits = goals.mapNotNull { g ->
+            runCatching { LocalDate.parse(g.startDate) }.getOrNull()?.let { g to it }
+        }
+        if (habits.isEmpty()) return 0
+        val earliest = habits.minOf { it.second }
+        var count = 0
+        var d = today
+        while (!d.isBefore(earliest)) {
+            val statuses = habits
+                .filter { (g, s) -> !d.isBefore(s) && isScheduledOn(g, d) }
+                .map { (g, _) -> g.progress[d.toString()] ?: PENDING }
+            when {
+                statuses.isEmpty() -> Unit                    // rest day — neutral
+                statuses.any { it == DONE } -> count++
+                d == today -> Unit                            // day isn't over yet
+                else -> return count
+            }
+            d = d.minusDays(1)
+        }
+        return count
+    }
+
+    /**
+     * Daily rollover, pure and idempotent: resolves every scheduled day before [today] that's still
+     * unset/pending to MISSED, opens today as PENDING, and recomputes the stored analytics from the
+     * resolved history. Returns the updated goal, or null when nothing changed — safe to run on
+     * every cache emission.
+     */
+    fun rollover(goal: Goal, today: LocalDate = LocalDate.now()): Goal? {
+        val start = runCatching { LocalDate.parse(goal.startDate) }.getOrNull() ?: return null
+        val progress = goal.progress.toMutableMap()
+
+        var d = start
+        while (d.isBefore(today)) {
+            if (isScheduledOn(goal, d)) {
+                val key = d.toString()
+                val s = progress[key]
+                if (s == null || s == PENDING) {
+                    progress[key] = MISSED
+                }
+            }
+            d = d.plusDays(1)
+        }
+        if (isScheduledOn(goal, today) && progress[today.toString()] == null) {
+            progress[today.toString()] = PENDING
+        }
+
+        // Recompute totals from the resolved history so the stored fields can never drift.
+        var total = 0
+        var best = 0
+        var chain = 0
+        d = start
+        while (!d.isAfter(today)) {
+            if (isScheduledOn(goal, d)) {
+                when (progress[d.toString()]) {
+                    DONE -> { chain++; total++; if (chain > best) best = chain }
+                    MISSED -> chain = 0
+                    // Today's PENDING holds the chain without advancing it.
+                }
+            }
+            d = d.plusDays(1)
+        }
+
+        val updated = goal.copy(
+            progress = progress,
+            currentStreak = chain,
+            bestStreak = maxOf(best, goal.bestStreak),
+            totalCompleted = total,
+            successRate = successRate(total, goal),
+        )
+        return updated.takeIf { it != goal }
+    }
+
     /** Returns a copy of [goal] marked complete for [date] with streak/total/success-rate updated. */
     fun markComplete(goal: Goal, date: LocalDate = LocalDate.now()): Goal {
         val progress = goal.progress.toMutableMap()
         var currentStreak = goal.currentStreak
         var bestStreak = goal.bestStreak
         var totalCompleted = goal.totalCompleted
-        var freezes = goal.freezesAvailable
 
         progress[date.toString()] = DONE
         if (isScheduledOn(goal, date)) {
             currentStreak++
             totalCompleted++
             if (currentStreak > bestStreak) bestStreak = currentStreak
-            // Earn a freeze on each full-week streak milestone (capped).
-            if (currentStreak % FREEZE_EARN_EVERY == 0 && freezes < MAX_FREEZES) freezes++
         }
 
         return goal.copy(
@@ -51,14 +143,13 @@ object HabitCompletion {
             bestStreak = bestStreak,
             totalCompleted = totalCompleted,
             successRate = successRate(totalCompleted, goal),
-            freezesAvailable = freezes,
         )
     }
 
     /**
      * Inverse of [markComplete] for an accidental tap — only meant for *today*. Sets the day back to
-     * pending and rolls back exactly what [markComplete] added (streak, total, the milestone freeze,
-     * and a best-streak bump if this completion set the record).
+     * pending and rolls back exactly what [markComplete] added (streak, total, and a best-streak
+     * bump if this completion set the record).
      */
     fun markIncomplete(goal: Goal, date: LocalDate = LocalDate.now()): Goal {
         if (!isDoneOn(goal, date)) return goal
@@ -66,12 +157,9 @@ object HabitCompletion {
         var currentStreak = goal.currentStreak
         var bestStreak = goal.bestStreak
         var totalCompleted = goal.totalCompleted
-        var freezes = goal.freezesAvailable
 
         progress[date.toString()] = PENDING
         if (isScheduledOn(goal, date)) {
-            // Reverse the milestone freeze first (this completion granted one iff it hit the milestone).
-            if (currentStreak % FREEZE_EARN_EVERY == 0 && freezes > 0) freezes--
             val wasRecord = bestStreak == currentStreak
             currentStreak = (currentStreak - 1).coerceAtLeast(0)
             totalCompleted = (totalCompleted - 1).coerceAtLeast(0)
@@ -84,7 +172,6 @@ object HabitCompletion {
             bestStreak = bestStreak,
             totalCompleted = totalCompleted,
             successRate = successRate(totalCompleted, goal),
-            freezesAvailable = freezes,
         )
     }
 

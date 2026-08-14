@@ -15,4 +15,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="widget_label">Apogee Habits</string>
     <string name="widget_description">Track today\'s habits and tap to complete them from your home screen.</string>
+    <string name="habit_streak_widget_label">Habit Streak</string>
+    <string name="habit_streak_widget_description">A single habit\'s streak, right on your home screen.</string>
 </resources>

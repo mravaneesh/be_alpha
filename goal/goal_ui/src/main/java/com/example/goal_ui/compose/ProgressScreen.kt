@@ -113,7 +113,13 @@ fun ProgressScreen(
                 }
 
                 AnalyticsCard(title = "Monthly trend", modifier = Modifier.coachmarkTarget("trend")) {
-                    TrendChart(points = series.trend, modifier = Modifier.fillMaxWidth())
+                    TrendChart(
+                        points = series.trend,
+                        xLabels = trendWeekLabels,
+                        xAxisTitle = "Weeks",
+                        yAxisTitle = "%",
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
 
                 AnalyticsCard(title = "This week") {
@@ -134,6 +140,9 @@ fun ProgressScreen(
     }
   }
 }
+
+/** X labels for the 6-week trend series (oldest -> newest). */
+internal val trendWeekLabels = listOf("5w", "4w", "3w", "2w", "1w", "Now")
 
 private val statsTourSteps = listOf(
     CoachmarkStep("trend", "Your trend", "Track your consistency over days and weeks."),

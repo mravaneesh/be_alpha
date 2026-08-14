@@ -28,6 +28,8 @@ data class WidgetHabit(
     val title: String,
     val category: String,
     val done: Boolean,
+    /** User-picked ARGB swatch; -1 when unset (falls back to the category color). */
+    val color: Int = -1,
 )
 
 data class WeekBar(val label: String, val ratio: Float, val isToday: Boolean)
@@ -88,7 +90,8 @@ private fun buildWidgetData(goals: List<com.example.goal_domain.model.Goal>): Wi
     val total = scheduled.size
     val done = scheduled.count { HabitCompletion.isDoneOn(it, today) }
     val percent = if (total == 0) 0 else done * 100 / total
-    val streak = goals.maxOfOrNull { it.currentStreak } ?: 0
+    // Day streak (same derivation as the Home dashboard): consecutive days with >=1 habit done.
+    val streak = HabitCompletion.dayStreak(goals, today)
 
     val state = when {
         done >= total -> WidgetUiState.ALL_DONE
@@ -96,7 +99,7 @@ private fun buildWidgetData(goals: List<com.example.goal_domain.model.Goal>): Wi
     }
 
     val habits = scheduled.map {
-        WidgetHabit(it.id, it.title, it.category, HabitCompletion.isDoneOn(it, today))
+        WidgetHabit(it.id, it.title, it.category, HabitCompletion.isDoneOn(it, today), it.color)
     }
 
     return WidgetData(

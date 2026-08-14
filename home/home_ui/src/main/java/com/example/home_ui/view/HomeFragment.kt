@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.designsystem.theme.PactTheme
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.repository.GoalRepository
+import com.example.goal_domain.usecase.HabitCompletion
 import com.example.home_ui.R
 import com.example.home_ui.compose.DashboardScreen
 import com.example.home_ui.compose.HabitSummary
@@ -131,13 +132,15 @@ class HomeFragment : Fragment() {
         val scheduled = goals.filter { it.selectedDays.contains(todayIdx) }
         total = scheduled.size
         completed = scheduled.count { (it.progress[today.toString()] ?: 3) == 0 }
-        streakDays = goals.maxOfOrNull { it.currentStreak } ?: 0
+        // Derived from progress history (never the stored counter) so Home and the widget agree.
+        streakDays = HabitCompletion.dayStreak(goals, today)
         habits = scheduled.take(8).map {
             HabitSummary(
                 name = it.title,
                 category = it.category.ifBlank { it.title },
-                streak = it.currentStreak,
+                streak = HabitCompletion.habitStreak(it, today),
                 done = (it.progress[today.toString()] ?: 3) == 0,
+                color = it.color,
             )
         }
         weekly = (6 downTo 0).map { offset ->

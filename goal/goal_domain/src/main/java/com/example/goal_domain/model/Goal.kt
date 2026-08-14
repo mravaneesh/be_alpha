@@ -19,8 +19,6 @@ data class Goal(
     val bestStreak: Int = 0,
     val totalCompleted: Int = 0,
     val successRate: Int = 0,
-    /** Streak freezes left for this habit; a missed scheduled day consumes one instead of resetting the streak. */
-    val freezesAvailable: Int = 1,
     /** Whether this habit's progress counts toward what friends see (feed/leaderboard). */
     val shared: Boolean = true,
     /** Non-blank when this habit is tied to a group challenge; completing it is the daily check-in. */

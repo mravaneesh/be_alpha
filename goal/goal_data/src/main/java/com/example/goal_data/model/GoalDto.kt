@@ -16,7 +16,6 @@ data class GoalDto (
     val bestStreak: Int = 0,
     val totalCompleted: Int = 0,
     val successRate: Int = 0,
-    val freezesAvailable: Int = 1,
     val shared: Boolean = true,
     val challengeId: String = ""
 )

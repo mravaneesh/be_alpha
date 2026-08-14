@@ -26,7 +26,6 @@ import com.example.goal_ui.compose.HabitScreen
 import com.example.goal_ui.databinding.FragmentGoalBinding
 import com.example.goal_ui.state.GoalState
 import com.example.goal_ui.viewmodel.GoalViewModel
-import com.example.goal_ui.worker.HabitStatusFixer
 import com.example.utils.CommonFun
 import com.example.utils.reminder.HabitReminderScheduler
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,7 +46,8 @@ class GoalFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        HabitStatusFixer.syncMissedAndPendingDays()
+        // Day rollover (missed/frozen backfill) is handled centrally in BaseApplication's cache
+        // observer — the refresh below triggers it via the resulting Room emission.
         viewModel.loadHabitGoals(userId, "Habit")
         observeData()
     }

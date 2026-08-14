@@ -11,6 +11,7 @@ object ApogeeWidgetUpdater {
     fun refresh(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { ApogeeWidget().updateAll(context.applicationContext) }
+            runCatching { HabitStreakWidget().updateAll(context.applicationContext) }
         }
     }
 }

@@ -43,6 +43,7 @@ import com.example.designsystem.components.TrendChart
 import com.example.designsystem.theme.semantic
 import com.example.designsystem.theme.spacing
 import com.example.goal_domain.model.Goal
+import com.example.goal_domain.usecase.HabitCompletion
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle as JavaTextStyle
@@ -61,6 +62,7 @@ fun HabitAnalyticsScreen(
 ) {
     val trend = remember(goal) { weeklyTrend(goal) }
     val heat = remember(goal) { heatmap(goal) }
+    val chain = remember(goal) { HabitCompletion.habitStreak(goal) }
 
     Column(
         modifier = modifier
@@ -79,7 +81,7 @@ fun HabitAnalyticsScreen(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)) {
-            StatCard(Icons.Filled.LocalFireDepartment, "${goal.currentStreak}", "Current streak", MaterialTheme.semantic.streak, Modifier.weight(1f))
+            StatCard(Icons.Filled.LocalFireDepartment, "$chain", "Current streak", MaterialTheme.semantic.streak, Modifier.weight(1f))
             StatCard(Icons.Outlined.EmojiEvents, "${goal.bestStreak}", "Best streak", MaterialTheme.semantic.accent, Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)) {
@@ -89,7 +91,13 @@ fun HabitAnalyticsScreen(
 
         DetailsBlock(goal)
         AnalyticsBlock(title = "Success trend") {
-            TrendChart(points = trend, modifier = Modifier.fillMaxWidth())
+            TrendChart(
+                points = trend,
+                xLabels = trendWeekLabels,
+                xAxisTitle = "Weeks",
+                yAxisTitle = "%",
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
         AnalyticsBlock(title = "History") {
             MonthCalendar(goal)
@@ -113,8 +121,6 @@ private fun DetailsBlock(goal: Goal) {
         DetailRow("Schedule", schedule)
         Spacer(Modifier.height(MaterialTheme.spacing.md))
         DetailRow("Reminder", goal.reminder.ifBlank { "Off" })
-        Spacer(Modifier.height(MaterialTheme.spacing.md))
-        DetailRow("Streak freezes", "${goal.freezesAvailable}")
         if (goal.category.isNotBlank()) {
             Spacer(Modifier.height(MaterialTheme.spacing.md))
             DetailRow("Category", goal.category)
@@ -130,7 +136,7 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-private enum class DayStatus { DONE, MISSED, FROZEN, TODAY, OFF, FUTURE }
+private enum class DayStatus { DONE, MISSED, TODAY, OFF, FUTURE }
 
 @Composable
 private fun MonthCalendar(goal: Goal) {
@@ -180,7 +186,6 @@ private fun MonthCalendar(goal: Goal) {
         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)) {
             LegendDot(MaterialTheme.semantic.accent, "Done")
             LegendDot(MaterialTheme.semantic.urgent, "Missed")
-            LegendDot(MaterialTheme.semantic.cyan, "Frozen")
         }
     }
 }
@@ -191,7 +196,6 @@ private fun DayCell(date: LocalDate, status: DayStatus) {
     val (bg, fg) = when (status) {
         DayStatus.DONE -> accent to androidx.compose.ui.graphics.Color(0xFF06121F)
         DayStatus.MISSED -> MaterialTheme.semantic.urgent.copy(alpha = 0.20f) to MaterialTheme.colorScheme.onSurface
-        DayStatus.FROZEN -> MaterialTheme.semantic.cyan.copy(alpha = 0.22f) to MaterialTheme.colorScheme.onSurface
         DayStatus.TODAY -> androidx.compose.ui.graphics.Color.Transparent to accent
         DayStatus.OFF -> androidx.compose.ui.graphics.Color.Transparent to MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
         DayStatus.FUTURE -> androidx.compose.ui.graphics.Color.Transparent to MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
@@ -221,7 +225,6 @@ private fun statusFor(goal: Goal, date: LocalDate, today: LocalDate): DayStatus 
     date.isAfter(today) -> DayStatus.FUTURE
     !scheduled(goal, date) -> DayStatus.OFF
     isDone(goal, date) -> DayStatus.DONE
-    goal.progress[date.toString()] == 4 -> DayStatus.FROZEN
     date.isEqual(today) -> DayStatus.TODAY
     else -> DayStatus.MISSED
 }

@@ -259,7 +259,10 @@ private fun RingWithCheck(progress: Float, dark: Boolean, ringDp: androidx.compo
 
 @Composable
 private fun HabitRow(h: WidgetHabit, tileDp: androidx.compose.ui.unit.Dp, checkDp: androidx.compose.ui.unit.Dp) {
-    val (color, iconRes) = categoryStyle(h.category)
+    val (fallback, iconRes) = categoryStyle(h.category)
+    // The swatch picked for the habit wins; the category color is only the fallback (-1 = unset,
+    // zero alpha byte = legacy palette index — both fall back).
+    val color = if (h.color != -1 && (h.color ushr 24) != 0) Color(h.color) else fallback
     // Tapping a habit opens the app on the Habits screen, scrolled to and highlighting this habit.
     val focus = actionStartActivity(
         Intent(LocalContext.current, HostActivity::class.java).apply {

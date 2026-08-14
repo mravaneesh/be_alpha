@@ -31,7 +31,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.outlined.AcUnit
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Bedtime
@@ -61,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -79,6 +79,7 @@ import com.example.designsystem.theme.PactType
 import com.example.designsystem.theme.semantic
 import com.example.designsystem.theme.spacing
 import com.example.goal_domain.model.Goal
+import com.example.goal_domain.usecase.HabitCompletion
 import java.time.LocalDate
 
 private val dayNames = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
@@ -269,7 +270,11 @@ private fun HabitCard(
     val status = goal.progress[LocalDate.now().toString()] ?: 3
     val done = status == 0
     val skipped = status == 2
-    val (icon, color) = categoryStyle(goal.category)
+    // Not scheduled today: the card stays browsable (analytics, edit/delete) but can't be completed.
+    val scheduledToday = remember(goal) { HabitCompletion.isScheduledOn(goal) }
+    val (icon, fallbackColor) = categoryStyle(goal.category)
+    // The swatch picked on the create/edit form wins; category color is only the fallback.
+    val color = habitColor(goal.color, fallbackColor)
     val interactionSource = remember { MutableInteractionSource() }
 
     // Arriving from a widget tap: play a ripple on this card so it reads as "tapped".
@@ -286,6 +291,7 @@ private fun HabitCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .alpha(if (scheduledToday) 1f else 0.55f)
                 .clip(MaterialTheme.shapes.large)
                 .background(if (done) color.copy(alpha = 0.10f) else MaterialTheme.colorScheme.surface)
                 .border(
@@ -301,7 +307,13 @@ private fun HabitCard(
                 .padding(MaterialTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HabitRing(done = done, icon = icon, color = color, onClick = if (done) onUndo else onComplete)
+            HabitRing(
+                done = done,
+                icon = icon,
+                color = if (scheduledToday) color else MaterialTheme.colorScheme.onSurfaceVariant,
+                enabled = scheduledToday,
+                onClick = if (done) onUndo else onComplete,
+            )
             Spacer(Modifier.width(MaterialTheme.spacing.lg))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -313,19 +325,18 @@ private fun HabitCard(
                 )
                 Spacer(Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (!scheduledToday) {
+                        Text("Not today", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("  ·  ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     if (goal.category.isNotBlank()) {
                         Text(goal.category, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("  ·  ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Icon(Icons.Filled.LocalFireDepartment, contentDescription = null, tint = MaterialTheme.semantic.streak, modifier = Modifier.size(13.dp))
                     Spacer(Modifier.width(3.dp))
-                    Text("${goal.currentStreak}d", style = PactType.mono, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (goal.freezesAvailable > 0) {
-                        Text("  ·  ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Icon(Icons.Outlined.AcUnit, contentDescription = "Streak freezes", tint = Color(0xFF36C6E0), modifier = Modifier.size(13.dp))
-                        Spacer(Modifier.width(3.dp))
-                        Text("${goal.freezesAvailable}", style = PactType.mono, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                    val chain = remember(goal) { HabitCompletion.habitStreak(goal) }
+                    Text("${chain}d", style = PactType.mono, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Icon(
@@ -351,24 +362,35 @@ private fun HabitCard(
 
 /** 50dp tappable ring — accent-filled check when done (tap to undo), category icon over an outline otherwise. */
 @Composable
-private fun HabitRing(done: Boolean, icon: ImageVector, color: Color, onClick: () -> Unit) {
+private fun HabitRing(done: Boolean, icon: ImageVector, color: Color, onClick: () -> Unit, enabled: Boolean = true) {
     Box(
         modifier = Modifier
             .size(50.dp)
             .clip(CircleShape)
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         ProgressRing(progress = if (done) 1f else 0f, modifier = Modifier.size(50.dp), strokeWidth = 4.dp) {
             Icon(
                 imageVector = if (done) Icons.Filled.Check else icon,
-                contentDescription = if (done) "Completed" else "Mark complete",
+                contentDescription = when {
+                    done -> "Completed"
+                    enabled -> "Mark complete"
+                    else -> "Not scheduled today"
+                },
                 tint = if (done) MaterialTheme.semantic.accent else color,
                 modifier = Modifier.size(22.dp),
             )
         }
     }
 }
+
+/**
+ * The user-picked ARGB swatch when set, else [fallback]. -1 is the unset default, and a zero alpha
+ * byte means a legacy palette *index* was stored rather than a color — both fall back.
+ */
+private fun habitColor(stored: Int, fallback: Color): Color =
+    if (stored != -1 && (stored ushr 24) != 0) Color(stored) else fallback
 
 private fun categoryStyle(category: String): Pair<ImageVector, Color> {
     val c = category.lowercase()

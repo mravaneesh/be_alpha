@@ -71,6 +71,8 @@ data class HabitSummary(
     val category: String,
     val streak: Int,
     val done: Boolean,
+    /** User-picked ARGB swatch; -1 when unset (falls back to the category color). */
+    val color: Int = -1,
 )
 
 private const val DEFAULT_QUOTE = "Discipline is choosing between what you want now and what you want most."
@@ -281,7 +283,10 @@ private fun SectionHeader(title: String, action: String? = null) {
 
 @Composable
 private fun HabitMiniCard(habit: HabitSummary) {
-    val (icon, color) = categoryStyle(habit.category)
+    val (icon, fallback) = categoryStyle(habit.category)
+    // The swatch picked for the habit wins; the category color is only the fallback (-1 = unset,
+    // zero alpha byte = legacy palette index — both fall back).
+    val color = if (habit.color != -1 && (habit.color ushr 24) != 0) Color(habit.color) else fallback
     Column(
         modifier = Modifier
             .width(128.dp)

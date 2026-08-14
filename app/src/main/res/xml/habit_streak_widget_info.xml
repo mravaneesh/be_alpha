@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="72dp"
+    android:minHeight="72dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:resizeMode="none"
+    android:widgetCategory="home_screen"
+    android:updatePeriodMillis="1800000"
+    android:configure="com.example.bealpha_.widget.HabitStreakWidgetConfigActivity"
+    android:description="@string/habit_streak_widget_description"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewLayout="@layout/habit_streak_widget_preview" />

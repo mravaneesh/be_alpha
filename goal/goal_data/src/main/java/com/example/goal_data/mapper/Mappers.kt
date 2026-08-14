@@ -18,7 +18,6 @@ fun GoalDto.toDomainGoal(): Goal = Goal(
     bestStreak = bestStreak,
     totalCompleted = totalCompleted,
     successRate = successRate,
-    freezesAvailable = freezesAvailable,
     shared = shared,
     challengeId = challengeId,
 )
@@ -37,7 +36,6 @@ fun GoalDto.toEntity(category: String): GoalEntity = GoalEntity(
     bestStreak = bestStreak,
     totalCompleted = totalCompleted,
     successRate = successRate,
-    freezesAvailable = freezesAvailable,
     shared = shared,
     challengeId = challengeId,
 )
@@ -56,7 +54,6 @@ fun GoalEntity.toDomainGoal(): Goal = Goal(
     bestStreak = bestStreak,
     totalCompleted = totalCompleted,
     successRate = successRate,
-    freezesAvailable = freezesAvailable,
     shared = shared,
     challengeId = challengeId,
 )
@@ -75,7 +72,6 @@ fun Goal.toDto(): GoalDto = GoalDto(
     bestStreak = bestStreak,
     totalCompleted = totalCompleted,
     successRate = successRate,
-    freezesAvailable = freezesAvailable,
     shared = shared,
     challengeId = challengeId,
 )
@@ -94,7 +90,6 @@ fun Goal.toEntity(): GoalEntity = GoalEntity(
     bestStreak = bestStreak,
     totalCompleted = totalCompleted,
     successRate = successRate,
-    freezesAvailable = freezesAvailable,
     shared = shared,
     challengeId = challengeId,
 )

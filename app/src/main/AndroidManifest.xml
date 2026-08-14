@@ -36,6 +36,16 @@
             android:exported="false">
         </activity>
 
+        <!-- Habit Streak widget configuration: pick which habit a placed instance tracks -->
+        <activity
+            android:name=".widget.HabitStreakWidgetConfigActivity"
+            android:exported="true"
+            android:theme="@style/Theme.BeAlpha_">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <!--
             ReminderReceiver was declared here but pointed at a class that is not on
             the app classpath (the :notification feature module is not a dependency of
@@ -68,6 +78,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/apogee_widget_info" />
+        </receiver>
+
+        <!-- Per-habit streak widget (Glance), 2x2 fixed, one habit per placed instance -->
+        <receiver
+            android:name=".widget.HabitStreakWidgetReceiver"
+            android:label="@string/habit_streak_widget_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/habit_streak_widget_info" />
         </receiver>
     </application>
 </manifest>

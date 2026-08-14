@@ -41,10 +41,10 @@ class StreakRiskReceiver : BroadcastReceiver() {
                 val atRisk = goals.filter {
                     it.selectedDays.contains(todayIdx) &&
                         !HabitCompletion.isDoneOn(it, today) &&
-                        it.currentStreak > 0
+                        HabitCompletion.habitStreak(it, today) > 0
                 }
                 if (atRisk.isNotEmpty()) {
-                    notify(context, atRisk.size, atRisk.maxOf { it.currentStreak })
+                    notify(context, atRisk.size, atRisk.maxOf { HabitCompletion.habitStreak(it, today) })
                 }
             } finally {
                 StreakRiskScheduler.scheduleDaily(context) // arm tomorrow's check

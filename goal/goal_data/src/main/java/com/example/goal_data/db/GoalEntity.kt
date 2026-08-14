@@ -19,7 +19,6 @@ data class GoalEntity(
     val bestStreak: Int,
     val totalCompleted: Int,
     val successRate: Int,
-    val freezesAvailable: Int = 1,
     val shared: Boolean = true,
     val challengeId: String = "",
 )

@@ -11,6 +11,8 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,6 +38,9 @@ class BaseApplication : Application() {
      * shared, with challenge members). A lightweight signature dedupes redundant emissions.
      */
     private fun syncDerivedState() {
+        // Fast lane: mirror the cache to widgets with nothing network-bound in front. A separate
+        // collector so a slow Firestore sync from one change can never delay the widget render of
+        // the next (that lag showed up as "undo reflects slower than complete").
         appScope.launch {
             var lastSig: String? = null
             goalRepository.observeGoals("Habit").collect { goals ->
@@ -44,11 +49,22 @@ class BaseApplication : Application() {
                 val first = lastSig == null
                 lastSig = sig
                 android.util.Log.d("WidgetSync", "habits changed (n=${goals.size}, first=$first) -> updating widgets")
-
                 // Update on a separate coroutine — calling updateAll() inline inside this Room-flow
                 // collector doesn't re-render the widget (the collection coroutine ties it up).
                 if (!first) ApogeeWidgetUpdater.refresh(this@BaseApplication)
+            }
+        }
+        // Slow lane: daily rollover (backfill missed/frozen days, open today as pending) and the
+        // per-challenge progress sync. collectLatest so fresh changes cancel in-flight stale work —
+        // both jobs are idempotent recomputations, safe to restart.
+        appScope.launch {
+            var lastSig: String? = null
+            goalRepository.observeGoals("Habit").collectLatest { goals ->
+                val sig = signature(goals)
+                if (sig == lastSig) return@collectLatest
+                rolloverGoals()
                 runCatching { syncChallengeProgress(goals) }
+                lastSig = sig
             }
         }
     }
@@ -85,8 +101,23 @@ class BaseApplication : Application() {
         }
     }
 
-    private fun signature(goals: List<Goal>): String {
-        val today = LocalDate.now().toString()
-        return goals.joinToString("|") { "${it.id}:${it.progress[today] ?: 3}:${it.currentStreak}:${it.freezesAvailable}" }
+    /**
+     * Applies the daily rollover from the freshest cache snapshot. Updates are computed purely
+     * up front and written fire-and-forget: awaiting the network per goal inside this loop held
+     * stale snapshots for seconds, and one of those writes landing after a user's tap silently
+     * reverted the completion.
+     */
+    private suspend fun rolloverGoals() {
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val fresh = goalRepository.observeGoals("Habit").first()
+        fresh.mapNotNull { HabitCompletion.rollover(it) }.forEach { updated ->
+            appScope.launch { runCatching { goalRepository.updateGoal(uid, updated) } }
+        }
     }
+
+    // Includes today's date so the first emission after midnight is never deduped away — the
+    // rollover and widget both need to run again for the new day even if no data changed.
+    private fun signature(goals: List<Goal>): String =
+        LocalDate.now().toString() + "|" +
+            goals.joinToString("|") { "${it.id}:${it.progress.hashCode()}:${it.currentStreak}" }
 }
