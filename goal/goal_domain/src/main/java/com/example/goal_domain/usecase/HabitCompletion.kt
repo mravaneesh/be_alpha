@@ -78,8 +78,50 @@ object HabitCompletion {
      * resolved history. Returns the updated goal, or null when nothing changed — safe to run on
      * every cache emission.
      */
+    fun rollover(goal: Goal, today: LocalDate = LocalDate.now()): Goal? {
+        val start = runCatching { LocalDate.parse(goal.startDate) }.getOrNull() ?: return null
+        val progress = goal.progress.toMutableMap()
 
+        var d = start
+        while (d.isBefore(today)) {
+            if (isScheduledOn(goal, d)) {
+                val key = d.toString()
+                val s = progress[key]
+                if (s == null || s == PENDING) {
+                    progress[key] = MISSED
+                }
+            }
+            d = d.plusDays(1)
+        }
+        if (isScheduledOn(goal, today) && progress[today.toString()] == null) {
+            progress[today.toString()] = PENDING
+        }
 
+        // Recompute totals from the resolved history so the stored fields can never drift.
+        var total = 0
+        var best = 0
+        var chain = 0
+        d = start
+        while (!d.isAfter(today)) {
+            if (isScheduledOn(goal, d)) {
+                when (progress[d.toString()]) {
+                    DONE -> { chain++; total++; if (chain > best) best = chain }
+                    MISSED -> chain = 0
+                    // Today's PENDING holds the chain without advancing it.
+                }
+            }
+            d = d.plusDays(1)
+        }
+
+        val updated = goal.copy(
+            progress = progress,
+            currentStreak = chain,
+            bestStreak = maxOf(best, goal.bestStreak),
+            totalCompleted = total,
+            successRate = successRate(total, goal),
+        )
+        return updated.takeIf { it != goal }
+    }
 
     /** Returns a copy of [goal] marked complete for [date] with streak/total/success-rate updated. */
     fun markComplete(goal: Goal, date: LocalDate = LocalDate.now()): Goal {

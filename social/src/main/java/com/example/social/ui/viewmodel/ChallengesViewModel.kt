@@ -71,9 +71,9 @@ class ChallengesViewModel @Inject constructor(
                 )
                 val uid = repo.currentUid
                 if (uid != null && id.isNotBlank()) {
-                    existing.forEach { goalRepo.updateGoal(uid, it.copy(challengeId = id)) }
+                    existing.forEach { goalRepo.setChallengeLink(uid, it.id,id) }
                     newHabitNames.map { it.trim() }.filter { it.isNotBlank() }
-                        .forEach { name -> goalRepo.updateGoal(uid, newHabit(name, id)) }
+                        .forEach { name -> goalRepo.createGoal(uid, newHabit(name, id)) }
                 }
             }.onSuccess {
                 _toast.tryEmit("Challenge created")
@@ -100,7 +100,7 @@ class ChallengesViewModel @Inject constructor(
                 if (uid != null) {
                     goals.forEach { goal ->
                         if (deleteHabit) goalRepo.deleteGoal(uid, "Habit", goal.id)
-                        else goalRepo.updateGoal(uid, goal.copy(challengeId = ""))
+                        else goalRepo.setChallengeLink(uid, goal.id,"")
                     }
                 }
             }.onFailure { _toast.tryEmit("Couldn't leave: ${it.message ?: "unknown error"}") }
@@ -133,8 +133,8 @@ class ChallengesViewModel @Inject constructor(
             val today = LocalDate.now()
             val todo = goals.filter { HabitCompletion.isScheduledOn(it, today) && !HabitCompletion.isDoneOn(it, today) }
             if (todo.isEmpty()) return@launch
-            runCatching { todo.forEach { goalRepo.updateGoal(uid, HabitCompletion.markComplete(it)) } }
-                .onSuccess { _toast.tryEmit("Checked in 🎉") }
+            runCatching { todo.forEach { goalRepo.completeGoal(uid, it.id,today) } }
+                .onSuccess { _toast.tryEmit("Checked in") }
                 .onFailure { _toast.tryEmit("Couldn't check in: ${it.message ?: "unknown error"}") }
         }
     }
@@ -146,7 +146,7 @@ class ChallengesViewModel @Inject constructor(
         val have = myHabits.value.filter { it.challengeId == challengeId }.map { it.title.trim().lowercase() }.toSet()
         val names = ch.habitNames.ifEmpty { listOfNotNull(ch.title.ifBlank { null }) }
         names.filter { it.trim().lowercase() !in have }.forEach { name ->
-            goalRepo.updateGoal(uid, newHabit(name, challengeId))
+            goalRepo.createGoal(uid, newHabit(name, challengeId))
         }
     }
 

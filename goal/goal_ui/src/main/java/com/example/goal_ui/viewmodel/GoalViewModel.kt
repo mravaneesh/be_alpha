@@ -68,37 +68,20 @@ class GoalViewModel @Inject constructor(
         is Resource.Error -> GoalState(error = message)
     }
 
-    /** Mark a habit complete for [date] — updates the local cache instantly and syncs remotely. */
-    fun updateGoalAnalytics(userId: String, goal: Goal, date: String = LocalDate.now().toString()) {
+    /** Mark a habit complete for [date]. The repository re-reads the latest row before applying. */
+    fun completeGoal(userId: String, goalId: String, date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
-            val updated = HabitCompletion.markComplete(goal, LocalDate.parse(date))
-            runCatching { repository.updateGoal(userId, updated) }
-                .onFailure { Log.e("GoalViewModel", "updateGoal failed", it) }
+            runCatching { repository.completeGoal(userId, goalId, date) }
+                .onFailure { Log.e("GoalViewModel", "completeGoal failed", it) }
         }
     }
 
-    /** Undo an accidental completion for today — reverses the streak/total changes. */
-    fun undoGoalAnalytics(userId: String, goal: Goal, date: String = LocalDate.now().toString()) {
+    /** Undo an accidental completion for [date] — reverses the streak/total changes. */
+    fun undoCompletion(userId: String, goalId: String, date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
-            val updated = HabitCompletion.markIncomplete(goal, LocalDate.parse(date))
-            runCatching { repository.updateGoal(userId, updated) }
-                .onFailure { Log.e("GoalViewModel", "undoGoal failed", it) }
+            runCatching { repository.undoCompletion(userId, goalId, date) }
+                .onFailure { Log.e("GoalViewModel", "undoCompletion failed", it) }
         }
-    }
-
-    fun completeGoal(
-        userId:String,
-        goalId:String,
-        date: String = LocalDate.now().toString()
-    ) {
-        viewModelScope.launch {
-            runCatching {
-                repository.completeGoal(userId,goalId,date)
-            }.onFailure {
-                Log.e("GoalViewModel", "completeGoal failed", it)
-            }
-        }
-
     }
 
     /** Delete a habit — removes from the local cache immediately and syncs remotely. */

@@ -109,10 +109,7 @@ class BaseApplication : Application() {
      */
     private suspend fun rolloverGoals() {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val fresh = goalRepository.observeGoals("Habit").first()
-        fresh.mapNotNull { HabitCompletion.rollover(it) }.forEach { updated ->
-            appScope.launch { runCatching { goalRepository.updateGoal(uid, updated) } }
-        }
+        goalRepository.rolloverGoals(uid, LocalDate.now())
     }
 
     // Includes today's date so the first emission after midnight is never deduped away — the

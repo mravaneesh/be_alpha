@@ -58,8 +58,8 @@ class HabitFragment : Fragment() {
                     HabitScreen(
                         goals = state.goals,
                         isLoading = state.isLoading,
-                        onStatusChange = { goal -> viewModel.updateGoalAnalytics(userId, goal) },
-                        onUndo = { goal -> viewModel.undoGoalAnalytics(userId, goal) },
+                        onStatusChange = { goal -> viewModel.completeGoal(userId, goal.id) },
+                        onUndo = { goal -> viewModel.undoCompletion(userId, goal.id) },
                         onEdit = ::showEditDialog,
                         onDelete = ::deleteHabit,
                         onAnalytics = ::showAnalytics,

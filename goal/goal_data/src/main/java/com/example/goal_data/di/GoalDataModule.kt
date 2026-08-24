@@ -30,14 +30,16 @@ object GoalDataModule {
             context,
             GoalDatabase::class.java,
             "apogee_goals.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
 
     @Provides
     fun provideGoalDao(database: GoalDatabase): GoalDao = database.goalDao()
 
     @Provides
+    @Singleton
     fun provideGoalRepository(
         remote: GoalRemoteDataSource,
         dao: GoalDao,
-    ): GoalRepository = GoalRepositoryImpl(remote, dao)
+        db: GoalDatabase,
+    ): GoalRepository = GoalRepositoryImpl(remote, dao, db)
 }

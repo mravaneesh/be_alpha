@@ -34,9 +34,10 @@ class MonthAdapter(
 
     override fun onBindViewHolder(holder: MonthViewHolder, position: Int) {
         holder.binding.daysRecyclerView.layoutManager = GridLayoutManager(holder.itemView.context, 7)
-        holder.binding.daysRecyclerView.adapter = DayAdapter(months[position].days,fragmentManager){goalViewModel.updateGoalAnalytics(
+        holder.binding.daysRecyclerView.adapter = DayAdapter(months[position].days,fragmentManager){ day ->
+            goalViewModel.completeGoal(
             CommonFun.getCurrentUserId()!!,
-            goal
+            goal.id, day.date
         )}
     }
 

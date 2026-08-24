@@ -13,8 +13,7 @@ class ToggleHabitAction : ActionCallback {
         parameters: ActionParameters,
     ) {
         val habitId = parameters[habitIdKey] ?: return
-        val goal = findHabit(context, habitId) ?: return
-        toggleHabit(context, goal)
+        toggleHabit(context, habitId)
         ApogeeWidget().update(context, glanceId)
     }
 

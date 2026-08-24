@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -73,11 +74,13 @@ suspend fun findHabit(context: Context, habitId: String) =
         .getOrNull()
 
 /** Toggle today's completion: complete if not done, undo if already done (accidental tap). */
-suspend fun toggleHabit(context: Context, goal: com.example.goal_domain.model.Goal) {
+suspend fun toggleHabit(context: Context, goalId: String) {
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-    val updated = if (HabitCompletion.isDoneOn(goal)) HabitCompletion.markIncomplete(goal)
-    else HabitCompletion.markComplete(goal)
-    repository(context).updateGoal(uid, updated)
+    val repo  = repository(context)
+    val today = LocalDate.now()
+    val current = repo.observeGoals("Habit").first().firstOrNull { it.id == goalId } ?: return
+    if (HabitCompletion.isDoneOn(current,today)) repo.undoCompletion(uid,current.id,today)
+    else repo.completeGoal(uid,current.id,today)
 }
 
 private fun buildWidgetData(goals: List<com.example.goal_domain.model.Goal>): WidgetData {
