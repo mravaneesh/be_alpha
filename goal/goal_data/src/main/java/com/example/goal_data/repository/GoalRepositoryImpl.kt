@@ -8,8 +8,10 @@ import com.example.goal_data.mapper.toEntity
 import com.example.goal_data.source.GoalRemoteDataSource
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.repository.GoalRepository
+import com.example.goal_domain.usecase.HabitCompletion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 /**
@@ -35,6 +37,20 @@ class GoalRepositoryImpl @Inject constructor(
         dao.upsert(goal.toEntity())                       // optimistic local update -> instant UI
         runCatching { remote.setGoal(userId, goal.category, goal.toDto()) }
             .onFailure { Log.w("GoalRepository", "remote update queued/failed: ${it.message}") }
+    }
+
+    override suspend fun completeGoal(
+        userId: String,
+        goalId: String,
+        date: String
+    ) {
+        val entity = dao.getGoalById(goalId) ?: return
+        val goal  = entity.toDomainGoal()
+        val updated = HabitCompletion.markComplete(
+            goal,
+            LocalDate.parse(date)
+        )
+        dao.upsert(updated.toEntity())
     }
 
     override suspend fun deleteGoal(userId: String, category: String, goalId: String) {

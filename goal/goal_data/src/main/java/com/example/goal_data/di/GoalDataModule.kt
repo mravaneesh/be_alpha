@@ -26,9 +26,11 @@ object GoalDataModule {
     @Provides
     @Singleton
     fun provideGoalDatabase(@ApplicationContext context: Context): GoalDatabase =
-        Room.databaseBuilder(context, GoalDatabase::class.java, "apogee_goals.db")
-            .fallbackToDestructiveMigration()
-            .build()
+        Room.databaseBuilder(
+            context,
+            GoalDatabase::class.java,
+            "apogee_goals.db"
+        ).build()
 
     @Provides
     fun provideGoalDao(database: GoalDatabase): GoalDao = database.goalDao()

@@ -24,6 +24,9 @@ interface GoalDao {
     @Query("DELETE FROM goals WHERE id = :id")
     suspend fun deleteById(id: String)
 
+    @Query("SELECT * FROM goals WHERE id = :goalId LIMIT 1")
+    suspend fun getGoalById(goalId: String): GoalEntity?
+
     /** Replace the whole category with a fresh remote snapshot (atomic). */
     @Transaction
     suspend fun replaceCategory(category: String, goals: List<GoalEntity>) {

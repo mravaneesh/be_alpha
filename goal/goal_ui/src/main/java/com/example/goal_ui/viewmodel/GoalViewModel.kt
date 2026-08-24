@@ -86,6 +86,21 @@ class GoalViewModel @Inject constructor(
         }
     }
 
+    fun completeGoal(
+        userId:String,
+        goalId:String,
+        date: String = LocalDate.now().toString()
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                repository.completeGoal(userId,goalId,date)
+            }.onFailure {
+                Log.e("GoalViewModel", "completeGoal failed", it)
+            }
+        }
+
+    }
+
     /** Delete a habit — removes from the local cache immediately and syncs remotely. */
     fun deleteHabit(userId: String, goal: Goal) {
         viewModelScope.launch {
