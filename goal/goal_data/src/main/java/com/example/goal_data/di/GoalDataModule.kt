@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.goal_data.db.GoalDao
 import com.example.goal_data.db.GoalDatabase
 import com.example.goal_data.repository.GoalRepositoryImpl
+import com.example.goal_data.source.FirestoreGoalRemoteDataSource
 import com.example.goal_data.source.GoalRemoteDataSource
 import com.example.goal_data.sync.GoalSyncer
 import com.example.goal_domain.repository.GoalRepository
@@ -24,7 +25,7 @@ object GoalDataModule {
 
     @Provides
     fun provideGoalRemoteDataSource(firestore: FirebaseFirestore): GoalRemoteDataSource =
-        GoalRemoteDataSource(firestore)
+        FirestoreGoalRemoteDataSource(firestore)
 
     @Provides
     @Singleton

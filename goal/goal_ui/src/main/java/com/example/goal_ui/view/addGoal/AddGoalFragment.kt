@@ -2,7 +2,6 @@ package com.example.goal_ui.view.addGoal
 
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,22 +11,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.designsystem.theme.PactTheme
 import com.example.goal_domain.model.Goal
 import com.example.goal_ui.compose.AddGoalScreen
+import com.example.goal_ui.viewmodel.GoalViewModel
 import com.example.utils.CommonFun
 import com.example.utils.reminder.HabitReminderScheduler
 import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.UUID
 
 /**
- * Create / edit a habit. Hosts the Compose [AddGoalScreen]; the Firestore create/update logic
- * (including the edit-mode progress recompute) is preserved here.
+ * Create / edit a habit. Hosts the Compose [AddGoalScreen].
+ *
+ * Creating goes through the repository, so a new habit lands in Room first and is uploaded by the
+ * background sync pass. Editing still writes straight to Firestore — see [updateGoal].
  */
+@AndroidEntryPoint
 class AddGoalFragment : Fragment() {
+
+    // Activity-scoped: saveGoal pops the back stack immediately, which would destroy a
+    // fragment-scoped ViewModel and cancel the write coroutine with it.
+    private val viewModel: GoalViewModel by activityViewModels()
 
     private val userId = CommonFun.getCurrentUserId()!!
     private val db = FirebaseFirestore.getInstance()
@@ -90,14 +99,17 @@ class AddGoalFragment : Fragment() {
         val goalId = UUID.randomUUID().toString()
         val startDate = LocalDate.now().toString()
         val goal = Goal(goalId, category, title, description, days, color, reminder, startDate)
-        db.collection("goals").document(userId).collection(category).document(goalId)
-            .set(goal)
-            .addOnSuccessListener { Log.d("Firestore", "Goal successfully added") }
-            .addOnFailureListener { e -> Log.e("Firestore", "Error adding goal", e) }
+        viewModel.createGoal(userId, goal)
         HabitReminderScheduler.schedule(requireContext(), goalId, title, reminder, days)
         findNavController().popBackStack()
     }
 
+    /**
+     * TODO: still a direct Firestore write, so an edit made offline is lost and Room only catches
+     * up on the next refresh. Routing this through GoalRepository.updateGoalDetails() needs a
+     * decision about the progress recompute below, which uses a status value (2) that
+     * HabitCompletion does not model.
+     */
     private fun updateGoal(goalId: String, title: String, description: String, days: List<Int>, color: Int, reminder: String) {
         val today = LocalDate.now().toString()
         val goalDocRef = db.collection("goals").document(userId).collection("Habit").document(goalId)

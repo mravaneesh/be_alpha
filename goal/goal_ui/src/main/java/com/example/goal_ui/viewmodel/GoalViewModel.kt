@@ -84,6 +84,20 @@ class GoalViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Create a habit. Writes to the local cache and lets the sync pass upload it, so creating one
+     * offline works — the old direct Firestore write from AddGoalFragment silently did nothing.
+     *
+     * Scoped to the activity's ViewModel (see AddGoalFragment), so popping the back stack right
+     * after this call cannot cancel the write.
+     */
+    fun createGoal(userId: String, goal: Goal) {
+        viewModelScope.launch {
+            runCatching { repository.createGoal(userId, goal) }
+                .onFailure { Log.e("GoalViewModel", "createGoal failed", it) }
+        }
+    }
+
     /** Delete a habit — removes from the local cache immediately and syncs remotely. */
     fun deleteHabit(userId: String, goal: Goal) {
         viewModelScope.launch {
