@@ -6,7 +6,10 @@ import com.example.goal_data.db.GoalDao
 import com.example.goal_data.db.GoalDatabase
 import com.example.goal_data.repository.GoalRepositoryImpl
 import com.example.goal_data.source.GoalRemoteDataSource
+import com.example.goal_data.sync.GoalSyncer
 import com.example.goal_domain.repository.GoalRepository
+import com.example.goal_domain.sync.SyncScheduler
+import com.example.goal_domain.sync.GoalSynchronizer
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -41,5 +44,14 @@ object GoalDataModule {
         remote: GoalRemoteDataSource,
         dao: GoalDao,
         db: GoalDatabase,
-    ): GoalRepository = GoalRepositoryImpl(remote, dao, db)
+        scheduler: SyncScheduler,
+    ): GoalRepository = GoalRepositoryImpl(remote, dao, db, scheduler)
+
+    /** :app injects the GoalSynchronizer interface; the implementation stays in this module. */
+    @Provides
+    @Singleton
+    fun provideGoalSynchronizer(
+        dao: GoalDao,
+        remote: GoalRemoteDataSource,
+    ): GoalSynchronizer = GoalSyncer(dao, remote)
 }

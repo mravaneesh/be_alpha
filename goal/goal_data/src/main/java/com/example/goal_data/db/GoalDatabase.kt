@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [GoalEntity::class],
-    version = 5,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -92,5 +92,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/habit_streak_widget_info" />
         </receiver>
+        <!--
+            BaseApplication implements Configuration.Provider so WorkManager uses Hilt's worker
+            factory. That only takes effect if WorkManager is NOT initialised by androidx.startup
+            first, so its default initializer is removed here.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
     </application>
 </manifest>

@@ -1,10 +1,13 @@
 package com.example.bealpha_
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
 import com.example.bealpha_.widget.ApogeeWidgetUpdater
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.repository.GoalRepository
+import com.example.goal_domain.sync.SyncScheduler
 import com.example.goal_domain.usecase.HabitCompletion
 import com.example.social.domain.repository.ChallengeRepository
 import dagger.hilt.android.HiltAndroidApp
@@ -18,16 +21,29 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltAndroidApp
-class BaseApplication : Application() {
+class BaseApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var goalRepository: GoalRepository
     @Inject lateinit var challengeRepository: ChallengeRepository
+    @Inject lateinit var syncScheduler: SyncScheduler
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    /**
+     * WorkManager builds GoalSyncWorker itself, so it needs Hilt's factory to inject the worker's
+     * dependencies. Providing this disables WorkManager's default on-startup initializer, which is
+     * why it is also removed from the manifest.
+     */
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
         TransferNetworkLossHandler.getInstance(applicationContext)
+        // Drain anything left dirty by a previous session — a completion made offline, or a write
+        // the process died before uploading. No-op when signed out, and cheap when nothing is owed.
+        syncScheduler.request()
         syncDerivedState()
     }
 

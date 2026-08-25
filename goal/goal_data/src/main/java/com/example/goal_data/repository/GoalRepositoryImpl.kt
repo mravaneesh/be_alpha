@@ -5,11 +5,14 @@ import androidx.room.withTransaction
 import com.example.goal_data.db.GoalDao
 import com.example.goal_data.db.GoalDatabase
 import com.example.goal_data.mapper.toDomainGoal
-import com.example.goal_data.mapper.toDto
 import com.example.goal_data.mapper.toEntity
+import com.example.goal_data.mapper.toNewEntity
+import com.example.goal_data.mapper.withDomain
+import com.example.goal_data.mapper.withDto
 import com.example.goal_data.source.GoalRemoteDataSource
 import com.example.goal_domain.model.Goal
 import com.example.goal_domain.repository.GoalRepository
+import com.example.goal_domain.sync.SyncScheduler
 import com.example.goal_domain.usecase.HabitCompletion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -18,29 +21,79 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 /**
- * Offline-first: Room is the local source of truth. Reads stream from Room ([observeGoals]);
- * [refreshGoals] best-effort pulls Firestore into Room (keeps the cache on failure, so it works
- * offline).
+ * Offline-first: Room is the local source of truth and the only thing a write ever touches. Reads
+ * stream from Room ([observeGoals]); [refreshGoals] merges a remote snapshot back in.
  *
  * Writes are *commands*, never whole-object replacements: callers pass a goal id plus the minimum
  * the operation needs, and the repository re-reads the latest row before applying the change. Every
  * read-modify-write runs inside a single Room transaction (see [mutate]), so two concurrent writers
  * — a user tap and the background rollover, say — can never each compute from the same snapshot and
  * overwrite one another.
+ *
+ * Nothing here talks to Firestore on the write path. A local write bumps the row's `revision` past
+ * its `syncedRevision` and asks [SyncScheduler] for a background pass; that pass is what uploads.
+ * This is what makes a completion survive being made offline, or the process dying a second later:
+ * the debt is recorded in the database, not in a coroutine.
  */
 class GoalRepositoryImpl @Inject constructor(
     private val remote: GoalRemoteDataSource,
     private val dao: GoalDao,
     private val db: GoalDatabase,
+    private val scheduler: SyncScheduler,
 ) : GoalRepository {
 
     override fun observeGoals(category: String): Flow<List<Goal>> =
         dao.observe(category).map { list -> list.map { it.toDomainGoal() } }
 
+    /**
+     * Merge a remote snapshot into the cache. The rule is one line: **the remote is authoritative
+     * only for rows we do not owe it anything on.** A row whose `revision` has moved past its
+     * `syncedRevision` holds a local change that has not been uploaded, so the snapshot predates it
+     * and must not win — the previous clear-and-reinsert lost exactly those rows.
+     *
+     * On failure the cache is left untouched, so this is safe to call offline.
+     */
     override suspend fun refreshGoals(userId: String, category: String) {
-        runCatching { remote.getGoals(userId, category) }
-            .onSuccess { dtos -> dao.replaceCategory(category, dtos.map { it.toEntity(category) }) }
+        val dtos = runCatching { remote.getGoals(userId, category) }
             .onFailure { Log.w("GoalRepository", "refresh failed, keeping cache: ${it.message}") }
+            .getOrNull() ?: return
+
+        db.withTransaction {
+            val local = dao.getByCategory(category).associateBy { it.id }
+            val remoteIds = dtos.mapTo(mutableSetOf()) { it.id }
+
+            dtos.forEach { dto ->
+                val row = local[dto.id]
+                when {
+                    // Not seen here before: arrives clean, it is exactly what the server holds.
+                    row == null -> dao.upsert(dto.toEntity(category))
+                    // Deleted here, remote not yet told. Do not resurrect it.
+                    row.pendingDelete -> Unit
+                    // Edited here, not yet uploaded. Our copy is newer than this snapshot.
+                    row.revision != row.syncedRevision -> Unit
+                    // Clean: take the remote state, and mark it settled at the row's *current*
+                    // revision. Never reset revision to 1 — an upload still in flight for revision
+                    // N would ack afterwards and advance syncedRevision past it, stranding the row
+                    // permanently dirty.
+                    else -> dao.upsert(row.withDto(dto).copy(syncedRevision = row.revision))
+                }
+            }
+
+            local.values.forEach { row ->
+                if (row.id in remoteIds) return@forEach
+                when {
+                    // We asked for it gone and the server agrees. The tombstone has done its job.
+                    row.pendingDelete -> dao.purgeTombstone(row.id)
+                    // Created here, never uploaded — of course the server has not heard of it.
+                    row.syncedRevision == 0L -> Unit
+                    // Deleted elsewhere, but edited here. Keeping the edit resurrects a habit the
+                    // user can delete again in one tap; dropping it silently eats a completion.
+                    row.revision != row.syncedRevision -> Unit
+                    // Clean and gone from the server: deleted on another device.
+                    else -> dao.deleteById(row.id)
+                }
+            }
+        }
     }
 
     /**
@@ -51,22 +104,24 @@ class GoalRepositoryImpl @Inject constructor(
      */
     private suspend fun mutate(goalId: String, transform: (Goal) -> Goal?): Goal? =
         db.withTransaction {
-            val current = dao.getGoalById(goalId)?.toDomainGoal()
+            val row = dao.getGoalById(goalId)
                 ?: return@withTransaction null
-            val updated = transform(current)
+            val updated = transform(row.toDomainGoal())
                 ?: return@withTransaction null
-            dao.upsert(updated.toEntity())
+            // The revision bump lives here, not inside withDomain(): it is the line that makes the
+            // row owe the server something, and it belongs in the same transaction as the write.
+            dao.upsert(row.withDomain(updated).copy(revision = row.revision + 1))
             updated
         }
 
     override suspend fun completeGoal(userId: String, goalId: String, date: LocalDate) {
-        val updated = mutate(goalId) { HabitCompletion.markComplete(it, date) } ?: return
-        pushBestEffort(userId, updated)
+        mutate(goalId) { HabitCompletion.markComplete(it, date) } ?: return
+        scheduler.request()
     }
 
     override suspend fun undoCompletion(userId: String, goalId: String, date: LocalDate) {
-        val updated = mutate(goalId) { HabitCompletion.markIncomplete(it, date) } ?: return
-        pushBestEffort(userId, updated)
+        mutate(goalId) { HabitCompletion.markIncomplete(it, date) } ?: return
+        scheduler.request()
     }
 
     /**
@@ -74,21 +129,25 @@ class GoalRepositoryImpl @Inject constructor(
      * short transaction: one transaction spanning every goal would hold the writer connection for
      * the whole multi-month recompute and stall user taps behind it. A goal deleted mid-pass is
      * skipped ([mutate] returns null); one created mid-pass is picked up on the next cache emission.
+     *
+     * One scheduler request for the whole pass, after the loop — the rollover touches every habit
+     * and there is no reason to ask for a sync per goal.
      */
     override suspend fun rolloverGoals(userId: String, today: LocalDate) {
         val ids = dao.observe("Habit").first().map { it.id }
+        var changed = false
         ids.forEach { id ->
-            val updated = mutate(id) { HabitCompletion.rollover(it, today) } ?: return@forEach
-            pushBestEffort(userId, updated)
+            if (mutate(id) { HabitCompletion.rollover(it, today) } != null) changed = true
         }
+        if (changed) scheduler.request()
     }
 
     /** Link a habit to a challenge, or unlink it with an empty [challengeId]. */
     override suspend fun setChallengeLink(userId: String, goalId: String, challengeId: String) {
-        val updated = mutate(goalId) { current ->
+        mutate(goalId) { current ->
             current.copy(challengeId = challengeId).takeIf { it != current }
         } ?: return
-        pushBestEffort(userId, updated)
+        scheduler.request()
     }
 
     override suspend fun updateGoalDetails(
@@ -100,7 +159,7 @@ class GoalRepositoryImpl @Inject constructor(
         color: Int,
         reminder: String,
     ) {
-        val updated = mutate(goalId) { current ->
+        mutate(goalId) { current ->
             current.copy(
                 title = title,
                 description = description,
@@ -109,7 +168,7 @@ class GoalRepositoryImpl @Inject constructor(
                 reminder = reminder,
             ).takeIf { it != current }
         } ?: return
-        pushBestEffort(userId, updated)
+        scheduler.request()
     }
 
     /**
@@ -117,24 +176,17 @@ class GoalRepositoryImpl @Inject constructor(
      * the one write that legitimately takes a whole [Goal].
      */
     override suspend fun createGoal(userId: String, goal: Goal) {
-        dao.upsert(goal.toEntity())
-        pushBestEffort(userId, goal)
-    }
-
-    override suspend fun deleteGoal(userId: String, category: String, goalId: String) {
-        dao.deleteById(goalId)
-        runCatching { remote.deleteGoal(userId, category, goalId) }
-            .onFailure { Log.w("GoalRepository", "remote delete queued/failed: ${it.message}") }
+        dao.upsert(goal.toNewEntity())
+        scheduler.request()
     }
 
     /**
-     * INTERIM: pushes the committed row to Firestore outside the transaction, best-effort. This is
-     * deliberately not part of the local critical path, but it is also not durable — a failure (or
-     * process death right after the commit) is only logged and never retried. It stands in until the
-     * pending-sync flag + WorkManager drain replaces it.
+     * Soft delete. The row stays as a tombstone — hidden from reads, still in the sync queue — until
+     * the remote has been told. A hard delete here would leave no record that the server still holds
+     * the goal, so dying before the network call would resurrect it on the next refresh.
      */
-    private suspend fun pushBestEffort(userId: String, goal: Goal) {
-        runCatching { remote.setGoal(userId, goal.category, goal.toDto()) }
-            .onFailure { Log.w("GoalRepository", "remote push failed: ${it.message}") }
+    override suspend fun deleteGoal(userId: String, category: String, goalId: String) {
+        dao.markPendingDelete(goalId)
+        scheduler.request()
     }
 }

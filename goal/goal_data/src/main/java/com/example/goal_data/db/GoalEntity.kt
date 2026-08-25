@@ -21,4 +21,7 @@ data class GoalEntity(
     val successRate: Int,
     val shared: Boolean = true,
     val challengeId: String = "",
+    val revision: Long = 1,
+    val syncedRevision: Long = 0,
+    val pendingDelete: Boolean = false
 )

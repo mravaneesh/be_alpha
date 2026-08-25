@@ -67,6 +67,9 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx") // FCM push for friend nudges
     implementation("com.google.android.gms:play-services-base:18.3.0")
     implementation ("androidx.work:work-runtime-ktx:2.10.0")
+    // Lets WorkManager construct @HiltWorker workers (needs Configuration.Provider in BaseApplication).
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
 
     // Glance — home-screen habit widgets (Apex design)
     implementation("androidx.glance:glance-appwidget:1.1.0")
