@@ -269,8 +269,10 @@ private fun HabitCard(
     var menuOpen by remember { mutableStateOf(false) }
     val status = goal.progress[LocalDate.now().toString()] ?: 3
     val done = status == 0
-    val skipped = status == 2
     // Not scheduled today: the card stays browsable (analytics, edit/delete) but can't be completed.
+    // This also drives the struck-through title, which used to key off a stored status 2 that was
+    // only ever written when you edited the habit *today* — so a rest day looked like a normal day
+    // unless you happened to have edited it that morning.
     val scheduledToday = remember(goal) { HabitCompletion.isScheduledOn(goal) }
     val (icon, fallbackColor) = categoryStyle(goal.category)
     // The swatch picked on the create/edit form wins; category color is only the fallback.
@@ -319,8 +321,8 @@ private fun HabitCard(
                 Text(
                     text = goal.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (skipped) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                    textDecoration = if (skipped) TextDecoration.LineThrough else null,
+                    color = if (scheduledToday) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    textDecoration = if (scheduledToday) null else TextDecoration.LineThrough,
                     maxLines = 1,
                 )
                 Spacer(Modifier.height(2.dp))

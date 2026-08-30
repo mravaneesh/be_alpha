@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -19,7 +18,6 @@ import com.example.goal_ui.compose.AddGoalScreen
 import com.example.goal_ui.viewmodel.GoalViewModel
 import com.example.utils.CommonFun
 import com.example.utils.reminder.HabitReminderScheduler
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.util.Calendar
@@ -28,8 +26,8 @@ import java.util.UUID
 /**
  * Create / edit a habit. Hosts the Compose [AddGoalScreen].
  *
- * Creating goes through the repository, so a new habit lands in Room first and is uploaded by the
- * background sync pass. Editing still writes straight to Firestore — see [updateGoal].
+ * Both creating and editing go through the repository, so a habit lands in Room first and is
+ * uploaded by the background sync pass — this screen never talks to Firestore.
  */
 @AndroidEntryPoint
 class AddGoalFragment : Fragment() {
@@ -39,7 +37,6 @@ class AddGoalFragment : Fragment() {
     private val viewModel: GoalViewModel by activityViewModels()
 
     private val userId = CommonFun.getCurrentUserId()!!
-    private val db = FirebaseFirestore.getInstance()
     private val category = "Habit"
 
     override fun onCreateView(
@@ -105,45 +102,18 @@ class AddGoalFragment : Fragment() {
     }
 
     /**
-     * TODO: still a direct Firestore write, so an edit made offline is lost and Room only catches
-     * up on the next refresh. Routing this through GoalRepository.updateGoalDetails() needs a
-     * decision about the progress recompute below, which uses a status value (2) that
-     * HabitCompletion does not model.
+     * The edit path no longer fetches the document, recomputes it, and writes it back: the
+     * repository re-reads the freshest row inside a transaction and only overwrites the fields the
+     * form owns, so the progress map is never round-tripped through this screen at all.
+     *
+     * The old version also stamped today's progress with status 2 ("off today") when the user
+     * removed today from the schedule. That is dropped: every reader — analytics, streaks, the habit
+     * card — already derives "is this day scheduled" from selectedDays, so the stored 2 duplicated
+     * the schedule and could only ever be written for *today*, in the one moment an edit happened.
      */
     private fun updateGoal(goalId: String, title: String, description: String, days: List<Int>, color: Int, reminder: String) {
-        val today = LocalDate.now().toString()
-        val goalDocRef = db.collection("goals").document(userId).collection("Habit").document(goalId)
-        goalDocRef.get()
-            .addOnSuccessListener { document ->
-                if (!document.exists()) return@addOnSuccessListener
-                val currentProgressMap = mutableMapOf<String, Long>()
-                (document.get("progress") as? Map<*, *>)?.forEach { (key, value) ->
-                    if (key is String && value is Number) currentProgressMap[key] = value.toLong()
-                }
-                val oldStatus = currentProgressMap[today]?.toInt() ?: 3
-                val todayDayIndex = LocalDate.now().dayOfWeek.value % 7
-                val isTodaySelected = days.contains(todayDayIndex)
-                if (!isTodaySelected && oldStatus == 3) currentProgressMap[today] = 2L
-                else if (isTodaySelected && oldStatus == 2) currentProgressMap[today] = 3L
-
-                goalDocRef.update(
-                    mapOf(
-                        "title" to title,
-                        "description" to description,
-                        "color" to color,
-                        "reminder" to reminder,
-                        "selectedDays" to days,
-                        "progress" to currentProgressMap,
-                    )
-                ).addOnSuccessListener {
-                    HabitReminderScheduler.schedule(requireContext(), goalId, title, reminder, days)
-                    findNavController().popBackStack()
-                }.addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Failed to update goal: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to fetch goal: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        viewModel.updateGoal(userId, goalId, title, description, days, color, reminder)
+        HabitReminderScheduler.schedule(requireContext(), goalId, title, reminder, days)
+        findNavController().popBackStack()
     }
 }

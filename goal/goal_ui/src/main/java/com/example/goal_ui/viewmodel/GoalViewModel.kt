@@ -98,6 +98,28 @@ class GoalViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Edit a habit's details. Same deal as [createGoal]: the write lands in Room and the sync pass
+     * uploads it, so an edit made offline is kept rather than lost.
+     */
+    fun updateGoal(
+        userId: String,
+        goalId: String,
+        title: String,
+        description: String,
+        selectedDays: List<Int>,
+        color: Int,
+        reminder: String,
+    ) {
+        viewModelScope.launch {
+            runCatching {
+                repository.updateGoalDetails(
+                    userId, goalId, title, description, selectedDays, color, reminder,
+                )
+            }.onFailure { Log.e("GoalViewModel", "updateGoal failed", it) }
+        }
+    }
+
     /** Delete a habit — removes from the local cache immediately and syncs remotely. */
     fun deleteHabit(userId: String, goal: Goal) {
         viewModelScope.launch {

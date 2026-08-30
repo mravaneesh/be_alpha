@@ -104,6 +104,26 @@ class SyncInvariantsTest {
         assertEquals("a no-op must not wake the sync worker", 0, scheduler.requests)
     }
 
+    @Test
+    fun an_edit_made_offline_is_kept_and_uploaded_later() = runBlocking {
+        seedSettled(goal("g1", title = "Read"))
+        remote.failSet = unavailable()
+
+        repo.updateGoalDetails(userId, "g1", "Read 20 pages", "nightly", listOf(1, 3, 5), 7, "9:00 PM")
+
+        assertEquals(
+            "the edit form's write must land in the cache, not in a Firestore callback",
+            "Read 20 pages", dao.getGoalById("g1")!!.title,
+        )
+        assertTrue(syncer.syncOnce(userId) is SyncOutcome.Retry)
+        assertEquals("still offline, so the server has not been told", "Read", remote.docs["g1"]!!.title)
+
+        remote.failSet = null
+        assertEquals(SyncOutcome.Done, syncer.syncOnce(userId))
+        assertEquals("Read 20 pages", remote.docs["g1"]!!.title)
+        assertEquals(listOf(1, 3, 5), remote.docs["g1"]!!.selectedDays)
+    }
+
     // ---------------------------------------------------------------- upload
 
     @Test
@@ -149,7 +169,9 @@ class SyncInvariantsTest {
     }
 
     @Test
-    fun offline_mutation_survives_process_death() = runBlocking {
+    // runBlocking<Unit>: this body ends in deleteDatabase(), which returns Boolean, and JUnit
+    // rejects a test method that returns anything — the whole class fails to initialise.
+    fun offline_mutation_survives_process_death() = runBlocking<Unit> {
         val name = "sync-durability-test.db"
         context.deleteDatabase(name)
 
